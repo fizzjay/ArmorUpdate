@@ -4,6 +4,7 @@ using System.Reflection;
 using Il2Cpp;
 using Il2CppAlta.Customization;
 using Il2CppInterop.Runtime;
+using Il2CppInterop.Runtime.InteropTypes;
 using Il2CppInterop.Runtime.InteropTypes.Arrays;
 using UnityEngine;
 
@@ -71,12 +72,12 @@ namespace ArmorRestoredQuest
                         overlays.TryGetValue(handler, out previous);
                         if (original.IsImpeded)
                         {
-                            if (previous != null && input.Arguments == previous)
+                            if (previous != null && Same(input.Arguments, previous))
                                 Change(entry, handler, original);
                             overlays.Remove(handler);
                             continue;
                         }
-                        if (previous != null && input.Arguments == previous &&
+                        if (previous != null && Same(input.Arguments, previous) &&
                             previous.Primary == original.Primary && previous.Secondary == original.Secondary) continue;
                         TwoColors compact = new TwoColors { Primary = original.Primary,
                             Secondary = original.Secondary, IsImpeded = true };
@@ -131,17 +132,20 @@ namespace ArmorRestoredQuest
             return null;
         }
 
-        private static T Native<T>(object value) where T : class
+        private static T Native<T>(object value) where T : Il2CppObjectBase
         {
+            // Use the known interop API directly, not runtime reflective
+            // generic dispatch. CLR `as` only recognizes the proxy wrapper,
+            // not the underlying native object's derived type.
             T typed = value as T;
-            if (typed != null || value == null) return typed;
-            foreach (MethodInfo method in value.GetType().GetMethods(BindingFlags.Public | BindingFlags.Instance))
-            {
-                if (method.Name != "TryCast" || !method.IsGenericMethodDefinition ||
-                    method.GetGenericArguments().Length != 1 || method.GetParameters().Length != 0) continue;
-                return method.MakeGenericMethod(typeof(T)).Invoke(value, null) as T;
-            }
-            return null;
+            if (typed != null) return typed;
+            Il2CppObjectBase native = value as Il2CppObjectBase;
+            return native == null ? null : native.TryCast<T>();
+        }
+
+        private static bool Same(Il2CppObjectBase left, Il2CppObjectBase right)
+        {
+            return left == null ? right == null : right != null && left.Pointer == right.Pointer;
         }
 
         private static void Change(CustomizationSlotEntry entry, ICustomizationHandler handler, CustomizationArguments colors)
@@ -245,7 +249,16 @@ namespace ArmorRestoredQuest
                         if (Input(entry, handler) != null) inputs++;
                     reason = "eligible";
                 }
-                else reason = SkipReason(entry, mask);
+                else
+                {
+                    reason = SkipReason(entry, mask);
+                    // Include the actual native class: a base CLR proxy name
+                    // cannot explain why a definition/argument cast failed.
+                    if (entry != null && reason == "not-player-cosmetic" && entry.Visual != null)
+                        reason += ":" + NativeName(entry.Visual.Definition);
+                    else if (entry != null && reason == "not-TwoColors")
+                        reason += ":" + NativeName(entry.Arguments);
+                }
                 int count;
                 reasons.TryGetValue(reason, out count);
                 reasons[reason] = count + 1;
@@ -259,6 +272,14 @@ namespace ArmorRestoredQuest
             if (diagnostic == lastDiagnostic) return;
             lastDiagnostic = diagnostic;
             Mod.Log.Msg("cosmetic coverage: " + diagnostic);
+        }
+
+        private static string NativeName(object value)
+        {
+            Il2CppObjectBase native = value as Il2CppObjectBase;
+            if (native == null) return value == null ? "null" : value.GetType().FullName;
+            IntPtr klass = IL2CPP.il2cpp_object_get_class(native.Pointer);
+            return System.Runtime.InteropServices.Marshal.PtrToStringAnsi(IL2CPP.il2cpp_class_get_name(klass));
         }
 
         private static string SkipReason(CustomizationSlotEntry entry, uint mask)
@@ -292,7 +313,7 @@ namespace ArmorRestoredQuest
                 if (!handlers.Contains(overlay.Key)) continue;
                 CosmeticPacker.Input input = Input(entry, overlay.Key);
                 // Restore only our own overlay, never overwrite another mod/native change.
-                if (input != null && input.Arguments == overlay.Value)
+                if (input != null && Same(input.Arguments, overlay.Value))
                     Change(entry, overlay.Key, entry.Arguments);
             }
         }

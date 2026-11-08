@@ -326,3 +326,24 @@ tinting. Their original packed `metal_glove_m` material is neutral grey
 (R=G=B=0.25735295); plates still receive the selected physical-material color.
 Mesh names are passed through both PC material-array and Quest material paths.
 No placement, leather, mesh resources, or persistence behavior changed.
+
+
+### Quest follow-up: all cosmetics rejected / local helmet visibility
+
+The eae8e6d runtime log finds 29 entries but zero eligible cosmetics: 21 fail
+TwoColors and 8 fail PlayerCosmeticDefinition checks. This is **before** compact
+LOD or slot filtering, not evidence that compact LODs are missing. Quest now uses
+the interop base's direct generic TryCast API rather than reflective generic
+invocation, and compares overlay arguments by native pointer for ownership and
+restoration. Rejection diagnostics include actual native class names so a
+remaining definition/argument mismatch can be identified without removing safety
+filters. These changes still require a Quest runtime test; direct dispatch is a
+candidate correction, not a confirmed explanation of the rejected entries.
+
+The same log explicitly says `own helmet hidden` and shows mask 254 (head absent)
+through helmet equip/remove. This local disappearance is the existing visibility
+setting, not demonstrated geometry failure. On the **client**, edit
+`UserData/ArmorRestored/settings.txt` to `own_helmet = show` and restart to inspect
+the helmet. This may obstruct first-person headset vision. Other players' helmets
+are not suppressed by that local setting. No helmet geometry or placement was
+changed: actual fit needs to be checked once visible, ideally from another player.

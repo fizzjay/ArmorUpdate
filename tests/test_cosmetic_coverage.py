@@ -40,12 +40,24 @@ class CosmeticCoverageTests(unittest.TestCase):
             for fragment in ('part.IsTextureSharingForced', 'SkinMeshPart', 'PlayerCosmeticDefinition',
                              'part.ImpededLods', 'compact.Length < lods.Length',
                              'if (compact[i] == null) return false;', 'entry.DisablerCount > 0',
-                             'input.Arguments == overlay.Value', 'IsImpeded = true',
+                             'IsImpeded = true',
                              'previous.Primary == original.Primary'):
                 self.assertIn(fragment, code)
             self.assertNotIn('renderer.enabled', code)
             self.assertNotRegex(code, r'entry\.Arguments\s*=(?!=)')
             self.assertNotRegex(code, r'DisablerCount\s*=(?!=)')
+
+    def test_quest_uses_direct_native_casts_and_pointer_ownership(self):
+        code = source('quest/CosmeticCoverage.cs')
+        helper = code.split('private static T Native<T>')[1].split('private static void Change')[0]
+        self.assertIn('where T : Il2CppObjectBase', helper)
+        self.assertIn('native.TryCast<T>()', helper)
+        self.assertNotIn('MakeGenericMethod', helper)
+        self.assertIn('left.Pointer == right.Pointer', helper)
+        self.assertIn('Same(input.Arguments, previous)', code)
+        self.assertIn('Same(input.Arguments, overlay.Value)', code)
+        self.assertIn('il2cpp_class_get_name', code)
+        self.assertIn('input.Arguments == overlay.Value', source('pchost/CosmeticCoverage.cs'))
 
     def test_platform_specific_collection_bridge(self):
         pc = source('pchost/CosmeticCoverage.cs')
