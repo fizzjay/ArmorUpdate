@@ -17,7 +17,7 @@ namespace ArmorRestored
 			Gate.Unregister();
 			Gate._listening = connection;
 			Net.ToServer = connection;
-			connection.SetHandler(137, new SerializeConnectionMethod(Net.ClientRead));
+			connection.SetHandler(Net.Message, new SerializeConnectionMethod(Net.ClientRead));
 			connection.Disconnected += new ConnectionEventHandler(Gate.Disconnected);
 		}
 

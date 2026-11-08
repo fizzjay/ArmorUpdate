@@ -6,6 +6,7 @@ using Alta.Inventory;
 using Alta.Loot;
 using Alta.Networking;
 using UnityEngine;
+using Object = UnityEngine.Object;
 
 namespace ArmorRestored
 {

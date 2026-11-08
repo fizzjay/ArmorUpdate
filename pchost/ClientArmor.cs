@@ -6,6 +6,7 @@ using Alta.Networking;
 using Alta.Networking.Scripts.Player;
 using Alta.Utilities;
 using UnityEngine;
+using Object = UnityEngine.Object;
 
 namespace ArmorRestored
 {

@@ -2,7 +2,9 @@
 using System.Collections.Generic;
 using System.Reflection;
 using Alta.Impact;
+using Alta.Customization;
 using UnityEngine;
+using Object = UnityEngine.Object;
 
 namespace ArmorRestored
 {
@@ -146,10 +148,10 @@ namespace ArmorRestored
 			ImpactType[] array = new ImpactType[]
 			{
 				default(ImpactType),
-				1,
-				2,
-				3,
-				5
+				(ImpactType)1,
+				(ImpactType)2,
+				(ImpactType)3,
+				(ImpactType)5
 			};
 			float[] array2 = new float[]
 			{
@@ -227,35 +229,35 @@ namespace ArmorRestored
 			{
 				Id = "helmet",
 				Title = "Helmet",
-				Game = 1,
+				Game = (EquipmentSlot)1,
 				Anchor = "head_jnt"
 			},
 			new Slot
 			{
 				Id = "chest",
 				Title = "Chest Plate",
-				Game = 6,
+				Game = (EquipmentSlot)6,
 				Anchor = "chest_jnt"
 			},
 			new Slot
 			{
 				Id = "shoulder_l",
 				Title = "Left Shoulder Pad",
-				Game = 2,
+				Game = (EquipmentSlot)2,
 				Anchor = "shoulder_L_jnt"
 			},
 			new Slot
 			{
 				Id = "shoulder_r",
 				Title = "Right Shoulder Pad",
-				Game = 3,
+				Game = (EquipmentSlot)3,
 				Anchor = "shoulder_R_jnt"
 			},
 			new Slot
 			{
 				Id = "gauntlet_l",
 				Title = "Left Gauntlet",
-				Game = 4,
+				Game = (EquipmentSlot)4,
 				Anchor = "forearm_L_jnt",
 				RemovedBy = 2
 			},
@@ -263,7 +265,7 @@ namespace ArmorRestored
 			{
 				Id = "gauntlet_r",
 				Title = "Right Gauntlet",
-				Game = 5,
+				Game = (EquipmentSlot)5,
 				Anchor = "forearm_R_jnt",
 				RemovedBy = 1
 			},
@@ -271,14 +273,14 @@ namespace ArmorRestored
 			{
 				Id = "tasset_l",
 				Title = "Left Tasset",
-				Game = 7,
+				Game = (EquipmentSlot)7,
 				Anchor = "hipBase_jnt"
 			},
 			new Slot
 			{
 				Id = "tasset_r",
 				Title = "Right Tasset",
-				Game = 8,
+				Game = (EquipmentSlot)8,
 				Anchor = "hipBase_jnt"
 			}
 		};

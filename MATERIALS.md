@@ -98,3 +98,27 @@ names are replaced with ordinary delegates. The native exit callback is rooted
 for its lifetime and marshaled with Cdecl rather than using decompiled `ldftn`
 or `UnmanagedCallersOnly` syntax. Both project files explicitly embed the pack
 under the exact name expected by their loaders.
+
+
+## PC build warnings and references
+
+The PC project now targets x64 in Debug and Release to match the reported AMD64
+MelonLoader reference. This setting is PC-only; it must not be applied to Quest.
+
+Reference only the assemblies the mod needs, plus dependencies required by the
+compiler, rather than importing the entire game's Managed directory. The
+repository PC project lists the starting set. In particular it does not directly
+reference `mcs`, IdentityModel, or Microsoft.Bcl.AsyncInterfaces. Remove an unused
+direct `mcs` reference from a custom project: its x86 architecture cannot be fixed
+by changing the entire PC mod to x86 when its loader is x64.
+
+A Microsoft.Bcl.AsyncInterfaces version conflict is separate from source compile
+errors. A Reference Include claiming version 10 while its HintPath resolves to an
+assembly of version 1 is misleading metadata. Remove an unnecessary direct
+reference or correct it to the actual DLL identity; that alone may not resolve a
+transitive System.Text.Json dependency on version 5. Use a consistent set of
+references from the same supported game/loader installation and check which
+versions the host actually loads. Do not overwrite game DLLs, copy arbitrary
+NuGet versions into the game's Managed directory, or assume a binding redirect
+in a mod DLL config can control the Unity host. Set Copy Local=False on external
+game/loader references to avoid accidentally packaging them with the mod.

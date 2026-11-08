@@ -14,7 +14,7 @@ namespace ArmorRestored
 		// Token: 0x06000057 RID: 87 RVA: 0x0000618D File Offset: 0x0000438D
 		internal static void SendHere(Connection c)
 		{
-			c.Send(null, 137, delegate(Connection conn, Stream s)
+			c.Send(null, Net.Message, delegate(Connection conn, Stream s)
 			{
 				byte b = 20;
 				s.SerializeByte(ref b);
@@ -28,7 +28,7 @@ namespace ArmorRestored
 		// Token: 0x06000058 RID: 88 RVA: 0x000061FB File Offset: 0x000043FB
 		internal static void SendHello(Connection c)
 		{
-			c.Send(null, 137, delegate(Connection conn, Stream s)
+			c.Send(null, Net.Message, delegate(Connection conn, Stream s)
 			{
 				byte b = 5;
 				s.SerializeByte(ref b);
@@ -44,7 +44,7 @@ namespace ArmorRestored
 		// Token: 0x06000059 RID: 89 RVA: 0x0000623F File Offset: 0x0000443F
 		internal static void SendAck(Connection c)
 		{
-			c.Send(null, 137, delegate(Connection conn, Stream s)
+			c.Send(null, Net.Message, delegate(Connection conn, Stream s)
 			{
 				byte b = 4;
 				s.SerializeByte(ref b);
@@ -59,7 +59,7 @@ namespace ArmorRestored
 			{
 				return;
 			}
-			toServer.Send(null, 137, delegate(Connection conn, Stream s)
+			toServer.Send(null, Net.Message, delegate(Connection conn, Stream s)
 			{
 				byte b = 2;
 				s.SerializeByte(ref b);
@@ -76,7 +76,7 @@ namespace ArmorRestored
 			{
 				return;
 			}
-			toServer.Send(null, 137, delegate(Connection conn, Stream s)
+			toServer.Send(null, Net.Message, delegate(Connection conn, Stream s)
 			{
 				byte b = 3;
 				byte b2 = (byte)slot;
@@ -153,7 +153,7 @@ namespace ArmorRestored
 			{
 				return;
 			}
-			to.ConnectionToRemotePlayer.Send(null, 137, delegate(Connection conn, Stream s)
+			to.ConnectionToRemotePlayer.Send(null, Net.Message, delegate(Connection conn, Stream s)
 			{
 				byte b = 13;
 				s.SerializeByte(ref b);
@@ -181,7 +181,7 @@ namespace ArmorRestored
 			{
 				return;
 			}
-			to.ConnectionToRemotePlayer.Send(null, 137, delegate(Connection conn, Stream s)
+			to.ConnectionToRemotePlayer.Send(null, Net.Message, delegate(Connection conn, Stream s)
 			{
 				byte b = 11;
 				byte b2 = (byte)hand;
@@ -199,7 +199,7 @@ namespace ArmorRestored
 			{
 				return;
 			}
-			to.ConnectionToRemotePlayer.Send(null, 137, delegate(Connection conn, Stream s)
+			to.ConnectionToRemotePlayer.Send(null, Net.Message, delegate(Connection conn, Stream s)
 			{
 				byte b = 12;
 				s.SerializeByte(ref b);
@@ -425,7 +425,7 @@ namespace ArmorRestored
 		}
 
 		// Token: 0x0400004B RID: 75
-		internal const MessageType Message = 137;
+		internal const MessageType Message = (MessageType)137;
 
 		// Token: 0x0400004C RID: 76
 		internal const byte OldHello = 1;

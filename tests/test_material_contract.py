@@ -135,5 +135,30 @@ class QuestBuildContract(unittest.TestCase):
         self.assertIn('var colliders = root.Colliders;', text)
 
 
+class PcBuildContract(unittest.TestCase):
+    def test_explicit_game_enums(self):
+        text = source('pchost/Catalog.cs')
+        self.assertEqual(8, text.count('Game = (EquipmentSlot)'))
+        for value in (1, 2, 3, 5):
+            self.assertIn('(ImpactType)' + str(value), text)
+        self.assertIn('Message = (MessageType)137', source('pchost/Net.cs'))
+        for file in ('Net.cs', 'Gate.cs', 'ServerConnectionSeam.cs'):
+            text = source('pchost/' + file)
+            self.assertNotIn('.SetHandler(137,', text)
+            self.assertNotIn('.Send(null, 137,', text)
+            self.assertIn('Net.Message', text)
+
+    def test_unity_object_aliases(self):
+        for file in ('Catalog.cs', 'ClientArmor.cs', 'Loot.cs', 'MatDef.cs', 'MeshDef.cs', 'Prefabs.cs', 'TexDef.cs'):
+            self.assertIn('using Object = UnityEngine.Object;', source('pchost/' + file))
+
+    def test_pc_architecture_matches_x64_loader(self):
+        ns = {'ms': 'http://schemas.microsoft.com/developer/msbuild/2003'}
+        tree = ET.parse(ROOT / 'pchost/ArmorRestored.csproj')
+        targets = tree.findall('.//ms:PlatformTarget', ns)
+        self.assertEqual(2, len(targets))
+        self.assertTrue(all(x.text == 'x64' for x in targets))
+
+
 if __name__ == '__main__':
     unittest.main()
