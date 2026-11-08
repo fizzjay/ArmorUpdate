@@ -155,3 +155,39 @@ whether the offset changes while bending the wrist or turning the torso. This
 change does not recalibrate pack bind poses or prove that the pack's original
 rest skeleton matches the current game's rest skeleton; in-game alignment still
 needs verification. No manual offsets or gameplay/persistence changes are made.
+
+### Metal plates following the leather skin
+
+The native-bone preference did **not** resolve the user's metal misalignment.
+The next candidate correction re-rigs the metal chest, shoulders, gauntlets and
+tassets to the existing leather skin, rather than parenting their plates directly
+to joints. This is a deformation change, not a claim of verified in-game fit.
+
+`tools/skin_metal.py` converts 60 rigid worn metal parts into separate skinned
+mesh records in both embedded packs. It recovers authored model-space rest
+vertices using `inverse(leatherBindPose[bone]) * rigidLocal`, then transfers each
+vertex's nearest leather vertex's four bone influences and the reference bind
+palette. Chest/shoulders/gloves use the corresponding leather slot's largest
+skin. Tassets use the leather chest's lower-torso surface, since leather tassets
+are themselves rigid. This avoids computing a bind pose from a moving avatar
+and allows the plates to follow the same blended joints as the working leather.
+Metal can now flex with the body; weight transfer may need artistic refinement
+if a seam or plate bends unnaturally. It is not a manual weight-painted rig.
+
+Original mesh records are retained for pickup visuals. Already-skinned glove
+linings, all leather/wyrm worn records, textures, materials, pickup references,
+and colliders are unchanged. The seven metal helmet parts remain rigid and
+unchanged: the leather helmet has no skinned head surface to transfer from.
+**This patch must not be described as a confirmed fix for all metal armor.**
+
+Both clients embed identical updated pack bytes. Rebuild Quest/PC client DLLs
+with their updated embedded resource and fully restart before testing. Updating
+only loose pack files does not change an already-built DLL. No protocol or
+server persistence change is needed. First test chest and both gloves while
+turning, crouching and curling fingers, then shoulders/tassets; inspect remotely
+as well as locally. Helmet fitting is still unresolved if it is displaced.
+
+Tests exercise the binary resources: 60 conversions, unchanged original assets,
+valid normalized skin weights, reference bind palettes, rest-space transforms,
+real changes to bone influences, matching client packs, nearest-vertex search,
+and idempotent conversion. These tests are not Unity rendering validation.

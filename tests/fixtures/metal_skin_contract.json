@@ -1,0 +1,3144 @@
+{
+  "source_sha256": "be23832059fc7a2090a866865a3a71030f9d8f608d159fe788a52ce0707092e0",
+  "prefix": "8d1a41b16589245b354ac3ecf48e79994f0d90a882a43adb45bae7f9220df9dd",
+  "meshes": [
+    "5c7ddfed974f6a30403db8bae74e3a112b06fddf6024b80220f87dd9a5760ef7",
+    "91434ca9b8f173c9a29803fde387a0962f100cdf66ee66c9a95f10aa9f7024df",
+    "a6946b2b7c1535b1f0958676a2f1e51a2992b0d5c66a69bbd31c2c4c15c72a4d",
+    "d1611c758fa07e8f7d4f5d322b3a14a4ee8b2bede5be0bc769f6d8f6347ffe9a",
+    "0d186f5b646fa7209882fd5d28f1516643fd9c1be41073249cebc1d185245acc",
+    "b6f6861d53d2049a371febed7a76823fb21aaebd942b1af19ac72c5fa0ee02aa",
+    "43d95c61874f6d2699cd962366d1ccd00956d8cad9a15648c1cb5c4b755207cf",
+    "002d732fc3fe8c53a56dd7866f1fb2f17bd89522616b6abf002282bc0ce92612",
+    "70688706b5ab1d5f94ebf612e5bb5e0e5b972333d74e5493a3d4585b73891b6b",
+    "97bb39515a0bd3a44b6e289cd732af502d4dac5a1ac1caebfda672c89085b87c",
+    "06c51f56afb72238704682c5ffcd288c2893d3731a6329d56f57ecdab526571d",
+    "36374f3f77bdc91c6c8fcd3aad73aa7d0ec9d25cca007dd3c735b4e9492e68a2",
+    "2bfee5b99ab172050a2ce52b837bd0d63d9b18d7686547789bf95651e0ce35a9",
+    "a3efcc0168e9cbb27af0478a9ce98ac3538ef05f2b792adb78b16bd82fec788f",
+    "02a94da467a805a44b533018e7d8db83e0dfd6466666bea35374ce069fe1b3be",
+    "6556679a72eb72798299cf771009951d138be83432e598c453a5863c245d0a04",
+    "9b4cc733136e82ba636cd4f7d366fc6f6e7b8d9c7d8ec3fc6ea792dac12398d6",
+    "6ce8859298395a85719f0959f19b5ad5ed500c0677e7e4c7d3201998745494e7",
+    "c91f1e7d7158ed7e780cfa8d27fdb059e715bb1563bc0c73b2881df02edaf1f5",
+    "e4a0ecd4187f1a59cceeb7eecd81c15a1a680aacc6ae140530ef5bc8bee72906",
+    "6a56fed65dc4991eb5fbe47dfaee3eb396e8497bb3e611babfba908c9a852e7f",
+    "5de711bcab0643a49381ec63275446760a44a65b4383dc01f39ae74ae2f7f4ce",
+    "33ba59cb9273cef1ab2a1f43b2b24a28d84ca7f133ed66d1ddc83a3c781b6adc",
+    "e5b0be4614362da30187ab316839dbc7b82b7e1c9a6e465ac96613bf3f6bbad2",
+    "1b9bdf7fedf2ff5d71936d1ecc3b32a3fa223a92142d211af99d3130038244ec",
+    "dcd6064197f980756b32c4f63cf3df417dc5c20908d90a56bc415faaf86f0650",
+    "6e737919676cd098d5e111fc7abbeda8a9697152ce802a2d71489b8828dcac90",
+    "64100783ad9bccd05dbd07bdecc036433ddb08361112f08c7c6cc8c6dcec6541",
+    "d4de7aa7f27d2f499cfd776c32724738ebe4ed957d70234cbb90d04fdf4b2d0a",
+    "ff8ce9528666e6331b1d0f3f1b6efbb5f36a2fd17302d3fa36935cf334421d8c",
+    "24a8ab59221c4f3810275cc685dfc9da5247c83382db2d168abf41471ce530f1",
+    "03dcde6c1c5b251838a281fbb94907af1af80cb67d687ba5363e8fb330f16971",
+    "9a45796c9fb7ec64b4f3feee835a7ffc300946102283ccac07cfc7f71e7ae71a",
+    "063ca6e8e8e246002c0d170577c45922843b97e00836a035aa462b5bf108ab15",
+    "f07185c15aa28e7e3a5cad9c35b1645d27cadab73d3eb0a5248a27840db3ab0c",
+    "73c8ddf19e2cd45fcce9825689d6315ae4b412d09057d719aed399a1402a9aa4",
+    "505fece88278c6b534e3a2adc4b801f37ce0d9b4a44b8a3f95135722eea74eb4",
+    "9964c72ac6d7bcf65dc0a6641cae587545a240bb28b767392e28106d71dbb648",
+    "d68dbe0b5f845db03207187a255eddbf144f8f77d849ee5db635b291d81b3b64",
+    "fd0a435985ee9f2e5d9436cc82034e218c296e3a0b6666aff04aa45711235491",
+    "f5217ee86b7f8112c770991de00e5b04750f8254014d37c8af18426f0d3376ec",
+    "c0dc28d83c7246a424c1f547604c71536920bf8c6c62a8a87d160f7c9b01433a",
+    "72dc1b17f2d2209fe849a3e99736583c630e6efa18fdbe04cdb88c0ba6c4b7e5",
+    "bfe43e0d0310617973ed4c8972706b03cab80ddc47e78f5fecf726676632cae5",
+    "6ec98a7a0eb83a9a2a73b9a11333e299d762f15117dcc907a1028b8768d0eef7",
+    "127ef9b812c56fb83033c14d4e6080b8f4dfea0f27d8d5d622fb856fa95351e3",
+    "2dea22ce0554c35f22b32c495e24721783c422e244fd96749b34c720ea2e0167",
+    "06b645105d0c3b5ef0dbeafc3330dbf03fc996d671282a4322b46bdea70c8ba2",
+    "1ba91f872d0014123e27e2cd2e4c091a7a995df9091a50af5bbb04b500d292cd",
+    "13e0624de8212c79c601878e119da529e8a711fe98f2732c3f04264b36f2a104",
+    "cbe4867bbd395155e5b999727610d81df4ad0dd52f86ef047460a45781e6085d",
+    "92fc00f823659dbc29ce5a150449716fc45afceac111aa15d314bd4b62894636",
+    "40c92a2bff7a10b7575e8d06e91dde0675d3a94ff2a705d618ab2948156a6b96",
+    "f3c45290a07270b89849f0a30be7e1cb596b346a830472449445dcff03a28df2",
+    "308169d1aea02ff2162e5c68262cb8f02566466f0e7ad555c635afade8d834b6",
+    "bfe772af011287151a72d025b51b6ef7063e2857fd84f28fdb1c7865d17a8027",
+    "21039666712932abc281e84978a4606a7f7b715566b73f5943494bf1657a58db",
+    "b7f51e620a7a0e4776d8dc238ab5769db594020d36203c4ef7fd8d1f87258d0a",
+    "b88b5551ba4b2516c5d5622263e7de341c12850c75b8542fed8ad413be264315",
+    "57171a0f6e23315a70e852d728ea76258af7eaa79b2ce128f3841b4a508f7f5a",
+    "42ae9d65e0b76aafc5b0518bc1f006968b228d8d6eaaa565ff27c34401ada563",
+    "aa566a3b80c2cc772fbd71ec14230c647455a523dd267e8454159f0fbeda9ba1",
+    "96f6e995d992217d0e965d26e686c51159e3f274238df72f763a97c5a7d3cb67",
+    "769691f996d1967c7ffe0545b0bda2f1c1f451587a7e9d4eea018fca12057e95",
+    "251c509ccd9ad209123773b5dd628ce9fdd3e19b589ed4849ce4ab5ce917e27e",
+    "62bca9b2932f003a1d1f6809bb569ce672227fb700545d36450039175c523c84",
+    "d766fcf90a7b6376cac552b3658745ed9fed447856cd96fa074a5217d93e364e",
+    "265a3a9575ca3c7632607330f44a73abbc864fc42e667b42b3d2332c9b70044b",
+    "42b68f3da7c5a99519f6ad41d28813189478691e0dc9b97c8dca29968d94b7d2",
+    "6c4a18cae7b9003f07ba66cc68432140ea08ff55d1f40cf99c8a9cf6a3dcf082",
+    "e6b1f8f0fa049854ca31a95149b5f23eacfb9d4e4ede0e95e650ce19a6388305",
+    "cf3a53e9014725155b484ddaa273756931067a334f6ba9f46fc34198cdcd322b",
+    "4d246b16274e7bf275f66e8dc9facba8082f4880cbb0448c68b5beb62ba10be8",
+    "3626ac0909aee299c43f3ed0e2591396b7de7ad7ee6f89d225ca6b8cc6b7c416",
+    "7a510a598f04cc5b6a066d239484768c32ec195b2af0e4e0673ba01e84f10155",
+    "00f73c3ffedb410f4240e1bd098b1de93c56aa5f497065794980f2e5da48efbb",
+    "67be2ae35436ee020a4c4b8c5572726fadaa34fd9c830f367bb64777d0a4171a",
+    "37f6b3d69399849caea8bbc01cc08238226050a3f9a5cbffc4eab9e48ad6ddf9",
+    "3d36e2b3ac8519f370688346ab36a1889730585bad8138d077671d3821099004",
+    "8d0068c6600ff71d4cad51077e68174a2f564521669d9f16b4fb96da5ce2e201",
+    "40fdc27ccb7b6305e001728e35104792ca378be9dbf4c5a5b1827faa662e88ab",
+    "83566598da2d2151b0a25c95335e13ded4eee16c79834b70a58b4f665ecfb471",
+    "c13865a861a98719b3b9d42a7d9c6137657662f9e88b84238181163539b0e30e",
+    "021b9ee145cfd9b1161502b6ccc056a13f6af5803559d1d4af645a75ba3f741e",
+    "baeee073cdb2298d8e725a32496852357e285ce7ab4eed0132fb443b97006425",
+    "eaeb2885cbe2f3fcd3c277c550d0f3f540f398fa54a21d56d1d7ca4c45f2102c",
+    "0ed3c0e03c0e9b90f087c6ba6e6521bad10fb69e9374e4160aa9145429cdfab3",
+    "535dea7f3c8214f80683511028d11343c0c9066dacaa88108a1c71780206b03c",
+    "1f6987d8b053e3a3e5c582be4399f42830e0cea9b30872bed96674aea2512528",
+    "d8ed67ec6cd65c94ff75cc8b4633dc12389475c9ac69c3a25a77fa32da714d95",
+    "f5dd0f3a136769a02fc0175b37f52494ae47ecd3ae8fb16c72992584e5e38325",
+    "8261e0fad7f04d1ed8c61f89a26fc0c84c13ca5ee273ecd74daf112abce8a341",
+    "36f71c7693d5f88e89ea0693d8d104c1992b38f9fa2bbe9cb523eb2206a88e35",
+    "e92009cad0875564cda080747c98b868a93e8cd37ff15f46f1898b3895e37e16",
+    "1361654a7efe663421856a844a74d6e640f2335bf6e1f849a1eb16d30a6b1664",
+    "5fad1877df0e6c0c8f996dc239d9d615ffc60abeb020f1ffdc58036935fe62af",
+    "4fd3044bed35d2256eafc9c208ad4a2d76b1c6091baee300215305a1d9db3c30",
+    "77fe1a4ff1f4b5b7b320da391cb4543d4d5a2dd47fb09249b358da5b0b8bc708",
+    "a30f41371886b3fb646de935b28a329cb3fba24c93fe8b2d7f3776f11da94477",
+    "662fe75a2b1dd5b5b862fca2b1d1a88feb9d7edff64385ea06ab7c2ffd6361ec",
+    "4008485a8288353cc2b0ee396afe37a231b186707ff5b494b7075a6097c0a68b",
+    "76235d224b50c80f3ad5fc4429c95a74e36cf25b6b817376a5fc289b489aea8d",
+    "b2c6acbb3edaf979bca6b79f2de95cadbcf3a58bde98092edcf44fef03be62f6",
+    "8ea15a3b0a73a2b917503ec083d74637d38c13e9a4d27dfb685401827ed4b768",
+    "f9a668c5c42b93df14ed05b9bc5fa789ff59f7fb9358130a6529f232be8c14d9",
+    "24a52057f25e8ac1ca9cfc8ac1a7fe9cc972f2cc902736a4757dfd2efca40dfe",
+    "50bb146dccd020fd74056fcbca2b584e1c93b4f8bd9e2bb557e3d92d3ac5e80d",
+    "b9b131a038c404a1d2ccd7f639312bb439602b34e5cc795079fe14cdee15e1c6",
+    "080ce415b03422d82336014178510d075cb5c7d2a526c452b652022aaab2b6e3",
+    "a078d10aca298654d2d0a716e97709526ca03c4af9dd12feb2c3d0363509b443",
+    "84b67045a36fa7aedd6e71bf7e53a48305047d2e7d847565113d5d65fc902601",
+    "8296abb36eccd7e8af16e98bdca0d1e389a6a2165af687534a57e24579aee999",
+    "045fd7f419cfba97ca4b30054004ba711103e6698ebf625eddca5d78f6a0f5e0",
+    "c3d45eabd832801b3d3233fe61d6b8cec42b49c854899a6855f9fd8205219504",
+    "247c994aff9511acb1dbef661ff4e126ab5379184f8c36a469361020e2eb20d7",
+    "0f5f08ab98b85cabd3db57d4d16740ff80eec95d54416bdcc4a1c8f8a0b92ab4",
+    "a9652dc6b5aeabe1d725279c4195504580bc3881f837b03bf0abc947010e90f0",
+    "6a9363f69990e2a155596ad637ffcc79cf76a4084cb30967e7677d4da1878d5c",
+    "432e67787f9538963b04509a07ea523423d6c77cc7f86d1fd7d48833e524fe4f",
+    "09adeb781eade2cf92f3af6d19d7f9aba96706c61184a700586c29bd9b2c96b8",
+    "3a804e037dfc2835e79778e2cbc636d1bd71374bff2ec4dccde812a0064fb8b6",
+    "dfd0d66a26784fe2df70452d6b8b4218a9b85a705810e0357d1b9fed2f46459f",
+    "d3f39193356830e50717e4808e64b49ab53007e7e79f98d4328586109817ad80",
+    "66dc87d2b9728a21c5200f7d2de1d8b97c6b0fe230ef2ec807d45747af5ad975",
+    "3431f827b1fe6cbf3e8d2f860223b38922bd95eaffdde55046030f04bfdd074f",
+    "d83c7da244fe39b46ec81f2d9a498a29b57819c6ab48f39901a63e0233f9254b",
+    "aa81fe2ca5ae9ce5be51498daa5a646acf4edcb0e3841310e8d6a82a466068a2",
+    "f983ef016b6c30e42844e5cd0ee8c13f881e3a3a8cc77110a410daf781fbb9eb",
+    "9aa75be57d72c280b895a3a17022d99b6ba491bb5895a3441b911a35715ec7cc",
+    "ef0e2fd911ec445a60c6d7d9a618b0b2b0cd48bdf220a3c5a0673dc7e68f4f08",
+    "a9aa985b8e7fa82acab143fdbe13728d18bf595b35e05a138994e64bfa85ea81",
+    "9140199adfb255cf957948ca77ed63171ca6a26997842528b2c10b768dd73edd",
+    "06d877eaba3b2a37d268bf0a9dadeb3c72cf819f1516095a7caaaf693023fea0",
+    "da5b381356cdcc53fafe392c56f54f2b9bec16b5eee599afa51a8a0b5b522181",
+    "c396e6bb68a9fb4346cbe7a93697b0452dec55c062f57296f8dcd07993ffc688",
+    "6c40582c7f1f0c01a4ec8920c5b41d7566b8b03fdd58d0e26568b207900b049d",
+    "994ec7ec11e2a9dfcf7b2f28c3a8451e321f0b507c48c600828399edbfb1d288",
+    "7833e464df2be297b68feae0c2f6b415bc804775b221e8b5e384d94e7c2aeca9",
+    "bac3676bc81c17f9c8a06b890b558b6b081cb45925886af3e5eeb68d775bb396",
+    "0dc53f2a8ad9dfd9b4d3bb026012ddffb175287ffff7cf25c6812376d2c64d84",
+    "c41188435e9a57781e1b9ebee22361d7dd6eacc9276c6280c28d9686975c71d4",
+    "765a78445f03a805dad2208c4d63cdbd77acbce9aed7c424180d3aa254cedb18",
+    "4dc320755516335f5f768769465e3e57c0167d9cbfb1aac3ce629566e214b88a",
+    "e42c7c6b0d838e161f5f23c16ff2c5368ee97be7bdb31a8e52cfd129838e3308",
+    "ad6bcd14140d4a59d5d2b58b0c6e6a889374bb61c92f1f1e7e3a8574b824a743",
+    "dcf6424fe7864978047c29a83db7b99c526ef3386497c2f2d94c062d6b13f5da",
+    "135d600df952cfd3385422ae2fd0703f4aec920cb0c419907310b2712eebf884",
+    "231c2ad874ab750f90a6e7f657270ae11c0729532e28d554867de2ca5a4041f8",
+    "60063d3fde7218499f0c7a3bea4b32e09243702faa72d30f7321a5c65c75881a",
+    "d6504aa33ee68fe1388cfbbb209183f24bf107ed1b325f44979c2539e0c3427f",
+    "f4d6476da1c76316efc0206a890944f4f8021b16bfcf5824a4237417f2e8f759",
+    "9b61d5a247b8b9a984d50d53bbd2bc8c6e6412c22f07be29a1fb3dbe23d66894",
+    "95d0e21add8385cd2d38e9d4552a5f7eb60a9ace8b3d3c66db3d09fd99dd1d96",
+    "b97b2b3f8e6cad52530a25353f280b7fef8fdc065897ee9916ed3e070d09f930",
+    "76d21a1ada94e2113239198ab97d4b5357772748f3e4480f53bddac894856d35",
+    "242ba3c30de5c8ce81226b525911fa11d81ea62de437f3a22f1cc8a954148cea",
+    "e0def877d93498d177c585fb0789d2c7c3a91ade76b19597851ab7983ae1d68a",
+    "86c64be7d7b2bfb816103193cd1c2ffd18ab141aec3fada1e009288be3d186be",
+    "75aba90d88e8fab07e195a2faaa86738f4e53bcad8338e724d56da0b172b0ce6",
+    "9aabff34fb2d5eb2862868a5d346a58f6027c05cc83c430de6d51df8f371e38d",
+    "0f2dd4ed14625af6839983aa736c285210818550d89746fe25e37832e460ec0a",
+    "4d5c3deba4e4fa5accc5b2e6e4d2d081c459657c7c0742c7cf6cb547e85cf2d5",
+    "07ad66cbccaba3c2c4d4e214c1b61758c4925cd96c114f791d1e3c26d007f4f3",
+    "0839138c7e3af5854ba945afe1a2fa41bb54e9c72ccdce0f88fe0d2ab2ec23f6",
+    "68b6f953c4dac70b62b1add348e27eefc96624a4c69d8cae2cfec93028954972",
+    "9c7cdb2a2afcc261f5eaa5b6b04d5e877b01abb2dbbc1132160b919c2a3d0aad",
+    "1984012c4c71ef75873196ed9651ff11c9f0bb219058a34de160cd54bd2d889e",
+    "483e6cda451d0e33c77959357853ca0ac5f2124819461dd99a724e00edf97e56",
+    "52bad1fa480a73624a601ebb92c1fc930102fc9f7decf36a26b095825515e157",
+    "2732c8cf59ff97dcc51bade368e005e08c813093a5c842837927c30f98e3c917",
+    "123b9f65504fd7e20c3e10ddc341c462b286a4252da2390904002f9ab52edde0",
+    "7df19090bc0f0328191c5976a5ca5df3d785fc37f6fdd1d28fd065ee9cdbb316",
+    "58944f1536afc76117bfa61ee7cfa77a31a8853107a8cf9a9110d4ef38ce21f3",
+    "b27b1d127a4a1a238dccc78d6db0d6f56b913904e50ca626b29aff4c0afd3ab9",
+    "20574c922275bb3e22c291146fc27fbb8ec1a78113010f8dd664313dda88d7a7",
+    "322c32afaf6b2b36727defc9897041e6de2de9b4be793fe052fcd1984cf7fd81",
+    "9bcfe5ee0cfd678fc8c1707423667c8b352707a99f9eab7c9cd9ffdc56e7d3fb",
+    "38ee3795ce40d62630b00e26ba174b5e1252678a9c7bb8ad413982edb04b3231",
+    "abe79b3817f5f4875ab7b9d103a7194e0801925f912a29cf62b337ecf0965164",
+    "859b6e070b8429fa668e73c1ffacec469af4de1ab17bdebfcf9ede067ba04052",
+    "200e6c2b78bf4a33d8c68f8320450d60a359e60622f2096a6f3b5909778ffe15",
+    "23d39f7c0001882f555f5e5b4afc26f0cb1382c7664630d85906bd83270cd275",
+    "10a3ae78eb1b164c3052bb897412c36b32e0055cda95d1fcb434a5e0278c17e0",
+    "f62d45c039cf261f9baf1bd374e36b40cec965bf67337dde9c174760728611b6",
+    "f91cf49d41f72e89e190d5d2b6b714b72e561cc151bcda371d62973485403a43",
+    "feb6d9fb13e2f542bc469353b8b6937d1eace346c77cc647e1d20338ebaed97c",
+    "5207201b7c9824a71c9f5ce054983cd5336381e7aaeb89cf83fbf4c06f62b42c",
+    "19a42632214afe57ce835226b8c6046beb95a1a51d7467a3173487cc6e8504d1",
+    "cccf960a9b73a5157af3353751372ced06a732deb7e96952561ece5e1b0d1882",
+    "c90a30fc203d0baaa781ddc60dfcfff607f5c7d53127c18a15a7edd2934573d8",
+    "d6d9d766ed8cef26c43dcb1b08c03f8b8a9cc1cc8d8d928d2e716fdb12d3f49f",
+    "8901fdfb5ad6e26eb89b65a8756e4fb88c1da6bb4643aab8b2127c4b5b6319b3",
+    "1dc7eed3dca0792eab78aab8f37b973d8986c92b5a4f0c857370d5be3aae7bdb",
+    "9c2c0c088a0b2ff2c80a3b7d7db512e5636bba8651ef1f56c4efb6eae6091375",
+    "76258dd553003d5b10bd810644e3e5bc7ec824d6d12f5fdf08706d8f45d49fa8",
+    "59c2714b8899e6504f83fdc49a247f6ab12e361f9d6fa8cee61afbdda6612289",
+    "539c977d329787c87a2fa29867d683007dcdcfe795609414be10378b2cbbf544",
+    "dd89bdf45f2e809837aa437d1cd352cc58738df9e53f4fbc677c0e71c907c16a",
+    "8781b82e3a6f373c0f3f7129694475c4c8f388a0557a8662d2be35168cf6e992",
+    "3e7c967607276713ec6ab974419d60b22bc100d97c6667d94608e60f2af0fb46",
+    "0bc9a37bf3b6983309d415809524c89ec5d1564afb4553fbb2ff7474f2953936",
+    "a6ea2a34802e3104a359f0c61cbc3de7d2113d45ed593bfbc8cb5c719a502e13",
+    "8204be44691f6f49e63f2d77064bca50adb84474fe2460d3b78ba5a60e726c80",
+    "6862d41a8b4e384ba401ec064ef3b80057dc1094d0739b3576728fdaad2f106b",
+    "b401766dbff175163f5ed170fbf019f3dec24f6e0a990d92b6e3b78bee9ab38e",
+    "d9d9f689499d77066d17ec4c2398e9f391d26bb92834900c7c5401d389e67d7e",
+    "11bdcb1e7f4ac6e0c74df673a2384a1d16dcd46b726211032d1869342e9d3455",
+    "566745e6819ca0d4f5df575d4f9433a86b6bfb3849adaf9b4ac45e48a659cf13",
+    "b655ee1a7d5fc1599395b6bb4b173bc00cd935a6c29380a8bef96c405435ae93",
+    "62b933d9584c8ef6e4cd6ec602cd6be3d14da7d95bea76dfbf921874b0d09318",
+    "674c9846e500d9e113cd9be61c8e3cb197791f0a89ab15e3a6402191d460a3d4",
+    "1284b274a62a5f84affbd8fe13dfd65f00c59c674fd019f48d97cff6632e93a1",
+    "8902617f8781d2caf7f5725ab24791bc1381f0fc2c66c914affbb5e3e59dcc2f",
+    "cc3ee3df34cdd9f3b45d9e22107ebac47e2788e8b0c620690c730e0817230bcc",
+    "4fd871c8b454878acd258aaad9b618d0361f1c7983e92e5a92b7fabd3c14f39c",
+    "9d85d5e39cd03222bcca09d0f41d485c408f5954fefb77a27b29a585aa8b9b33",
+    "8c39b6ce286abbf2d8d2a8ac544e28a098879ad5a0c0f7f347375800d02406b7",
+    "9d6c41afac250e39d2af056a6a37a6c46d8d5eb9ccb50283e5948b7c2208a602",
+    "8216bcecccaf9811f24add4ba33a38749d6fae7851ee67d2e6b3a2ab14dbad00",
+    "1412aefd1dbd86d773edff0659ec8af8ebdcc9fbae92a5be9e6deb8db1f374ef",
+    "903ecc87a7dd458190d19eaefe1f68bef561bb2a019faba4bef194674fb450f4",
+    "534a2efd8402ea500601ef4f2fcbdabb4a532c19b79a3c2b0f1ed36db91af2b8",
+    "f4c00158c71f931a348855fdfb22eb5890a2b5582cf76e61b207ebe91433404d",
+    "5cd4ba2baf0e0edbd5e653146e24dd3551cce25702dc6b15c67a6d8e11bc4111",
+    "ae6c3aad87e690b9e6e8216ea974ba1ec8fb6f9714ff5d9094e102c4e9c9221b"
+  ],
+  "pieces": {
+    "leather.helmet": {
+      "prefix": "82002994af3ebd999b9d40826bdb759d071457a9ed91cb7a5f4038d1753bd836",
+      "suffix": "9d65dd0ea1bca7bbeb23d849cc314bf559e9ee2f400853f91a2f01fdcfe699a9",
+      "parts": [
+        {
+          "raw": "ceb0c1eb239fc240265d08798b918ecd4c43306a271f4e8035c30f1674aa9dbe",
+          "mesh": 0,
+          "bone": "head_jnt",
+          "local": [
+            1.0,
+            0.0,
+            0.0,
+            0.0,
+            0.0,
+            1.0,
+            0.0,
+            0.0,
+            0.0,
+            0.0,
+            1.0,
+            0.0,
+            0.0,
+            0.0,
+            0.0,
+            1.0
+          ]
+        },
+        {
+          "raw": "519676af8d8f9f8070733344fe4111a67ab1c40069bd3a62321a5d5f45bd857f",
+          "mesh": 1,
+          "bone": "head_jnt",
+          "local": [
+            1.0,
+            0.0,
+            0.0,
+            0.0,
+            0.0,
+            1.0,
+            0.0,
+            0.0,
+            0.0,
+            0.0,
+            1.0,
+            0.0,
+            0.0,
+            0.0,
+            0.0,
+            1.0
+          ]
+        },
+        {
+          "raw": "1508104b036d4e0d539b04dad3fffd3d1c4c41f01036abe4e9ed1e56d5334368",
+          "mesh": 2,
+          "bone": "head_jnt",
+          "local": [
+            1.0,
+            0.0,
+            0.0,
+            0.0,
+            0.0,
+            1.0,
+            0.0,
+            0.0,
+            0.0,
+            0.0,
+            1.0,
+            0.0,
+            0.0,
+            0.0,
+            0.0,
+            1.0
+          ]
+        }
+      ]
+    },
+    "leather.chest": {
+      "prefix": "e97129acdae89a1b6f7136dedd7b4f2b8fd43b4b06b44c193d5f857457863c19",
+      "suffix": "395e06854a65651476e53c3b8da615b66e4eff12e2607f84cde9d76eadd3c29d",
+      "parts": [
+        {
+          "raw": "5198f4e4b262ca4bfdecd2eee0b81f5a642e17ca41b7456cde97c7e37f026e2f"
+        },
+        {
+          "raw": "7eba96e435de913e991325b8c104e018752385227cd931d8d7bd30c07bca0013"
+        },
+        {
+          "raw": "569e307d5f02f9ed53c6ed6915615d750852a9172f34f6f18e6c951988ddb3ba"
+        },
+        {
+          "raw": "5ab97261324a01248e188e7f0f9ea74f13c085d425a4dfc51c4abb09787e4058"
+        },
+        {
+          "raw": "834985ca2da4f6f73c186500e11caffd4e6a2d67c99e9051c771ed7a065fea27"
+        },
+        {
+          "raw": "56e24916d2376a95c03c61f872afa4c57ace6a1613659a993137a48d9ef80d5f"
+        },
+        {
+          "raw": "840878c603a70639904455b31243477c501408716a189276180bf447fdb106e5"
+        },
+        {
+          "raw": "594e4c154dc60bf482d084c1337491235ee518fd07831bb37614bb940d5a79fe"
+        },
+        {
+          "raw": "9263d9e08a7cb57ce18fa4a1b97b7991b486a5fdce40855c0f3bfd53609b0845"
+        },
+        {
+          "raw": "6a3dbdcd476976fdd669603ad3f89145491f00679ffc082545091827903c75cc"
+        },
+        {
+          "raw": "90fc301e2b086066fed64b2cd6f2f85500d1c8e2c0e05e5fb5100e9ed8b4a87c"
+        },
+        {
+          "raw": "bf53aec42554f796560ec85fd7d305a7bb1b2137373153fb33e1a2b0ee550717"
+        },
+        {
+          "raw": "dc4ae36d00d8bd8f275a9d2a80347a47d2b142a2c755792e9eca9ccce4de1459"
+        },
+        {
+          "raw": "b3593b8c1ad4d72f1fd9477bae92e5701571d954238cc2c8b46f5c9ac01facfa"
+        },
+        {
+          "raw": "6080a1653fc4186e1a569e88441c69180dfd900cd335faeb98b9807eb5b92bc9"
+        },
+        {
+          "raw": "aa5e82b2283a5112e2f801769321c22d5ba65e4e8b1aa37a447eff21a7d9aa48"
+        },
+        {
+          "raw": "5e4e4b10709e0927eeb2621c48be236595e4b171850db17f714b1569aae86fac"
+        },
+        {
+          "raw": "a7004eb64515fc18cb7384ad09f8c966035d1963f0aea1026e8a5bc1f3a63537"
+        },
+        {
+          "raw": "8953234bc1be80afcf07b39bb0febc54e90bc92d1be7f6f30d1e096b8fc00ec3"
+        },
+        {
+          "raw": "a3638b66cf52085c9bce34d33412fa400f256e35e01e11f7389aaeb962415b9c"
+        },
+        {
+          "raw": "ac9636d102bcaa3d4df774ec5434c6ae8a5a7f42f64ca3c98442bceca075bf86"
+        },
+        {
+          "raw": "9119f5743024c555b429f7081915d07b18b96e46e8e477692db320a884a8c8ea"
+        },
+        {
+          "raw": "91c3058b71b2aadf5aa5250fb8854150c011d91714a0090256533dba5d701471"
+        }
+      ]
+    },
+    "leather.shoulder_l": {
+      "prefix": "4dbc355ae9c3357d69768553123d2751773cdec67613f0407fb1331f56ea14d0",
+      "suffix": "1e09bd352af2908ff0044ebbcd84a6039390218a93dcebd3429539f8032589f3",
+      "parts": [
+        {
+          "raw": "4cc330dd93dfaf0cc5fe1fa08e1280790961fb334644307584498a1c359825af"
+        },
+        {
+          "raw": "d820b053a08b0ec87d602e356168bb7252821b7dc3c797f3776609bf717a6b42"
+        },
+        {
+          "raw": "e663fd43d45f2b5077de68b7f8d693349e5fe6c30b494e8cfadf3f4c3fcc2d1c"
+        },
+        {
+          "raw": "8566dad1e0433fdffae4a76b8a41610e72299321e5730c8940714ccfc1eb6bb8"
+        },
+        {
+          "raw": "c64dc6d0fa494cf9ee0eda60f82271d89dd9968b4e03a49e793ca7341723f8db"
+        },
+        {
+          "raw": "36c668c2c30f712426f8968da2b4a7132a3c4a52d056571a72503813faacc02b"
+        },
+        {
+          "raw": "2b3405dc2aaf3f152b710458f8cd6717450e07a08023ac39c95c22dcf4db00ce"
+        },
+        {
+          "raw": "3d55ab76a409e9a2f15361e8e91cf03d9c0454d8047e49a4a7d3f87047927840"
+        }
+      ]
+    },
+    "leather.shoulder_r": {
+      "prefix": "2848df193f187162daf047411520b46b66212bcced8cd50835cda035203e498f",
+      "suffix": "39f0eee48cbe12d415a897b14c0e38ffd8a157386877c7a04d6fb324f69f1b49",
+      "parts": [
+        {
+          "raw": "982353e61c2dfbe6113b1d88ca00906af5f0a2a6415b27a4e0ca5011faa54c16"
+        },
+        {
+          "raw": "83ae9c3c413c20e8bf2be3a0e4acbc255750673dba12b7f55ab64a305c7e61f7"
+        },
+        {
+          "raw": "16e80c98bbfa453ba8acfd84262349fff36db6bbc8647a9f961745f993b26947"
+        },
+        {
+          "raw": "b41bee67a62a7584c2975e9efce004a479d4da08b3306db51ed56160438ef40d"
+        },
+        {
+          "raw": "3755baa475b2348368dbe3a5e4d9b40de190df870ff03dcff90ffdfd108263a7"
+        },
+        {
+          "raw": "ff76e024f6e811b8538e7079e88a661eb95996ff06c0b18303c86353d93a10aa"
+        },
+        {
+          "raw": "c02c78584edba3ef87c2b79b0554dc0ae1e2ab94bc641b436ed430d044b3ca6e"
+        },
+        {
+          "raw": "f02df166c91698045bd6975ac0af3247999a2d48e263fb7a45731d0aa4e7fcb9"
+        }
+      ]
+    },
+    "leather.gauntlet_l": {
+      "prefix": "4bcc64c306e5c3cfc289cb55f2edd21eeb938ccda23581eeb2d9a33968f1b63c",
+      "suffix": "4349891303c23c198bbf24887c3357619a10e16adcfb1ff585ccbdb524eeb70e",
+      "parts": [
+        {
+          "raw": "445c2469c928056e64e0cddccf6fec7db0ed1202ce98e3c55b8df365503792f7"
+        },
+        {
+          "raw": "c709418c550b414eac1bfb3bd843e0de774e2122d055666a314dfc037e0889ac",
+          "mesh": 82,
+          "bone": "elbow_L_jnt",
+          "local": [
+            1.0,
+            0.0,
+            0.0,
+            0.0,
+            0.0,
+            1.0,
+            2.7755575615628914e-17,
+            3.552713599391162e-17,
+            0.0,
+            -2.7755575615628914e-17,
+            1.0,
+            5.684341759025859e-16,
+            0.0,
+            0.0,
+            0.0,
+            1.0
+          ]
+        },
+        {
+          "raw": "23655fd5349d81892bf54fe7da0084ab4817d708ac5b367ea5f17639a7fd7e73",
+          "mesh": 83,
+          "bone": "elbow_L_jnt",
+          "local": [
+            1.0,
+            0.0,
+            0.0,
+            0.0,
+            0.0,
+            1.0,
+            2.7755575615628914e-17,
+            3.552713599391162e-17,
+            0.0,
+            -2.7755575615628914e-17,
+            1.0,
+            5.684341759025859e-16,
+            0.0,
+            0.0,
+            0.0,
+            1.0
+          ]
+        },
+        {
+          "raw": "f5146b469212eaa18d001a627745350eda5bff084ef676d621195f330eb6ec94",
+          "mesh": 84,
+          "bone": "elbow_L_jnt",
+          "local": [
+            1.0,
+            0.0,
+            0.0,
+            0.0,
+            0.0,
+            1.0,
+            2.7755575615628914e-17,
+            3.552713599391162e-17,
+            0.0,
+            -2.7755575615628914e-17,
+            1.0,
+            5.684341759025859e-16,
+            0.0,
+            0.0,
+            0.0,
+            1.0
+          ]
+        },
+        {
+          "raw": "356408b4cfa0d1c2cf60eea1997675e0ee431d6438bc5f714d19b7d717813336",
+          "mesh": 85,
+          "bone": "elbow_L_jnt",
+          "local": [
+            1.0,
+            0.0,
+            0.0,
+            0.0,
+            0.0,
+            1.0,
+            2.7755575615628914e-17,
+            3.552713599391162e-17,
+            0.0,
+            -2.7755575615628914e-17,
+            1.0,
+            5.684341759025859e-16,
+            0.0,
+            0.0,
+            0.0,
+            1.0
+          ]
+        },
+        {
+          "raw": "a898eaf30bc2b37b2c71a363d498ec42b9e25db684909e439b594d5077d24ccc",
+          "mesh": 86,
+          "bone": "elbow_L_jnt",
+          "local": [
+            1.0,
+            0.0,
+            0.0,
+            0.0,
+            0.0,
+            1.0,
+            2.7755575615628914e-17,
+            3.552713599391162e-17,
+            0.0,
+            -2.7755575615628914e-17,
+            1.0,
+            5.684341759025859e-16,
+            0.0,
+            0.0,
+            0.0,
+            1.0
+          ]
+        }
+      ]
+    },
+    "leather.gauntlet_r": {
+      "prefix": "c4244bcedc44ad897ca0946c2d131c1106fcfc343d02e8babfa20f04f3b7689e",
+      "suffix": "9ae68825236cf15be5c338b2d3f1d4327b388e662fc1417f44825fda551b2d79",
+      "parts": [
+        {
+          "raw": "61a96fc85b986d27c7cf410894f4436b9dfe1e893dfddddc82388b0ace02f691"
+        },
+        {
+          "raw": "cc865bbd2ea96881be6a680201721b0484e49b6fcce95d4c14cbd2120532db7b",
+          "mesh": 89,
+          "bone": "elbow_R_jnt",
+          "local": [
+            1.0,
+            0.0,
+            0.0,
+            0.0,
+            0.0,
+            1.0,
+            0.0,
+            0.0,
+            0.0,
+            0.0,
+            1.0,
+            0.0,
+            0.0,
+            0.0,
+            0.0,
+            1.0
+          ]
+        },
+        {
+          "raw": "a45dfba181c7249153c72f5cc1bc88222d5a623a64fc1737e2eecbdfa36e5ab2",
+          "mesh": 90,
+          "bone": "elbow_R_jnt",
+          "local": [
+            1.0,
+            0.0,
+            0.0,
+            0.0,
+            0.0,
+            1.0,
+            0.0,
+            0.0,
+            0.0,
+            0.0,
+            1.0,
+            0.0,
+            0.0,
+            0.0,
+            0.0,
+            1.0
+          ]
+        },
+        {
+          "raw": "14bfde3ed984fb6cca8dca3d6a252a9d1840baf5511542f57c4cccb3682caa34",
+          "mesh": 91,
+          "bone": "elbow_R_jnt",
+          "local": [
+            1.0,
+            0.0,
+            0.0,
+            0.0,
+            0.0,
+            1.0,
+            0.0,
+            0.0,
+            0.0,
+            0.0,
+            1.0,
+            0.0,
+            0.0,
+            0.0,
+            0.0,
+            1.0
+          ]
+        },
+        {
+          "raw": "9cb21936faa30b455b7cf0611d71245f15cda26528c1e408ea200a701415ba3e",
+          "mesh": 92,
+          "bone": "elbow_R_jnt",
+          "local": [
+            1.0,
+            0.0,
+            0.0,
+            0.0,
+            0.0,
+            1.0,
+            0.0,
+            0.0,
+            0.0,
+            0.0,
+            1.0,
+            0.0,
+            0.0,
+            0.0,
+            0.0,
+            1.0
+          ]
+        },
+        {
+          "raw": "607d25e3310e55b3c83e923aba06df33a63807c8dd5a8a158270a9b84af15582",
+          "mesh": 93,
+          "bone": "elbow_R_jnt",
+          "local": [
+            1.0,
+            0.0,
+            0.0,
+            0.0,
+            0.0,
+            1.0,
+            0.0,
+            0.0,
+            0.0,
+            0.0,
+            1.0,
+            0.0,
+            0.0,
+            0.0,
+            0.0,
+            1.0
+          ]
+        }
+      ]
+    },
+    "leather.tasset_l": {
+      "prefix": "12bfa200521778b6e889309f131de7a0bd1f06fcfc1a5ee3f0a7096568da5f71",
+      "suffix": "c0885b53209d6f9cb1b958303181cbec0b8116641f0099f02d7e30b0e9a68707",
+      "parts": [
+        {
+          "raw": "1877c6a47394e6d8c7723d6b3d8b1a699d6936900b90c2c2df7b613e23cd2b8f",
+          "mesh": 95,
+          "bone": "hipBase_jnt",
+          "local": [
+            1.0,
+            0.0,
+            0.0,
+            0.0,
+            0.0,
+            1.0,
+            0.0,
+            0.0,
+            0.0,
+            0.0,
+            1.0,
+            0.0,
+            0.0,
+            0.0,
+            0.0,
+            1.0
+          ]
+        },
+        {
+          "raw": "b08b9abe3668245ea4d3d5b6df70080c596a2823b599d01153611556ed4cc8f9",
+          "mesh": 96,
+          "bone": "hipBase_jnt",
+          "local": [
+            1.0,
+            0.0,
+            0.0,
+            0.0,
+            0.0,
+            1.0,
+            0.0,
+            0.0,
+            0.0,
+            0.0,
+            1.0,
+            0.0,
+            0.0,
+            0.0,
+            0.0,
+            1.0
+          ]
+        }
+      ]
+    },
+    "leather.tasset_r": {
+      "prefix": "73c25a804bc6a43cfbec3dbf1f03f62d84b0635c77de367964a4a3c774ef0d6f",
+      "suffix": "fa71a18fe8db969b8ef64882a2db5ef3fb8edc751c01b18a35a273a0ed31e836",
+      "parts": [
+        {
+          "raw": "aef6b2efee7452f9b4c677b01655f6a868527850e7d21e064a5880cf35773793",
+          "mesh": 97,
+          "bone": "hipBase_jnt",
+          "local": [
+            1.0,
+            0.0,
+            0.0,
+            0.0,
+            0.0,
+            1.0,
+            0.0,
+            0.0,
+            0.0,
+            0.0,
+            1.0,
+            0.0,
+            0.0,
+            0.0,
+            0.0,
+            1.0
+          ]
+        },
+        {
+          "raw": "fbf2cab35f22fa998689f7830709d92e193000b8746a963a4cda4129ebb776d7",
+          "mesh": 98,
+          "bone": "hipBase_jnt",
+          "local": [
+            1.0,
+            0.0,
+            0.0,
+            0.0,
+            0.0,
+            1.0,
+            0.0,
+            0.0,
+            0.0,
+            0.0,
+            1.0,
+            0.0,
+            0.0,
+            0.0,
+            0.0,
+            1.0
+          ]
+        }
+      ]
+    },
+    "metal.helmet": {
+      "prefix": "f8cba5fc9d9c19706395823ef29866ba1593eec43f6b995d08a97e0cc0dfdfc5",
+      "suffix": "d49d786b4b97ccb67780c16cacc85a873f8a9287d7ea80138b383b60d0eb472a",
+      "parts": [
+        {
+          "raw": "21d8e11de041636d21952617c05b107fe6e4ccb692043a3b3b9d0fb4e15e63ed",
+          "mesh": 99,
+          "bone": "head_jnt",
+          "local": [
+            1.5348753379385016e-08,
+            -0.1562764197587967,
+            -0.9877133369445801,
+            1.6094762086868286,
+            0.0,
+            0.9877133369445801,
+            -0.1562764197587967,
+            0.2670975625514984,
+            1.0,
+            0.0,
+            1.5348753379385016e-08,
+            -2.5040602480430607e-08,
+            0.0,
+            0.0,
+            0.0,
+            1.0
+          ]
+        },
+        {
+          "raw": "5b83508d747fff4242f4784c11c74c810f65a48baf71e9f67af0174d22ee6b9c",
+          "mesh": 100,
+          "bone": "head_jnt",
+          "local": [
+            1.5348753379385016e-08,
+            -0.1562764197587967,
+            -0.9877133369445801,
+            -0.05398670211434364,
+            0.0,
+            0.9877133369445801,
+            -0.1562764197587967,
+            0.0075937677174806595,
+            1.0,
+            0.0,
+            1.5348753379385016e-08,
+            8.002334905832242e-10,
+            0.0,
+            0.0,
+            0.0,
+            1.0
+          ]
+        },
+        {
+          "raw": "6ff92ad7c5cc487ef155e35856aa8177b2737960c987a4aa04b80459779c26f5",
+          "mesh": 101,
+          "bone": "head_jnt",
+          "local": [
+            -0.056477777659893036,
+            -0.13545672595500946,
+            -0.8961734771728516,
+            -0.08310894668102264,
+            0.3569563925266266,
+            0.8561266660690308,
+            -0.14179293811321259,
+            0.1873069554567337,
+            0.6281372904777527,
+            -0.4986969530582428,
+            1.3926252151463814e-08,
+            -0.05198799818754196,
+            0.0,
+            0.0,
+            0.0,
+            1.0
+          ]
+        },
+        {
+          "raw": "7218e45fefd9f61178818b31b632e76d069f90afdfab78bfb909a3d786e31984",
+          "mesh": 102,
+          "bone": "head_jnt",
+          "local": [
+            0.07588213682174683,
+            0.16233623027801514,
+            0.6792829036712646,
+            -0.08295674622058868,
+            -0.47959768772125244,
+            0.7317484021186829,
+            -0.03221854567527771,
+            0.15543900430202484,
+            -0.5115511417388916,
+            -0.6619601845741272,
+            0.1309690773487091,
+            -0.08602659404277802,
+            0.0,
+            0.0,
+            0.0,
+            1.0
+          ]
+        },
+        {
+          "raw": "445c2e1c1ff50094606d80dc024e3caa7f3673512b9d858b0b1116507fef50fd",
+          "mesh": 103,
+          "bone": "head_jnt",
+          "local": [
+            1.5348753379385016e-08,
+            -0.1562764197587967,
+            -0.9877133369445801,
+            -0.08310893923044205,
+            2.9314389958729894e-33,
+            0.9877133369445801,
+            -0.1562764197587967,
+            0.1873069554567337,
+            1.0,
+            -2.9679044836744276e-33,
+            1.5348753379385016e-08,
+            0.05198799818754196,
+            0.0,
+            0.0,
+            0.0,
+            1.0
+          ]
+        },
+        {
+          "raw": "f0bb02ae2d4b71dd3b0cf25c1e7fe6532113e380a8a0c4d7e18b1ec2cc520091",
+          "mesh": 104,
+          "bone": "head_jnt",
+          "local": [
+            1.5348753379385016e-08,
+            -0.1562764197587967,
+            -0.9877133369445801,
+            -0.08295674622058868,
+            2.9314389958729894e-33,
+            0.9877133369445801,
+            -0.1562764197587967,
+            0.15543900430202484,
+            1.0,
+            -2.9679044836744276e-33,
+            1.5348753379385016e-08,
+            0.08602659404277802,
+            0.0,
+            0.0,
+            0.0,
+            1.0
+          ]
+        },
+        {
+          "raw": "90097f29b6065120250eda5df0438843319b0a9df4738b15cfae17406fd13e53",
+          "mesh": 105,
+          "bone": "head_jnt",
+          "local": [
+            1.5348753379385016e-08,
+            -0.1562764197587967,
+            -0.9877133369445801,
+            -0.14060235023498535,
+            0.0,
+            0.9877133369445801,
+            -0.1562764197587967,
+            0.015885425731539726,
+            1.0,
+            0.0,
+            1.5348753379385016e-08,
+            2.0934529665339596e-09,
+            0.0,
+            0.0,
+            0.0,
+            1.0
+          ]
+        }
+      ]
+    },
+    "metal.chest": {
+      "prefix": "3d7ba2858f207024295876b683b2973d4e823937007f3b8da92faa9830894980",
+      "suffix": "8006cbfb214c30dad4a901bb4c555a446c0d7b401d487bb7ee9ee4e435c3c391",
+      "parts": [
+        {
+          "raw": "3179f41fad98e40584de3bf4cff9668f9e5ddf6a17e91fc73d82ce3ce8f8c2c4",
+          "mesh": 106,
+          "bone": "chest_jnt",
+          "local": [
+            1.0,
+            0.0,
+            0.0,
+            -0.11648193001747131,
+            0.0,
+            1.0,
+            0.0,
+            0.06116991862654686,
+            0.0,
+            0.0,
+            1.0,
+            0.0,
+            0.0,
+            0.0,
+            0.0,
+            1.0
+          ]
+        },
+        {
+          "raw": "3d60974150108918e1ac6124e090b4a71d7210f9733184088048ae805cdb7ecd",
+          "mesh": 107,
+          "bone": "chest_jnt",
+          "local": [
+            1.0,
+            0.0,
+            0.0,
+            0.06254757195711136,
+            0.0,
+            1.0,
+            0.0,
+            0.04847065731883049,
+            0.0,
+            0.0,
+            1.0,
+            1.951217564055696e-05,
+            0.0,
+            0.0,
+            0.0,
+            1.0
+          ]
+        }
+      ]
+    },
+    "metal.shoulder_l": {
+      "prefix": "237e00803e7c3da364984f4d05e3844d33bda4291df50079477f6520524be389",
+      "suffix": "64a0e55c0e0f58c4857ed1e12a2932652b7c7e836896390f1fcafe5df15afcab",
+      "parts": [
+        {
+          "raw": "63331fccdd33cec446af6d04094c01777e534ed5ceb036b477fac25dba9efce9",
+          "mesh": 108,
+          "bone": "shoulder_L_jnt",
+          "local": [
+            1.0,
+            0.0,
+            0.0,
+            0.0184331014752388,
+            0.0,
+            1.0,
+            0.0,
+            -0.015600446611642838,
+            0.0,
+            0.0,
+            1.0,
+            -0.06574106216430664,
+            0.0,
+            0.0,
+            0.0,
+            1.0
+          ]
+        },
+        {
+          "raw": "411fd6ad62f38453c16d5bfb7dae318b3db11d43d7c37fce31087001c588ace0",
+          "mesh": 109,
+          "bone": "shoulder_L_jnt",
+          "local": [
+            1.0,
+            0.0,
+            0.0,
+            0.10336197912693024,
+            0.0,
+            1.0,
+            0.0,
+            -0.005591859109699726,
+            0.0,
+            0.0,
+            1.0,
+            -0.024163007736206055,
+            0.0,
+            0.0,
+            0.0,
+            1.0
+          ]
+        },
+        {
+          "raw": "97ab8e47e90f945a62fbadba73affc43a409819cb77d3d51f38d0671ffce6d23",
+          "mesh": 110,
+          "bone": "shoulder_L_jnt",
+          "local": [
+            1.0,
+            0.0,
+            0.0,
+            0.1302531212568283,
+            0.0,
+            1.0,
+            0.0,
+            -0.008092660456895828,
+            0.0,
+            0.0,
+            1.0,
+            -0.01853621006011963,
+            0.0,
+            0.0,
+            0.0,
+            1.0
+          ]
+        }
+      ]
+    },
+    "metal.shoulder_r": {
+      "prefix": "657be23da88f2496b0965b5be35b04b31acbe4b8b27500c2507183f7104d4126",
+      "suffix": "6b08a286d65e16b4c0a18ca2295f37572f4d175afecbf4fbaa574f64866ddd47",
+      "parts": [
+        {
+          "raw": "92ac31f0f0ad7e03517ca57b12a3554359ca3a6b4a2b4ba383400d1743d8ae0f",
+          "mesh": 111,
+          "bone": "shoulder_R_jnt",
+          "local": [
+            1.0,
+            0.0,
+            0.0,
+            -0.01843322068452835,
+            0.0,
+            1.0,
+            0.0,
+            0.015600491315126419,
+            0.0,
+            0.0,
+            1.0,
+            0.06574201583862305,
+            0.0,
+            0.0,
+            0.0,
+            1.0
+          ]
+        },
+        {
+          "raw": "5be8c0a0ece6912670cf308eeaa88bb3ff9804bf265821096cf8520900aef01d",
+          "mesh": 112,
+          "bone": "shoulder_R_jnt",
+          "local": [
+            1.0,
+            0.0,
+            0.0,
+            -0.10336209833621979,
+            0.0,
+            1.0,
+            0.0,
+            0.005591904744505882,
+            0.0,
+            0.0,
+            1.0,
+            0.02416396141052246,
+            0.0,
+            0.0,
+            0.0,
+            1.0
+          ]
+        },
+        {
+          "raw": "2ce87ec52b027840695ec09056b4b6060bda922b3ad5e44f04bbf58e5e85dc40",
+          "mesh": 113,
+          "bone": "shoulder_R_jnt",
+          "local": [
+            1.0,
+            0.0,
+            0.0,
+            -0.13025324046611786,
+            0.0,
+            1.0,
+            0.0,
+            0.00809270516037941,
+            0.0,
+            0.0,
+            1.0,
+            0.018537163734436035,
+            0.0,
+            0.0,
+            0.0,
+            1.0
+          ]
+        }
+      ]
+    },
+    "metal.gauntlet_l": {
+      "prefix": "42f496b517bfa7aadcedd827f6c12ce27b4b4b3be258c89b016e418f87cd9e88",
+      "suffix": "25d6fcd04a542ae537776ff5f0a28f05939add142fd732b1f5deba659b075b18",
+      "parts": [
+        {
+          "raw": "51264d6208aa82efefeee2500a2ed4769cb19f9951582fee991f1fc16c345d82"
+        },
+        {
+          "raw": "424a18a7a6e1e14916750df52b4703754258d8c7c5fb95a456cd25f1554e9d33",
+          "mesh": 115,
+          "bone": "index_02_L_jnt",
+          "local": [
+            1.0,
+            0.0,
+            0.0,
+            0.009252846240997314,
+            0.0,
+            1.0,
+            0.0,
+            0.0013930201530456543,
+            0.0,
+            0.0,
+            1.0,
+            -0.005639001727104187,
+            0.0,
+            0.0,
+            0.0,
+            1.0
+          ]
+        },
+        {
+          "raw": "4bf8117859a688bde06b36ba4d584871f0905ee0596297b059aed5a2b3704e2a",
+          "mesh": 116,
+          "bone": "index_01_L_jnt",
+          "local": [
+            1.0,
+            0.0,
+            0.0,
+            0.0063931941986083984,
+            0.0,
+            1.0,
+            0.0,
+            0.0025240182876586914,
+            0.0,
+            0.0,
+            1.0,
+            -0.007969710975885391,
+            0.0,
+            0.0,
+            0.0,
+            1.0
+          ]
+        },
+        {
+          "raw": "fefffac8126bd60ee95bdc0908038631b6d6dcde525db7d7b174ef86907abc46",
+          "mesh": 117,
+          "bone": "indexRoot_L_jnt",
+          "local": [
+            1.0,
+            0.0,
+            0.0,
+            0.027712225914001465,
+            0.0,
+            1.0,
+            0.0,
+            0.0034194886684417725,
+            0.0,
+            0.0,
+            1.0,
+            -0.008666230365633965,
+            0.0,
+            0.0,
+            0.0,
+            1.0
+          ]
+        },
+        {
+          "raw": "cde17c0f07aefd6cae13166d487e7817fd35d40429daa5c3b6e4745cf198128c",
+          "mesh": 118,
+          "bone": "indexRoot_L_jnt",
+          "local": [
+            1.0,
+            0.0,
+            0.0,
+            0.004206418991088867,
+            0.0,
+            1.0,
+            0.0,
+            0.006283402442932129,
+            0.0,
+            0.0,
+            1.0,
+            -0.01781550794839859,
+            0.0,
+            0.0,
+            0.0,
+            1.0
+          ]
+        },
+        {
+          "raw": "c8c38fb8ccab5fe8deb39613899cf3e1d17a792851036c38731911dac7262d05",
+          "mesh": 119,
+          "bone": "littleRoot_L_jnt",
+          "local": [
+            1.0,
+            0.0,
+            0.0,
+            0.01977086067199707,
+            0.0,
+            1.0,
+            0.0,
+            -0.00011451542377471924,
+            0.0,
+            0.0,
+            1.0,
+            -0.008691851049661636,
+            0.0,
+            0.0,
+            0.0,
+            1.0
+          ]
+        },
+        {
+          "raw": "be1a370fa1923afbf724b4d4e4eac3288b46e357594a62fe855c20a29c5b3cac",
+          "mesh": 120,
+          "bone": "littleRoot_L_jnt",
+          "local": [
+            1.0,
+            0.0,
+            0.0,
+            0.0013524293899536133,
+            0.0,
+            1.0,
+            0.0,
+            -0.00026579201221466064,
+            0.0,
+            0.0,
+            1.0,
+            -0.015703734010457993,
+            0.0,
+            0.0,
+            0.0,
+            1.0
+          ]
+        },
+        {
+          "raw": "d29f4d9d27634bed6d4ec9287d6d8e925f353315d4d5f68675828acb4a08f847",
+          "mesh": 121,
+          "bone": "little_01_L_jnt",
+          "local": [
+            1.0,
+            0.0,
+            0.0,
+            0.00856870412826538,
+            0.0,
+            1.0,
+            0.0,
+            2.3618340492248535e-05,
+            0.0,
+            0.0,
+            1.0,
+            -0.009445905685424805,
+            0.0,
+            0.0,
+            0.0,
+            1.0
+          ]
+        },
+        {
+          "raw": "0e220abacad3dde4777abb74a57143a6cc31e15aff1c0adf64fe591d020c5e02",
+          "mesh": 122,
+          "bone": "little_02_L_jnt",
+          "local": [
+            1.0,
+            0.0,
+            0.0,
+            0.012612521648406982,
+            0.0,
+            1.0,
+            0.0,
+            0.00030590593814849854,
+            0.0,
+            0.0,
+            1.0,
+            -0.008549809455871582,
+            0.0,
+            0.0,
+            0.0,
+            1.0
+          ]
+        },
+        {
+          "raw": "8cf052e070c13ac01a4fe95c425f8c57e80036f9f1d8e7b7e63cf9b231e9d012",
+          "mesh": 123,
+          "bone": "middleRoot_L_jnt",
+          "local": [
+            1.0,
+            0.0,
+            0.0,
+            0.04114842414855957,
+            0.0,
+            1.0,
+            0.0,
+            0.0014596283435821533,
+            0.0,
+            0.0,
+            1.0,
+            -0.008551061153411865,
+            0.0,
+            0.0,
+            0.0,
+            1.0
+          ]
+        },
+        {
+          "raw": "a7a87e1c7936b3f3a8d472b7ef8376550099cc14e21d4245b53e364236a94450",
+          "mesh": 124,
+          "bone": "middleRoot_L_jnt",
+          "local": [
+            1.0,
+            0.0,
+            0.0,
+            0.016168057918548584,
+            0.0,
+            1.0,
+            0.0,
+            0.002134174108505249,
+            0.0,
+            0.0,
+            1.0,
+            -0.018324460834264755,
+            0.0,
+            0.0,
+            0.0,
+            1.0
+          ]
+        },
+        {
+          "raw": "0441fe874968fe31254decd53773e0d04d3f018762f3aacd0d89bdf506cad042",
+          "mesh": 125,
+          "bone": "middle_01_L_jnt",
+          "local": [
+            1.0,
+            0.0,
+            0.0,
+            0.01680576801300049,
+            0.0,
+            1.0,
+            0.0,
+            0.0017796903848648071,
+            0.0,
+            0.0,
+            1.0,
+            -0.00872119888663292,
+            0.0,
+            0.0,
+            0.0,
+            1.0
+          ]
+        },
+        {
+          "raw": "29c29f4a0165dbc89b75ae62cef976d46039f8b8bd6faf1b246b78343842c9e5",
+          "mesh": 126,
+          "bone": "middle_02_L_jnt",
+          "local": [
+            1.0,
+            0.0,
+            0.0,
+            0.01921820640563965,
+            0.0,
+            1.0,
+            0.0,
+            0.0013102442026138306,
+            0.0,
+            0.0,
+            1.0,
+            -0.006231836974620819,
+            0.0,
+            0.0,
+            0.0,
+            1.0
+          ]
+        },
+        {
+          "raw": "e9cc15ca473a02304b5038e458e2db01b1b34cb4198fb1a8f48d83094348f26e",
+          "mesh": 127,
+          "bone": "wrist_L_jnt",
+          "local": [
+            1.0,
+            0.0,
+            0.0,
+            0.03615671396255493,
+            0.0,
+            1.0,
+            0.0,
+            0.0036056041717529297,
+            0.0,
+            0.0,
+            1.0,
+            -0.027687106281518936,
+            0.0,
+            0.0,
+            0.0,
+            1.0
+          ]
+        },
+        {
+          "raw": "f45572b80eaf8e73397bad01bca4207ec6ee2839aa8d051d00b674820393c72a",
+          "mesh": 128,
+          "bone": "ringRoot_L_jnt",
+          "local": [
+            1.0,
+            0.0,
+            0.0,
+            0.04006582498550415,
+            0.0,
+            1.0,
+            0.0,
+            0.0012425296008586884,
+            0.0,
+            0.0,
+            1.0,
+            -0.006833456456661224,
+            0.0,
+            0.0,
+            0.0,
+            1.0
+          ]
+        },
+        {
+          "raw": "b8be822a72943e58d16d8fb6c6e45c6bc208f62f0c4bfc9733a9d50acdee45af",
+          "mesh": 129,
+          "bone": "ringRoot_L_jnt",
+          "local": [
+            1.0,
+            0.0,
+            0.0,
+            0.012905418872833252,
+            0.0,
+            1.0,
+            0.0,
+            0.002959955483675003,
+            0.0,
+            0.0,
+            1.0,
+            -0.014396890997886658,
+            0.0,
+            0.0,
+            0.0,
+            1.0
+          ]
+        },
+        {
+          "raw": "3d58cf78afe819b86836a4a503fdb9e8b062cb4cf04f84b8fd2755b6ba042522",
+          "mesh": 130,
+          "bone": "ring_01_L_jnt",
+          "local": [
+            1.0,
+            0.0,
+            0.0,
+            0.01451265811920166,
+            0.0,
+            1.0,
+            0.0,
+            0.00021084421314299107,
+            0.0,
+            0.0,
+            1.0,
+            -0.005735229700803757,
+            0.0,
+            0.0,
+            0.0,
+            1.0
+          ]
+        },
+        {
+          "raw": "f84bae476c32848b0bf1caf81ad6defcea698177c0b6626f417be0364b08a09f",
+          "mesh": 131,
+          "bone": "ring_02_L_jnt",
+          "local": [
+            1.0,
+            0.0,
+            0.0,
+            0.0133858323097229,
+            0.0,
+            1.0,
+            0.0,
+            0.0007224876899272203,
+            0.0,
+            0.0,
+            1.0,
+            -0.004706889390945435,
+            0.0,
+            0.0,
+            0.0,
+            1.0
+          ]
+        },
+        {
+          "raw": "d1a74ea94382458a44239a5507b9ca8131f15aceecdce3859a1f1484053b9851",
+          "mesh": 132,
+          "bone": "thumbRoot_L_jnt",
+          "local": [
+            1.0,
+            0.0,
+            0.0,
+            0.03044259548187256,
+            0.0,
+            1.0,
+            0.0,
+            -0.00652429461479187,
+            0.0,
+            0.0,
+            1.0,
+            0.012044578790664673,
+            0.0,
+            0.0,
+            0.0,
+            1.0
+          ]
+        },
+        {
+          "raw": "2c5b0646d1d723e38c1b4dfee3653e55caa184df70b28f8c9c062d0a5314a9e9",
+          "mesh": 133,
+          "bone": "thumbRoot_L_jnt",
+          "local": [
+            1.0,
+            0.0,
+            0.0,
+            0.009430354461073875,
+            0.0,
+            1.0,
+            0.0,
+            -0.01100417971611023,
+            0.0,
+            0.0,
+            1.0,
+            0.018563762307167053,
+            0.0,
+            0.0,
+            0.0,
+            1.0
+          ]
+        },
+        {
+          "raw": "cd39e802d663e77d2e86dd5882f6cffab105921cbee9982fba18b822b1a26915",
+          "mesh": 134,
+          "bone": "thumb_01_L_jnt",
+          "local": [
+            1.0,
+            0.0,
+            0.0,
+            0.023433327674865723,
+            0.0,
+            1.0,
+            0.0,
+            -0.003157198429107666,
+            0.0,
+            0.0,
+            1.0,
+            0.011715531349182129,
+            0.0,
+            0.0,
+            0.0,
+            1.0
+          ]
+        },
+        {
+          "raw": "7c9d9061fdae194a620518d34dd505d8aa2e71d400d7fa365ff68d464b45c42f",
+          "mesh": 135,
+          "bone": "thumb_02_L_jnt",
+          "local": [
+            1.0,
+            0.0,
+            0.0,
+            0.027027398347854614,
+            0.0,
+            1.0,
+            0.0,
+            0.0014370083808898926,
+            0.0,
+            0.0,
+            1.0,
+            0.007331788539886475,
+            0.0,
+            0.0,
+            0.0,
+            1.0
+          ]
+        },
+        {
+          "raw": "245f4beca5e6f542c962534ba8c31bb8368e1afa74da5f1582c11f28bb379b04",
+          "mesh": 136,
+          "bone": "elbow_L_jnt",
+          "local": [
+            1.0,
+            0.0,
+            0.0,
+            0.06826803088188171,
+            0.0,
+            1.0,
+            0.0,
+            0.043703220784664154,
+            0.0,
+            0.0,
+            1.0,
+            -0.02156686782836914,
+            0.0,
+            0.0,
+            0.0,
+            1.0
+          ]
+        },
+        {
+          "raw": "666489253d9cb80b7c409fcc15c57d328f9fb4a432ca883501adc11290657100",
+          "mesh": 137,
+          "bone": "elbow_L_jnt",
+          "local": [
+            1.0,
+            0.0,
+            0.0,
+            0.06265383958816528,
+            0.0,
+            1.0,
+            0.0,
+            0.0005659535527229309,
+            0.0,
+            0.0,
+            1.0,
+            -0.011592984199523926,
+            0.0,
+            0.0,
+            0.0,
+            1.0
+          ]
+        },
+        {
+          "raw": "8566e841730c8b4e92874fc84c994ac400b32111853c9e30634e1794d112effa",
+          "mesh": 138,
+          "bone": "elbow_L_jnt",
+          "local": [
+            1.0,
+            0.0,
+            0.0,
+            0.05140689015388489,
+            0.0,
+            1.0,
+            0.0,
+            0.007015921175479889,
+            0.0,
+            0.0,
+            1.0,
+            0.008258819580078125,
+            0.0,
+            0.0,
+            0.0,
+            1.0
+          ]
+        }
+      ]
+    },
+    "metal.gauntlet_r": {
+      "prefix": "dc3ae6f7383451a28def311eee6475daf2d7f809a79e2b39c7905e84bf827733",
+      "suffix": "1bf429d157bea997382a61f2d87c07313318cc1b3e687334e86d7317f1513933",
+      "parts": [
+        {
+          "raw": "7b7ea5efd87a80b4989464f2a02b1b54e0915d2c1a82feda5adc6e5ba958a756"
+        },
+        {
+          "raw": "d95c829fe71f85467621037e2e753952fb116213f00ab66e72f2886a75d9251c",
+          "mesh": 141,
+          "bone": "index_02_R_jnt",
+          "local": [
+            1.0,
+            0.0,
+            0.0,
+            -0.009252666495740414,
+            0.0,
+            1.0,
+            0.0,
+            -0.001392626785673201,
+            0.0,
+            0.0,
+            1.0,
+            0.0056371078826487064,
+            0.0,
+            0.0,
+            0.0,
+            1.0
+          ]
+        },
+        {
+          "raw": "156bf67ec3d5c0aa0bfdf6826f40b1ce548da62fd03c974315a04252a17ae9b6",
+          "mesh": 142,
+          "bone": "index_01_R_jnt",
+          "local": [
+            1.0,
+            0.0,
+            0.0,
+            -0.006393085699528456,
+            0.0,
+            1.0,
+            0.0,
+            -0.0025242785923182964,
+            0.0,
+            0.0,
+            1.0,
+            0.007970189675688744,
+            0.0,
+            0.0,
+            0.0,
+            1.0
+          ]
+        },
+        {
+          "raw": "b49de870e65eceadd57022aa8955651a50ae3c7aa0e6504329a9693683a91717",
+          "mesh": 143,
+          "bone": "indexRoot_R_jnt",
+          "local": [
+            1.0,
+            0.0,
+            0.0,
+            -0.02771265245974064,
+            0.0,
+            1.0,
+            0.0,
+            -0.0034197168424725533,
+            0.0,
+            0.0,
+            1.0,
+            0.00866663921624422,
+            0.0,
+            0.0,
+            0.0,
+            1.0
+          ]
+        },
+        {
+          "raw": "30d3ca86da4a6366734fde8007c430033f9312f9389f3de8d0a9808bfc6fb8a3",
+          "mesh": 144,
+          "bone": "indexRoot_R_jnt",
+          "local": [
+            1.0,
+            0.0,
+            0.0,
+            -0.004206832963973284,
+            0.0,
+            1.0,
+            0.0,
+            -0.006283646449446678,
+            0.0,
+            0.0,
+            1.0,
+            0.01781591586768627,
+            0.0,
+            0.0,
+            0.0,
+            1.0
+          ]
+        },
+        {
+          "raw": "0f6918adf921849e870dd398a9f19f61da21252dcc80cdb60b8bbbbacce097db",
+          "mesh": 145,
+          "bone": "littleRoot_R_jnt",
+          "local": [
+            1.0,
+            0.0,
+            0.0,
+            -0.019771356135606766,
+            0.0,
+            1.0,
+            0.0,
+            0.00011423232353990898,
+            0.0,
+            0.0,
+            1.0,
+            0.00868795532733202,
+            0.0,
+            0.0,
+            0.0,
+            1.0
+          ]
+        },
+        {
+          "raw": "ec45c095876d1ea1e63df398e54044491d18aa8834bda3ae2a61b10b001705cf",
+          "mesh": 146,
+          "bone": "littleRoot_R_jnt",
+          "local": [
+            1.0,
+            0.0,
+            0.0,
+            -0.001352899824269116,
+            0.0,
+            1.0,
+            0.0,
+            0.00026548749883659184,
+            0.0,
+            0.0,
+            1.0,
+            0.0156998410820961,
+            0.0,
+            0.0,
+            0.0,
+            1.0
+          ]
+        },
+        {
+          "raw": "2f933dae4f2d078cdc317d7b0ad18547f2670c5018510c17175a1c3d6bbec7f2",
+          "mesh": 147,
+          "bone": "little_01_R_jnt",
+          "local": [
+            1.0,
+            0.0,
+            0.0,
+            -0.008569115772843361,
+            0.0,
+            1.0,
+            0.0,
+            -2.386929736530874e-05,
+            0.0,
+            0.0,
+            1.0,
+            0.009442799724638462,
+            0.0,
+            0.0,
+            0.0,
+            1.0
+          ]
+        },
+        {
+          "raw": "dbc0d3b5e4a3de545fc4017c4314dff0a6d67b17dff15e70ca85554263db206f",
+          "mesh": 148,
+          "bone": "little_02_R_jnt",
+          "local": [
+            0.973758339881897,
+            0.20693203806877136,
+            0.09473057091236115,
+            -0.01261275727301836,
+            -0.2151501327753067,
+            0.9727210998535156,
+            0.08674155175685883,
+            -0.0003057982830796391,
+            -0.07419682294130325,
+            -0.10484659671783447,
+            0.9917166829109192,
+            0.008550304919481277,
+            0.0,
+            0.0,
+            0.0,
+            1.0
+          ]
+        },
+        {
+          "raw": "379db92844a26c3dd51cc4f27988a9ac2e511fb37ac8196bb161cfc29557eea5",
+          "mesh": 149,
+          "bone": "middleRoot_R_jnt",
+          "local": [
+            1.0,
+            0.0,
+            0.0,
+            -0.041148602962493896,
+            0.0,
+            1.0,
+            0.0,
+            -0.001459633931517601,
+            0.0,
+            0.0,
+            1.0,
+            0.008555000647902489,
+            0.0,
+            0.0,
+            0.0,
+            1.0
+          ]
+        },
+        {
+          "raw": "0a81d1b744f55196eb6efa97c173b5b151f1356a6894c0e85d2bb08dd834bfea",
+          "mesh": 150,
+          "bone": "middleRoot_R_jnt",
+          "local": [
+            1.0,
+            0.0,
+            0.0,
+            -0.016168219968676567,
+            0.0,
+            1.0,
+            0.0,
+            -0.002134189708158374,
+            0.0,
+            0.0,
+            1.0,
+            0.018328402191400528,
+            0.0,
+            0.0,
+            0.0,
+            1.0
+          ]
+        },
+        {
+          "raw": "365e04b188411db50fd5526f76b9dd8a25316f29fccd117ec044a05b9fb97e3e",
+          "mesh": 151,
+          "bone": "middle_01_R_jnt",
+          "local": [
+            1.0,
+            0.0,
+            0.0,
+            -0.016805090010166168,
+            0.0,
+            1.0,
+            0.0,
+            -0.0017795698950067163,
+            0.0,
+            0.0,
+            1.0,
+            0.008725209161639214,
+            0.0,
+            0.0,
+            0.0,
+            1.0
+          ]
+        },
+        {
+          "raw": "8dd4f1cbe44db3a379dd3f8adf63635d597bb4993bf4eca0f193845c9024cb26",
+          "mesh": 152,
+          "bone": "middle_02_R_jnt",
+          "local": [
+            1.0,
+            0.0,
+            0.0,
+            -0.01921824924647808,
+            0.0,
+            1.0,
+            0.0,
+            -0.0013102010125294328,
+            0.0,
+            0.0,
+            1.0,
+            0.006232692394405603,
+            0.0,
+            0.0,
+            0.0,
+            1.0
+          ]
+        },
+        {
+          "raw": "b800dbf58d9d92427c7ce79c22d141590d7aecdda9c87836f820584c4d148f31",
+          "mesh": 153,
+          "bone": "wrist_R_jnt",
+          "local": [
+            1.0,
+            0.0,
+            0.0,
+            -0.03615698963403702,
+            0.0,
+            1.0,
+            0.0,
+            -0.003606149461120367,
+            0.0,
+            0.0,
+            1.0,
+            0.027682175859808922,
+            0.0,
+            0.0,
+            0.0,
+            1.0
+          ]
+        },
+        {
+          "raw": "0b5a408e8674a0c6b35b707ecb0cb9a6a7fd754e3403894abe21c5d0bdbd2b63",
+          "mesh": 154,
+          "bone": "ringRoot_R_jnt",
+          "local": [
+            1.0,
+            0.0,
+            0.0,
+            -0.04006523638963699,
+            0.0,
+            1.0,
+            0.0,
+            -0.0012418939732015133,
+            0.0,
+            0.0,
+            1.0,
+            0.006836867891252041,
+            0.0,
+            0.0,
+            0.0,
+            1.0
+          ]
+        },
+        {
+          "raw": "a1a3b5486445e5b4a1ee938a05aa9426692ad03c6aae58e468ae06c1af875f8f",
+          "mesh": 155,
+          "bone": "ringRoot_R_jnt",
+          "local": [
+            1.0,
+            0.0,
+            0.0,
+            -0.012904814444482327,
+            0.0,
+            1.0,
+            0.0,
+            -0.0029593214858323336,
+            0.0,
+            0.0,
+            1.0,
+            0.0144003015011549,
+            0.0,
+            0.0,
+            0.0,
+            1.0
+          ]
+        },
+        {
+          "raw": "94c2a3b50b7df71c7c1f2fcd9bf1090d02452f66c82b335bdaa2e5a92eb98b2e",
+          "mesh": 156,
+          "bone": "ring_01_R_jnt",
+          "local": [
+            1.0,
+            0.0,
+            0.0,
+            -0.014512685127556324,
+            0.0,
+            1.0,
+            0.0,
+            -0.00021098347497172654,
+            0.0,
+            0.0,
+            1.0,
+            0.005734430626034737,
+            0.0,
+            0.0,
+            0.0,
+            1.0
+          ]
+        },
+        {
+          "raw": "d14ced32dd94b956e0f741789a6505c66cd979696c064742d2bc1d1756385086",
+          "mesh": 157,
+          "bone": "ring_02_R_jnt",
+          "local": [
+            1.0,
+            0.0,
+            0.0,
+            -0.013385845348238945,
+            0.0,
+            1.0,
+            0.0,
+            -0.0007231641211546957,
+            0.0,
+            0.0,
+            1.0,
+            0.004703492857515812,
+            0.0,
+            0.0,
+            0.0,
+            1.0
+          ]
+        },
+        {
+          "raw": "f30db97f46253a462af25b40bf5362e0210fe98c8328305dcef42d0fa952f490",
+          "mesh": 158,
+          "bone": "thumbRoot_R_jnt",
+          "local": [
+            1.0,
+            0.0,
+            0.0,
+            -0.030442487448453903,
+            0.0,
+            1.0,
+            0.0,
+            0.006524201482534409,
+            0.0,
+            0.0,
+            1.0,
+            -0.012044796720147133,
+            0.0,
+            0.0,
+            0.0,
+            1.0
+          ]
+        },
+        {
+          "raw": "224067c98de55aa60b4c592ece0e7619b8259469a86455954b89589f0cb86a93",
+          "mesh": 159,
+          "bone": "thumbRoot_R_jnt",
+          "local": [
+            1.0,
+            0.0,
+            0.0,
+            -0.009430245496332645,
+            0.0,
+            1.0,
+            0.0,
+            0.011004017665982246,
+            0.0,
+            0.0,
+            1.0,
+            -0.018563970923423767,
+            0.0,
+            0.0,
+            0.0,
+            1.0
+          ]
+        },
+        {
+          "raw": "4d1fb9504dd80d1362831b7c87a5953e2b9167c11713d49a938c3c7a7321a567",
+          "mesh": 160,
+          "bone": "thumb_01_R_jnt",
+          "local": [
+            1.0,
+            0.0,
+            0.0,
+            -0.02343233861029148,
+            0.0,
+            1.0,
+            0.0,
+            0.0031591306906193495,
+            0.0,
+            0.0,
+            1.0,
+            -0.011716068722307682,
+            0.0,
+            0.0,
+            0.0,
+            1.0
+          ]
+        },
+        {
+          "raw": "48e2b2267418ba4d391778f845acdb3b51bb55823899dfaeee0dff6615390fa9",
+          "mesh": 161,
+          "bone": "thumb_02_R_jnt",
+          "local": [
+            1.0,
+            0.0,
+            0.0,
+            -0.027026716619729996,
+            0.0,
+            1.0,
+            0.0,
+            -0.001436406746506691,
+            0.0,
+            0.0,
+            1.0,
+            -0.007332027889788151,
+            0.0,
+            0.0,
+            0.0,
+            1.0
+          ]
+        },
+        {
+          "raw": "3f36d4a00aa8d013b5f86b9189b02b9b6e478eb8c3c1be3695788c93ffb6457c",
+          "mesh": 162,
+          "bone": "elbow_R_jnt",
+          "local": [
+            1.0,
+            0.0,
+            0.0,
+            -0.06826776266098022,
+            0.0,
+            1.0,
+            0.0,
+            -0.04370292276144028,
+            0.0,
+            0.0,
+            1.0,
+            0.021569490432739258,
+            0.0,
+            0.0,
+            0.0,
+            1.0
+          ]
+        },
+        {
+          "raw": "f145410a3b1eb9600c8c2363ccdaf01cf799fbc9c83dc57a3df7a5ce7504c7b4",
+          "mesh": 163,
+          "bone": "elbow_R_jnt",
+          "local": [
+            1.0,
+            0.0,
+            0.0,
+            -0.0626535713672638,
+            0.0,
+            1.0,
+            0.0,
+            -0.000565655529499054,
+            0.0,
+            0.0,
+            1.0,
+            0.011595606803894043,
+            0.0,
+            0.0,
+            0.0,
+            1.0
+          ]
+        },
+        {
+          "raw": "c528bb753ffdb08c91c6313c1d4c80088d199cf28f8cbe068c1383f04b8d9df4",
+          "mesh": 164,
+          "bone": "elbow_R_jnt",
+          "local": [
+            1.0,
+            0.0,
+            0.0,
+            -0.0514066219329834,
+            0.0,
+            1.0,
+            0.0,
+            -0.007015623152256012,
+            0.0,
+            0.0,
+            1.0,
+            -0.008256196975708008,
+            0.0,
+            0.0,
+            0.0,
+            1.0
+          ]
+        }
+      ]
+    },
+    "metal.tasset_l": {
+      "prefix": "edb26a030048a04ea38e81a02e868e1f3cf87945c231f0d82d93931d297aef7c",
+      "suffix": "20f86ff45e393a657d90d14c02529a3079188f4a4c452babb9c380f541a6ca9d",
+      "parts": [
+        {
+          "raw": "9201737cacddea555323d08e9b3bf7d54662b8a89f3c38b48d8756cb7e87e108",
+          "mesh": 166,
+          "bone": "hipBase_jnt",
+          "local": [
+            1.0,
+            0.0,
+            0.0,
+            0.021121352910995483,
+            0.0,
+            1.0,
+            0.0,
+            0.023126745596528053,
+            0.0,
+            0.0,
+            1.0,
+            -0.18184730410575867,
+            0.0,
+            0.0,
+            0.0,
+            1.0
+          ]
+        },
+        {
+          "raw": "84abe2b32adaadf36d92573d09297646986259d3f014f68adf1112aecfa2a62b",
+          "mesh": 167,
+          "bone": "hipBase_jnt",
+          "local": [
+            1.0,
+            0.0,
+            0.0,
+            0.021542536094784737,
+            0.0,
+            1.0,
+            0.0,
+            0.01565021090209484,
+            0.0,
+            0.0,
+            1.0,
+            -0.0703977420926094,
+            0.0,
+            0.0,
+            0.0,
+            1.0
+          ]
+        }
+      ]
+    },
+    "metal.tasset_r": {
+      "prefix": "16216b263d52d347922a1755441de63ab5c638ca56124d1d2c4655cbd598d038",
+      "suffix": "c89fbd7eacb279918b1e2d3a4a03c7aefe5406b102b2ca99e07b33a76de2d592",
+      "parts": [
+        {
+          "raw": "2bc07864ed126311ee0877f97efeb96ddc9fff8df4fc967226bd729133b5c8d2",
+          "mesh": 168,
+          "bone": "hipBase_jnt",
+          "local": [
+            1.0,
+            0.0,
+            0.0,
+            -0.021121352910995483,
+            0.0,
+            1.0,
+            0.0,
+            0.023126745596528053,
+            0.0,
+            0.0,
+            1.0,
+            -0.18184730410575867,
+            0.0,
+            0.0,
+            0.0,
+            1.0
+          ]
+        },
+        {
+          "raw": "47ad13360b89f31787385904d365570b4b1f0c817c2ac891c1a4b97d4deeda73",
+          "mesh": 169,
+          "bone": "hipBase_jnt",
+          "local": [
+            1.0,
+            0.0,
+            0.0,
+            -0.021542536094784737,
+            0.0,
+            1.0,
+            0.0,
+            0.01565021090209484,
+            0.0,
+            0.0,
+            1.0,
+            -0.0703977420926094,
+            0.0,
+            0.0,
+            0.0,
+            1.0
+          ]
+        }
+      ]
+    },
+    "wyrm.helmet": {
+      "prefix": "7c1983792d3d4e035d95e1cc03863e50fa9f76e8222907ef0cef95c6238f9152",
+      "suffix": "6b332de211e2aec5a3673264b4c0599a7a6e25feb9ef8f679628cb4524493e37",
+      "parts": [
+        {
+          "raw": "da357d5f13f87ced283bf0f9c34042feafc617906808a1e358a77327ad7958b5",
+          "mesh": 170,
+          "bone": "head_jnt",
+          "local": [
+            1.0,
+            0.0,
+            0.0,
+            -0.05942113697528839,
+            0.0,
+            1.0,
+            0.0,
+            -0.04540383815765381,
+            0.0,
+            0.0,
+            1.0,
+            3.247638669220867e-16,
+            0.0,
+            0.0,
+            0.0,
+            1.0
+          ]
+        },
+        {
+          "raw": "54f1d88d56693b1e89c232c1705b3b19cea8221b1267815caee9fa942b563d5b",
+          "mesh": 171,
+          "bone": "head_jnt",
+          "local": [
+            1.0,
+            0.0,
+            0.0,
+            -0.17721308767795563,
+            0.0,
+            1.0,
+            0.0,
+            0.07366166263818741,
+            0.0,
+            0.0,
+            1.0,
+            5.849147900781945e-16,
+            0.0,
+            0.0,
+            0.0,
+            1.0
+          ]
+        },
+        {
+          "raw": "43e8013ad9667e7674cbeab9bec01dc29adae529fb9199b2e0e09e889cd0e399",
+          "mesh": 172,
+          "bone": "head_jnt",
+          "local": [
+            1.0,
+            0.0,
+            0.0,
+            -0.17721308767795563,
+            0.0,
+            1.0,
+            0.0,
+            0.07366166263818741,
+            0.0,
+            0.0,
+            1.0,
+            5.849147900781945e-16,
+            0.0,
+            0.0,
+            0.0,
+            1.0
+          ]
+        },
+        {
+          "raw": "32201855e86ce14d4419f82b525106e0afd628f4641c0c3fd68aaf845594651e",
+          "mesh": 173,
+          "bone": "head_jnt",
+          "local": [
+            1.0,
+            0.0,
+            0.0,
+            -0.10508251935243607,
+            0.0,
+            1.0,
+            0.0,
+            -0.10855256021022797,
+            0.0,
+            0.0,
+            1.0,
+            0.005754928570240736,
+            0.0,
+            0.0,
+            0.0,
+            1.0
+          ]
+        },
+        {
+          "raw": "4b48b78c0fb4fd4d191ea40ca9c941ec0caec89c51a7c1167978cb129d51b8a8",
+          "mesh": 174,
+          "bone": "head_jnt",
+          "local": [
+            1.0,
+            0.0,
+            0.0,
+            0.0,
+            0.0,
+            1.0,
+            0.0,
+            -1.0658140798173486e-16,
+            0.0,
+            0.0,
+            1.0,
+            2.81702776526487e-16,
+            0.0,
+            0.0,
+            0.0,
+            1.0
+          ]
+        },
+        {
+          "raw": "0f2a2c5cebb0391a9fca436ca6bd40aa795237267bd4e604619028f8c28a7c8d",
+          "mesh": 175,
+          "bone": "head_jnt",
+          "local": [
+            1.0,
+            0.0,
+            0.0,
+            -0.1449144184589386,
+            0.0,
+            1.0,
+            0.0,
+            0.024032527580857277,
+            0.0,
+            0.0,
+            1.0,
+            1.0862260518338502e-16,
+            0.0,
+            0.0,
+            0.0,
+            1.0
+          ]
+        },
+        {
+          "raw": "75ca59ec07d2809595a2cb65ce75cbf7ced7a8c74ca734835db975256cd77faf",
+          "mesh": 176,
+          "bone": "head_jnt",
+          "local": [
+            1.0,
+            0.0,
+            0.0,
+            -0.1449144184589386,
+            0.0,
+            1.0,
+            0.0,
+            0.024032527580857277,
+            0.0,
+            0.0,
+            1.0,
+            1.0862260518338502e-16,
+            0.0,
+            0.0,
+            0.0,
+            1.0
+          ]
+        },
+        {
+          "raw": "db3fc79d5697f6dacd83ff8a8833d5b3dbde319f0b58b218d314196fba100db1",
+          "mesh": 177,
+          "bone": "head_jnt",
+          "local": [
+            1.0,
+            0.0,
+            0.0,
+            -0.14420270919799805,
+            0.0,
+            1.0,
+            0.0,
+            0.05375612527132034,
+            0.0,
+            0.0,
+            1.0,
+            1.0987040382869881e-16,
+            0.0,
+            0.0,
+            0.0,
+            1.0
+          ]
+        },
+        {
+          "raw": "71f578e7669565cdbe18e66d59d503e837fd4042e7c6508351541c827e3514ff",
+          "mesh": 178,
+          "bone": "head_jnt",
+          "local": [
+            1.0,
+            0.0,
+            0.0,
+            -0.14420270919799805,
+            0.0,
+            1.0,
+            0.0,
+            0.05375612527132034,
+            0.0,
+            0.0,
+            1.0,
+            1.0987040382869881e-16,
+            0.0,
+            0.0,
+            0.0,
+            1.0
+          ]
+        },
+        {
+          "raw": "d4e693d9408cff992d9048667af055bc987e284937726434053742574a9a75d5",
+          "mesh": 179,
+          "bone": "head_jnt",
+          "local": [
+            1.0,
+            0.0,
+            0.0,
+            -0.12519927322864532,
+            0.0,
+            1.0,
+            0.0,
+            0.04096436873078346,
+            0.0,
+            0.0,
+            1.0,
+            3.6281284643280287e-09,
+            0.0,
+            0.0,
+            0.0,
+            1.0
+          ]
+        },
+        {
+          "raw": "95c5c47b9162fbb9bbb334a834534c8f5ee15142f83f4314b780f1f1e0944095",
+          "mesh": 180,
+          "bone": "head_jnt",
+          "local": [
+            1.0,
+            0.0,
+            0.0,
+            -0.12519927322864532,
+            0.0,
+            1.0,
+            0.0,
+            0.04096436873078346,
+            0.0,
+            0.0,
+            1.0,
+            3.6281284643280287e-09,
+            0.0,
+            0.0,
+            0.0,
+            1.0
+          ]
+        },
+        {
+          "raw": "17828add2d9da39f0f774339346c1e374c48a8fa6b0eb7f4b0b8e45eb5175040",
+          "mesh": 181,
+          "bone": "head_jnt",
+          "local": [
+            1.0,
+            0.0,
+            0.0,
+            -0.12519927322864532,
+            0.0,
+            1.0,
+            0.0,
+            0.04096436873078346,
+            0.0,
+            0.0,
+            1.0,
+            3.6281284643280287e-09,
+            0.0,
+            0.0,
+            0.0,
+            1.0
+          ]
+        },
+        {
+          "raw": "cf97afe3ae232e6cd68fac72e99c6673be0dd3d6ecfc67a2a266272d9e2b5e2f",
+          "mesh": 182,
+          "bone": "head_jnt",
+          "local": [
+            1.0,
+            0.0,
+            0.0,
+            -0.12519927322864532,
+            0.0,
+            1.0,
+            0.0,
+            0.04096436873078346,
+            0.0,
+            0.0,
+            1.0,
+            3.6281284643280287e-09,
+            0.0,
+            0.0,
+            0.0,
+            1.0
+          ]
+        }
+      ]
+    },
+    "wyrm.chest": {
+      "prefix": "35f01c5c3ce1af02587adfd5acdd511ffdd731a8823e66681bd0ad52533864ac",
+      "suffix": "51dd08cf931f065905ebcff4ba487f10722c811a1b3fd0a34fbba61ae53993a7",
+      "parts": [
+        {
+          "raw": "d46a7a23e3c3f9eef475177924507447ba321b3145c578f1135c6a34e52414b7"
+        },
+        {
+          "raw": "bc9a2fde54f05848ddb533a97ae27622202d19687e3010e79f9788f03537382f"
+        },
+        {
+          "raw": "7417a8760f88593b3a785e219ea6784e7838ac803e31d61895b14330477da6a6"
+        },
+        {
+          "raw": "3a93c5eb0713bc699fdf36f3e3aebfb5ba81c3696b277e5ba56e606fc7b08338"
+        },
+        {
+          "raw": "48650f87911829b49ad2d7f2beebc25329dd71d799cc570424c7e117fc7637b6"
+        },
+        {
+          "raw": "65fc786f1a5691b1e587f8aa9efbbe09a826eb55b23761be4f0937d26f70e7b3"
+        },
+        {
+          "raw": "061543b726ffbd34a0f51e55456313922f36fe85a1a2bae395262e8635bc628e"
+        }
+      ]
+    },
+    "wyrm.shoulder_l": {
+      "prefix": "b707dce558dca149709c98120b3dc28c9ff50d24b27a0098f5249887d67b79e4",
+      "suffix": "802a0a52660f0d80b2628eb306e9fa47936ca91a1336d83836b6e85638cb6e1a",
+      "parts": [
+        {
+          "raw": "ef1f3c2fd3b13025708179ac08ef2e7a93d20705d31559f4ac7e4ed4e89b164a",
+          "mesh": 197,
+          "bone": "shoulder_L_jnt",
+          "local": [
+            1.0,
+            0.0,
+            0.0,
+            0.23461619019508362,
+            0.0,
+            1.0,
+            0.0,
+            -0.03323046490550041,
+            0.0,
+            0.0,
+            1.0,
+            0.05380456894636154,
+            0.0,
+            0.0,
+            0.0,
+            1.0
+          ]
+        },
+        {
+          "raw": "8f706ab58a120ffedd980b95f67c551a84692312ef87607688e901b15d39034b",
+          "mesh": 198,
+          "bone": "shoulder_L_jnt",
+          "local": [
+            1.0,
+            0.0,
+            0.0,
+            0.23885315656661987,
+            0.0,
+            1.0,
+            0.0,
+            -0.0029571563936769962,
+            0.0,
+            0.0,
+            1.0,
+            0.0066462066024541855,
+            0.0,
+            0.0,
+            0.0,
+            1.0
+          ]
+        },
+        {
+          "raw": "b6f8f8f0cd084082659d0789a288ab647ff94dac6b8afa54a351100585b4fe81",
+          "mesh": 199,
+          "bone": "shoulder_L_jnt",
+          "local": [
+            1.0,
+            0.0,
+            0.0,
+            0.08437801152467728,
+            0.0,
+            1.0,
+            0.0,
+            -0.02560080774128437,
+            0.0,
+            0.0,
+            1.0,
+            -0.03862335532903671,
+            0.0,
+            0.0,
+            0.0,
+            1.0
+          ]
+        },
+        {
+          "raw": "8667dcc4a0526f8741916237cb0d94c69a5892fc793d66de463dedd253442814",
+          "mesh": 200,
+          "bone": "shoulder_L_jnt",
+          "local": [
+            1.0,
+            0.0,
+            0.0,
+            0.21545368432998657,
+            0.0,
+            1.0,
+            0.0,
+            -0.011233328841626644,
+            0.0,
+            0.0,
+            1.0,
+            -0.024008631706237793,
+            0.0,
+            0.0,
+            0.0,
+            1.0
+          ]
+        }
+      ]
+    },
+    "wyrm.shoulder_r": {
+      "prefix": "52a810037f60b6fc60669582b7b8710ccc478366e2e9ba5a846c0462daf4a295",
+      "suffix": "0e15c1932eeb3f45d79b8ad08183e7e76ea99738adc50ac0ea9b0161c6f2e653",
+      "parts": [
+        {
+          "raw": "30205424fa26261428a081103f155f0c04725e7cd161987d96c263d9701a0eb1",
+          "mesh": 201,
+          "bone": "shoulder_R_jnt",
+          "local": [
+            1.0,
+            1.0408340855860843e-17,
+            0.0,
+            -0.23461630940437317,
+            -1.0408340855860843e-17,
+            1.0,
+            0.0,
+            0.033230509608983994,
+            0.0,
+            0.0,
+            1.0,
+            -0.053803589195013046,
+            0.0,
+            0.0,
+            0.0,
+            1.0
+          ]
+        },
+        {
+          "raw": "111407829baa81d118e5d4016a4a1a18d143727beaadb99511dc0dbba1656374",
+          "mesh": 202,
+          "bone": "shoulder_R_jnt",
+          "local": [
+            1.0,
+            1.0408340855860843e-17,
+            0.0,
+            -0.08437813818454742,
+            -1.0408340855860843e-17,
+            1.0,
+            0.0,
+            0.025600852444767952,
+            0.0,
+            0.0,
+            1.0,
+            0.03862433508038521,
+            0.0,
+            0.0,
+            0.0,
+            1.0
+          ]
+        },
+        {
+          "raw": "a79eba7ca443465d13c9b262e3c96e5ddab2d50123ccf76467a2608438a98e28",
+          "mesh": 203,
+          "bone": "shoulder_R_jnt",
+          "local": [
+            1.0,
+            1.0408340855860843e-17,
+            0.0,
+            -0.23885327577590942,
+            -1.0408340855860843e-17,
+            1.0,
+            0.0,
+            0.0029572017956525087,
+            0.0,
+            0.0,
+            1.0,
+            -0.006645227316766977,
+            0.0,
+            0.0,
+            0.0,
+            1.0
+          ]
+        },
+        {
+          "raw": "9f354448d2afa84126c31b8e4f3a4296bcdc7ee851b55d1aafb011c0bc976c68",
+          "mesh": 204,
+          "bone": "shoulder_R_jnt",
+          "local": [
+            1.0,
+            1.0408340855860843e-17,
+            0.0,
+            -0.21545380353927612,
+            -1.0408340855860843e-17,
+            1.0,
+            0.0,
+            0.0112333744764328,
+            0.0,
+            0.0,
+            1.0,
+            0.02400961145758629,
+            0.0,
+            0.0,
+            0.0,
+            1.0
+          ]
+        }
+      ]
+    },
+    "wyrm.gauntlet_l": {
+      "prefix": "620481c0a5761e6d9de7d730acf45ea3b9aa491657b502a1c0b31ce980236911",
+      "suffix": "db4c5992cc8d4b0733608d78fd9096c52e1d42853435635cbf7074423828098c",
+      "parts": [
+        {
+          "raw": "0ac75d090c064b84a9fe9465536b3112243d340b215c0de874cc0b62738de985"
+        },
+        {
+          "raw": "1d8902c9718f33932cb314dae3df84f0c399db86a82de3937d36d351f1ac5b4b"
+        },
+        {
+          "raw": "ecfb946c5d6378e77f7fa203b046a81fecacaeb3edf81a83ed28c87554e1f11d"
+        },
+        {
+          "raw": "a10d4a7712bbbbe2da9911fc5e02183414cbbe4c0306c83905d15d0d50304110",
+          "mesh": 208,
+          "bone": "elbow_L_jnt",
+          "local": [
+            1.0,
+            0.0,
+            0.0,
+            0.22241853177547455,
+            0.0,
+            1.0,
+            0.0,
+            -0.003571075387299061,
+            0.0,
+            0.0,
+            1.0,
+            -0.02397831156849861,
+            0.0,
+            0.0,
+            0.0,
+            1.0
+          ]
+        },
+        {
+          "raw": "38e6f7b12096da86714598fd79e43944f27f004250df5f7764b517ce06929005",
+          "mesh": 209,
+          "bone": "elbow_L_jnt",
+          "local": [
+            1.0,
+            0.0,
+            0.0,
+            0.2056640237569809,
+            0.0,
+            1.0,
+            0.0,
+            0.014119744300842285,
+            0.0,
+            0.0,
+            1.0,
+            0.0321996845304966,
+            0.0,
+            0.0,
+            0.0,
+            1.0
+          ]
+        },
+        {
+          "raw": "3c9426e3cabf70bae98da52a121b9e81ae00974dc9691710f6119c6b3963db45",
+          "mesh": 210,
+          "bone": "elbow_L_jnt",
+          "local": [
+            1.0,
+            0.0,
+            0.0,
+            0.20911668241024017,
+            0.0,
+            1.0,
+            0.0,
+            0.0007455984596163034,
+            0.0,
+            0.0,
+            1.0,
+            0.006900552194565535,
+            0.0,
+            0.0,
+            0.0,
+            1.0
+          ]
+        }
+      ]
+    },
+    "wyrm.gauntlet_r": {
+      "prefix": "10f1ff975d468cb54367f1a380f5d8bf8ad414fe9594c513a9db0e21033c3c63",
+      "suffix": "8700cf8828bcd97f51d26374fac99224db0f119f754d206d6d893278d24283c1",
+      "parts": [
+        {
+          "raw": "7e7e63f5427535ccd4e73d3cc7e00a4d18b9f6e92a20942ec6ace13171cde875"
+        },
+        {
+          "raw": "b1e03a64910eb89983614f71fa4bce858022da52ca4741401dd790c76d4412ff"
+        },
+        {
+          "raw": "4c790c7bfc3b58826a0b980168d199598e196f4283946c9bbf6c86392729e586"
+        },
+        {
+          "raw": "2821700fa312bcfb088f335b947d74fd754e494869603e4e74b7522adb3bbfe3",
+          "mesh": 217,
+          "bone": "elbow_R_jnt",
+          "local": [
+            1.0,
+            6.938893903907228e-18,
+            5.551115123125783e-17,
+            -0.22241826355457306,
+            -6.938893903907228e-18,
+            1.0,
+            5.551115123125783e-17,
+            0.0035713734105229378,
+            -5.551115123125783e-17,
+            -5.551115123125783e-17,
+            1.0,
+            0.02398099936544895,
+            0.0,
+            0.0,
+            0.0,
+            1.0
+          ]
+        },
+        {
+          "raw": "c9aa647ac5e58cbda8058559d7e82d4d7534ba1f19c9989511ec4c96458bb006",
+          "mesh": 218,
+          "bone": "elbow_R_jnt",
+          "local": [
+            0.9743313193321228,
+            -0.18037660419940948,
+            0.13469505310058594,
+            -0.2056637555360794,
+            0.16529259085655212,
+            0.979409396648407,
+            0.1159120500087738,
+            -0.014119446277618408,
+            -0.15282942354679108,
+            -0.09067264199256897,
+            0.9840841889381409,
+            -0.03219699487090111,
+            0.0,
+            0.0,
+            0.0,
+            1.0
+          ]
+        },
+        {
+          "raw": "507b12831d260abbac6a094334cf16e457ab793cef434bbcd6da43cda13cf2cd",
+          "mesh": 219,
+          "bone": "elbow_R_jnt",
+          "local": [
+            0.9743313193321228,
+            -0.18037660419940948,
+            0.13469505310058594,
+            -0.20911641418933868,
+            0.16529259085655212,
+            0.979409396648407,
+            0.1159120500087738,
+            -0.0007453003199771047,
+            -0.15282942354679108,
+            -0.09067264199256897,
+            0.9840841889381409,
+            -0.00689786346629262,
+            0.0,
+            0.0,
+            0.0,
+            1.0
+          ]
+        }
+      ]
+    },
+    "wyrm.tasset_l": {
+      "prefix": "3a74f798bd045a7e5d3f04784326f53c9e49a39c8a46826ae67fa567b5d0e54d",
+      "suffix": "f16f1da7be2b9132c3614461757ec7b5a92d56081ecab056975e1212bf61f6cf",
+      "parts": [
+        {
+          "raw": "1e0ae3f5a849a05f033aa7f4a5a0a3325c3e939c3de5f8ad88884083ee7a5c64",
+          "mesh": 223,
+          "bone": "hipBase_jnt",
+          "local": [
+            1.0,
+            0.0,
+            0.0,
+            0.0,
+            0.0,
+            1.0,
+            0.0,
+            0.010089263319969177,
+            0.0,
+            0.0,
+            1.0,
+            -0.16869603097438812,
+            0.0,
+            0.0,
+            0.0,
+            1.0
+          ]
+        }
+      ]
+    },
+    "wyrm.tasset_r": {
+      "prefix": "2063a227fa2688cb29e98c9cf541b72fbc9e943254c313ba1e4ceccdd47223d3",
+      "suffix": "c9141186a83a5ff4a26b6d8cd8ee757b0e1939c68a1ffc8965589b1ec52c919e",
+      "parts": [
+        {
+          "raw": "711548c5a6b09ffa3c166af99503674f8289d035ba841b69a75f75e1e8c01c47",
+          "mesh": 224,
+          "bone": "hipBase_jnt",
+          "local": [
+            1.0,
+            0.0,
+            0.0,
+            0.0,
+            0.0,
+            1.0,
+            0.0,
+            0.010089263319969177,
+            0.0,
+            0.0,
+            1.0,
+            -0.16869603097438812,
+            0.0,
+            0.0,
+            0.0,
+            1.0
+          ]
+        }
+      ]
+    }
+  }
+}
