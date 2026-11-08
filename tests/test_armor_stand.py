@@ -154,6 +154,14 @@ class ArmorStandContracts(unittest.TestCase):
         self.assertIn('texture.Apply(false, true)', code)
         self.assertNotIn('new Texture2D(width, height, TextureFormat.RGBA32, true, false)', code)
 
+    def test_stand_placement_accepts_solid_floors_outside_ground_layer(self):
+        code = source('pchost/ArmorCommands.cs')
+        self.assertIn('Physics.RaycastAll', code)
+        self.assertIn('Physics.DefaultRaycastLayers, QueryTriggerInteraction.Ignore', code)
+        self.assertNotIn('1 << layer', code)
+        self.assertIn('a.distance.CompareTo(b.distance)', code)
+        self.assertIn('hit.point.ToString("F2")', code)
+
     def test_new_prefab_requires_updated_clients(self):
         self.assertIn('hello.Wire < 3', source('pchost/Net.cs'))
         self.assertIn('hello.Wire > 3', source('pchost/Net.cs'))

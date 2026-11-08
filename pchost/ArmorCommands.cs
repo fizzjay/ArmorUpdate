@@ -56,14 +56,28 @@ namespace ArmorRestored
                 if (front.sqrMagnitude < 0.001f) front = Vector3.forward;
                 front.Normalize();
                 Vector3 at = ServerArmor.Head(target) + front * 1.5f;
-                int layer = LayerMask.NameToLayer("Ground");
-                RaycastHit hit;
-                if (layer < 0 || !Physics.Raycast(at + Vector3.up, Vector3.down, out hit, 6f, 1 << layer))
-                    return "No ground in front of player; move to a clear level area and try again";
-                if (hit.normal.y < 0.9f) return "Ground is too steep for a fixed armor stand";
+                // Terrain and built floors need not use the layer named Ground.
+                // Ignore triggers and the target avatar; use the nearest solid surface.
+                RaycastHit[] hits = Physics.RaycastAll(at + Vector3.up, Vector3.down, 12f,
+                    Physics.DefaultRaycastLayers, QueryTriggerInteraction.Ignore);
+                Array.Sort(hits, delegate(RaycastHit a, RaycastHit b) { return a.distance.CompareTo(b.distance); });
+                RaycastHit hit = new RaycastHit();
+                bool found = false;
+                foreach (RaycastHit candidate in hits)
+                {
+                    if (candidate.collider == null) continue;
+                    if (target.PlayerCharacter != null && candidate.collider.transform.IsChildOf(target.PlayerCharacter.transform)) continue;
+                    if (target.PlayerController != null && candidate.collider.transform.IsChildOf(target.PlayerController.transform)) continue;
+                    hit = candidate;
+                    found = true;
+                    break;
+                }
+                if (!found)
+                    return "No solid surface within 12 m below placement point " + at.ToString("F2") + "; check server terrain collision/player position";
+                if (hit.normal.y < 0.9f) return "Surface is too steep for a fixed armor stand: " + hit.collider.name;
                 NetworkEntity stand = SpawnHelper.Spawn(ArmorStand.Prefab, SpawnData.Default, null,
                     hit.point, Quaternion.LookRotation(-front, Vector3.up), null);
-                return stand == null ? "Could not spawn armor stand" : "Spawned " + ArmorStand.Name + " as " + stand.Identifier;
+                return stand == null ? "Could not spawn armor stand" : "Spawned " + ArmorStand.Name + " as " + stand.Identifier + " at " + hit.point.ToString("F2") + " on " + hit.collider.name;
             });
         }
 
