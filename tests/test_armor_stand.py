@@ -148,6 +148,12 @@ class ArmorStandContracts(unittest.TestCase):
         self.assertIn('Same(FindPrefab(), prefab)', code)
         self.assertIn('map.TryGetValue(Number, out prefab) ? prefab : null', code)
 
+    def test_stand_raw_atlas_does_not_require_missing_mip_data(self):
+        code = source('shared/ArmorStand.cs')
+        self.assertIn('new Texture2D(width, height, TextureFormat.RGBA32, false, false)', code)
+        self.assertIn('texture.Apply(false, true)', code)
+        self.assertNotIn('new Texture2D(width, height, TextureFormat.RGBA32, true, false)', code)
+
     def test_new_prefab_requires_updated_clients(self):
         self.assertIn('hello.Wire < 3', source('pchost/Net.cs'))
         self.assertIn('hello.Wire > 3', source('pchost/Net.cs'))

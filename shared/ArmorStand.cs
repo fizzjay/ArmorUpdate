@@ -328,7 +328,8 @@ namespace ArmorRestored
                     byte[] rgba = reader.ReadBytes(bytes);
                     if (rgba.Length != bytes || stream.Position != stream.Length) throw new InvalidDataException("Truncated/trailing stand data");
                     mesh = new Mesh(); mesh.name = "Armor stand";
-                    texture = new Texture2D(width, height, TextureFormat.RGBA32, true, false);
+                    // ASTD stores only base-level RGBA, not a complete mip chain.
+                    texture = new Texture2D(width, height, TextureFormat.RGBA32, false, false);
 #if ARMOR_QUEST
                     mesh.vertices = new Il2CppStructArray<Vector3>(vertices);
                     mesh.normals = new Il2CppStructArray<Vector3>(normals);
@@ -340,7 +341,7 @@ namespace ArmorRestored
                     texture.LoadRawTextureData(rgba);
 #endif
                     mesh.RecalculateBounds();
-                    texture.name = "Stand Atlas"; texture.Apply(true, true);
+                    texture.name = "Stand Atlas"; texture.Apply(false, true);
                     Shader shader = Shader.Find("Township Tale/Cheap/SimpleStandard");
                     if (shader == null) shader = Shader.Find("Standard");
                     if (shader == null) throw new InvalidOperationException("No stand shader available");
