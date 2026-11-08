@@ -17,16 +17,21 @@ namespace ArmorRestoredQuest
         private static readonly HashSet<uint> Warned = new HashSet<uint>();
         private static float nextTick;
 
-        internal static Material[] Apply(int piece, uint hash, Material[] originals)
+        internal static Material[] Apply(int piece, uint hash, Material[] originals, string meshName = null)
         {
             Material[] result = (Material[])originals.Clone();
-            for (int i = 0; i < result.Length; i++) result[i] = Apply(piece, hash, result[i]);
+            for (int i = 0; i < result.Length; i++) result[i] = Apply(piece, hash, result[i], meshName);
             return result;
         }
 
-        internal static Material Apply(int piece, uint hash, Material original)
+        internal static Material Apply(int piece, uint hash, Material original, string meshName = null)
         {
             if (piece / 8 != 1 || hash == 0U || original == null) return original;
+            // The flexible glove backing is fabric, not a metal plate. Keep its
+            // original neutral atlas appearance even when the plates are colored.
+            if (meshName != null &&
+                (meshName == "metal_gauntlet_L_glove_flair_LOD0" ||
+                 meshName == "metal_gauntlet_R_glove_flair_LOD0")) return original;
             Dictionary<int, Material> variants;
             if (!Tinted.TryGetValue(hash, out variants))
             {

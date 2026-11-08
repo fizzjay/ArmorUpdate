@@ -16,6 +16,7 @@ namespace ArmorRestoredQuest
         private readonly Dictionary<CustomizationSlotEntry, Dictionary<ICustomizationHandler, TwoColors>> owned =
             new Dictionary<CustomizationSlotEntry, Dictionary<ICustomizationHandler, TwoColors>>();
         private bool warned;
+        private string lastDiagnostic;
         private const BindingFlags Members = BindingFlags.Instance | BindingFlags.Public | BindingFlags.NonPublic | BindingFlags.DeclaredOnly;
 
         internal void Update(Transform root, int[] shown)
@@ -84,6 +85,7 @@ namespace ArmorRestoredQuest
                         Change(entry, handler, compact);
                     }
                 }
+                Diagnose(current, handlers, mask);
             }
             catch (Exception ex)
             {
@@ -228,6 +230,57 @@ namespace ArmorRestoredQuest
                 || ((mask & 192U) != 0 && (Between(slot, 51, 75) || slot == 501));
         }
 
+        private void Diagnose(HashSet<CustomizationSlotEntry> entries, List<ICustomizationHandler> handlers, uint mask)
+        {
+            if (mask == 0U) { lastDiagnostic = null; return; }
+            Dictionary<string, int> reasons = new Dictionary<string, int>();
+            int eligible = 0, inputs = 0;
+            foreach (CustomizationSlotEntry entry in entries)
+            {
+                string reason;
+                if (Covered(entry, mask))
+                {
+                    eligible++;
+                    foreach (ICustomizationHandler handler in handlers)
+                        if (Input(entry, handler) != null) inputs++;
+                    reason = "eligible";
+                }
+                else reason = SkipReason(entry, mask);
+                int count;
+                reasons.TryGetValue(reason, out count);
+                reasons[reason] = count + 1;
+            }
+            List<string> details = new List<string>();
+            foreach (var pair in reasons) details.Add(pair.Key + "=" + pair.Value);
+            details.Sort(StringComparer.Ordinal);
+            string diagnostic = "mask=" + mask + " entries=" + entries.Count +
+                " handlers=" + handlers.Count + " eligible=" + eligible + " packedInputs=" + inputs +
+                " [" + string.Join(", ", details.ToArray()) + "]";
+            if (diagnostic == lastDiagnostic) return;
+            lastDiagnostic = diagnostic;
+            Mod.Log.Msg("cosmetic coverage: " + diagnostic);
+        }
+
+        private static string SkipReason(CustomizationSlotEntry entry, uint mask)
+        {
+            if (entry == null) return "missing-entry";
+            if (Native<TwoColors>(entry.Arguments) == null) return "not-TwoColors";
+            if (Native<SkinMeshPart>(entry.Part) != null) return "skin";
+            if (entry.Visual == null || Native<PlayerCosmeticDefinition>(entry.Visual.Definition) == null) return "not-player-cosmetic";
+            ICosmeticMeshPartBase part = Native<ICosmeticMeshPartBase>(entry.Part);
+            if (part == null) return "not-mesh-part";
+            if (part.IsTextureSharingForced) return "texture-sharing";
+            if (entry.Part.Slots == null) return "no-slots";
+            bool matched = false;
+            foreach (int slot in entry.Part.Slots)
+            {
+                if (slot >= 301 && slot != 331 && slot != 501 && slot != 511) return "accessory-slot";
+                if (CoversSlot(mask, slot)) matched = true;
+            }
+            if (!matched) return "outside-armor-slots";
+            return "missing-compact-LODs";
+        }
+
         private static bool Between(int slot, int first, int last) { return slot >= first && slot <= last; }
 
         private static void Restore(CustomizationSlotEntry entry, Dictionary<ICustomizationHandler, TwoColors> overlays,
@@ -263,6 +316,7 @@ namespace ArmorRestoredQuest
             owned.Clear();
             manager = null;
             warned = false;
+            lastDiagnostic = null;
         }
     }
 }

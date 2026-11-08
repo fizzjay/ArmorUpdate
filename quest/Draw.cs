@@ -393,7 +393,7 @@ namespace ArmorRestoredQuest
 			foreach (PartDef partDef in Pack.Pieces[piece].Worn)
 			{
 				Mesh sharedMesh = Pack.MeshOf(partDef.Mesh);
-				Material sharedMaterial = WornMaterials.Apply(piece, material, Pack.MaterialOf(partDef.Mat));
+				Material sharedMaterial = WornMaterials.Apply(piece, material, Pack.MaterialOf(partDef.Mat), Pack.Meshes[partDef.Mesh].Name);
 				GameObject gameObject2 = new GameObject(Pack.Meshes[partDef.Mesh].Name);
 				gameObject2.layer = d.Layer;
 				if (!partDef.Skinned)

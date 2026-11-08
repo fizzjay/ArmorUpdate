@@ -308,3 +308,21 @@ Source-contract tests prohibit native enumerator use in this bridge and require
 snapshot CopyTo, exact hash lookup and native manager identity. These are not
 matching-game compilation/runtime tests. Check for successful "worn cold-albedo
 tint resolved" and absence of repeated "coverage deferred" errors after testing.
+
+
+### Follow-up: neutral glove backing / coverage diagnosis
+
+Quest testing after 253fd36 confirms physical-material colors resolve, but cosmetic
+coverage still has no visible effect. Coverage is **not verified fixed**. Both
+clients now log a deduplicated `cosmetic coverage: mask=... entries=... handlers=...
+eligible=... packedInputs=...` summary with skip-reason counts. This distinguishes
+slot/filter exclusions, unavailable compact LODs and missing packer inputs without
+hiding skin or changing saved cosmetics. A new runtime log is needed to choose a
+safe next fix; clothing without authored compact LODs still needs a fabric-packing
+implementation.
+
+The two `metal_gauntlet_*_glove_flair_LOD0` backing meshes now bypass physical-metal
+tinting. Their original packed `metal_glove_m` material is neutral grey
+(R=G=B=0.25735295); plates still receive the selected physical-material color.
+Mesh names are passed through both PC material-array and Quest material paths.
+No placement, leather, mesh resources, or persistence behavior changed.

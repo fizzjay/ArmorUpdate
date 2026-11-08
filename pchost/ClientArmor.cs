@@ -278,7 +278,7 @@ namespace ArmorRestored
 						gameObject2.transform.SetParent(transform, false);
 						Prefabs.Place(gameObject2.transform, wornPart.Local);
 						gameObject2.AddComponent<MeshFilter>().sharedMesh = meshDef.Get();
-						gameObject2.AddComponent<MeshRenderer>().sharedMaterials = WornMaterials.Apply(piece, material, Pack.Mats(wornPart.Mats));
+						gameObject2.AddComponent<MeshRenderer>().sharedMaterials = WornMaterials.Apply(piece, material, Pack.Mats(wornPart.Mats), meshDef.Name);
 						gameObject2.AddComponent<ClientArmor.Owner>().Holder = gameObject;
 					}
 				}
@@ -300,7 +300,7 @@ namespace ArmorRestored
 					skinnedMeshRenderer.bones = array;
 					skinnedMeshRenderer.rootBone = transform2;
 					skinnedMeshRenderer.sharedMesh = meshDef.Get();
-					skinnedMeshRenderer.sharedMaterials = WornMaterials.Apply(piece, material, Pack.Mats(wornPart.Mats));
+					skinnedMeshRenderer.sharedMaterials = WornMaterials.Apply(piece, material, Pack.Mats(wornPart.Mats), meshDef.Name);
 					skinnedMeshRenderer.updateWhenOffscreen = true;
 				}
 			}

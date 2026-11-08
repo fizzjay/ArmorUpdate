@@ -260,6 +260,25 @@ class PcBuildContract(unittest.TestCase):
         self.assertEqual(2, len(targets))
         self.assertTrue(all(x.text == 'x64' for x in targets))
 
+    def test_glove_backing_keeps_original_grey(self):
+        for platform in ('pchost', 'quest'):
+            text = source(platform + '/WornMaterials.cs')
+            for side in ('L', 'R'):
+                self.assertIn('metal_gauntlet_' + side + '_glove_flair_LOD0', text)
+            self.assertLess(text.index('meshName != null'), text.index('Tinted.TryGetValue'))
+            self.assertIn('Apply(piece, hash, result[i], meshName)', text)
+        self.assertIn('Pack.Mats(wornPart.Mats), meshDef.Name)', source('pchost/ClientArmor.cs'))
+        self.assertIn('Pack.MaterialOf(partDef.Mat), Pack.Meshes[partDef.Mesh].Name)', source('quest/Draw.cs'))
+
+    def test_coverage_reports_silent_skips(self):
+        for platform in ('pchost', 'quest'):
+            text = source(platform + '/CosmeticCoverage.cs')
+            self.assertIn('Diagnose(current, handlers, mask)', text)
+            self.assertIn('diagnostic == lastDiagnostic', text)
+            for reason in ('missing-compact-LODs', 'texture-sharing', 'outside-armor-slots', 'not-mesh-part'):
+                self.assertIn(reason, text)
+            self.assertIn('packedInputs=', text)
+
 
 if __name__ == '__main__':
     unittest.main()
