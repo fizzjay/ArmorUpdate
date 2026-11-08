@@ -13,18 +13,8 @@ namespace ArmorRestoredQuest
 		// Token: 0x06000070 RID: 112 RVA: 0x00007974 File Offset: 0x00005B74
 		internal static void Prepare()
 		{
-			Action<Connection, Stream> action;
-			if ((action = Wire.<>O.<0>__Receive) == null)
-			{
-				action = (Wire.<>O.<0>__Receive = new Action<Connection, Stream>(Wire.Receive));
-			}
-			Wire._handler = action;
-			Action<Connection> action2;
-			if ((action2 = Wire.<>O.<1>__Disconnected) == null)
-			{
-				action2 = (Wire.<>O.<1>__Disconnected = new Action<Connection>(Gate.Disconnected));
-			}
-			Wire._onDisconnected = action2;
+			Wire._handler = new Action<Connection, Stream>(Wire.Receive);
+			Wire._onDisconnected = new Action<Connection>(Gate.Disconnected);
 		}
 
 		// Token: 0x06000071 RID: 113 RVA: 0x000079CB File Offset: 0x00005BCB
@@ -258,15 +248,5 @@ namespace ArmorRestoredQuest
 		// Token: 0x040000A1 RID: 161
 		private static int _reads;
 
-		// Token: 0x02000018 RID: 24
-		[CompilerGenerated]
-		private static class <>O
-		{
-			// Token: 0x040000A6 RID: 166
-			public static Action<Connection, Stream> <0>__Receive;
-
-			// Token: 0x040000A7 RID: 167
-			public static Action<Connection> <1>__Disconnected;
-		}
 	}
 }

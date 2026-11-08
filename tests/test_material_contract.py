@@ -78,5 +78,41 @@ class MaterialContract(unittest.TestCase):
         self.assertIn('ArmorMaterials.Restore(template, previous)', text)
 
 
+class QuestBuildContract(unittest.TestCase):
+    def test_embedded_pack_names_match_loaders(self):
+        ns = {'ms': 'http://schemas.microsoft.com/developer/msbuild/2003'}
+        for platform in ('pchost', 'quest'):
+            tree = ET.parse(ROOT / platform / 'ArmorRestored.csproj')
+            resources = tree.findall('.//ms:EmbeddedResource', ns)
+            self.assertEqual(1, len(resources))
+            self.assertEqual('ArmorRestored.armor.pack', resources[0].find('ms:LogicalName', ns).text)
+
+    def test_no_decompiler_delegate_syntax(self):
+        text = source('quest/Crumb.cs') + source('quest/Wire.cs')
+        for token in ('ldftn(', 'class <>O', '<0>__Receive', '<p0>', 'method fn', 'void arg', 'UnmanagedCallersOnly'):
+            self.assertNotIn(token, text)
+        self.assertIn('private static readonly ExitCallback NativeExitCallback', text)
+        self.assertIn('Marshal.GetFunctionPointerForDelegate(NativeExitCallback)', text)
+
+    def test_explicit_unity_enums(self):
+        text = source('quest/Pack.cs')
+        self.assertIn('TextureFormat.RGBA32, true, kind != 0', text)
+        self.assertNotIn('hideFlags = 32', text)
+        self.assertEqual(3, text.count('hideFlags = HideFlags.DontUnloadUnusedAsset'))
+        self.assertNotIn('> false', text)
+
+    def test_managed_and_native_collection_boundaries(self):
+        for f in ('Registry.cs', 'Hands.cs', 'Draw.cs'):
+            text = source('quest/' + f)
+            self.assertNotIn('using Il2CppSystem;', text)
+            self.assertNotIn('using Il2CppSystem.Collections.Generic;', text)
+            self.assertIn('Il2CppSystem.Array.CreateInstance(', text)
+            self.assertIn('using Object = UnityEngine.Object;', text)
+        text = source('quest/Registry.cs')
+        self.assertIn('Il2CppSystem.Collections.Generic.Dictionary<uint, NetworkPrefab>', text)
+        self.assertIn('Il2CppSystem.Collections.Generic.Dictionary<uint, Item>', text)
+        self.assertIn('var colliders = root.Colliders;', text)
+
+
 if __name__ == '__main__':
     unittest.main()

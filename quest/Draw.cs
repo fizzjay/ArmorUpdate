@@ -4,8 +4,8 @@ using Il2Cpp;
 using Il2CppAlta.Customization;
 using Il2CppInterop.Runtime;
 using Il2CppInterop.Runtime.InteropTypes.Arrays;
-using Il2CppSystem;
 using UnityEngine;
+using Object = UnityEngine.Object;
 
 namespace ArmorRestoredQuest
 {
@@ -379,7 +379,7 @@ namespace ArmorRestoredQuest
 					gameObject2.transform.SetParent(gameObject.transform, false);
 					Transform transform2 = Draw.Bone(d, partDef.Root);
 					Crumb.First("skinned part: bones array");
-					Il2CppReferenceArray<Transform> il2CppReferenceArray = new Il2CppReferenceArray<Transform>(Array.CreateInstance(Il2CppType.Of<Transform>(), partDef.Bones.Length).Pointer);
+					Il2CppReferenceArray<Transform> il2CppReferenceArray = new Il2CppReferenceArray<Transform>(Il2CppSystem.Array.CreateInstance(Il2CppType.Of<Transform>(), partDef.Bones.Length).Pointer);
 					for (int i = 0; i < partDef.Bones.Length; i++)
 					{
 						Transform transform3 = Draw.Bone(d, partDef.Bones[i]);

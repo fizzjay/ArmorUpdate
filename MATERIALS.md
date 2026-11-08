@@ -76,3 +76,25 @@ Run `python -m unittest discover -s tests -v`. These check project inclusion,
 PC/Quest helper parity, protocol checks and serialization wiring, both rendering
 paths, material-only refresh, and persistence integration. They are not game
 runtime tests or a substitute for a C# build.
+
+
+## Quest rebuild notes
+
+Build the complete `quest/ArmorRestored.csproj`, not just Registry.cs or a
+partial selection of decompiled files. `ArmorMaterials.cs` and `WornMaterials.cs`
+are both required and are explicitly included in that project. If using a DLL
+editor instead, import both helpers in the `ArmorRestoredQuest` namespace too.
+
+Use a .NET 8-capable build setup and the matching Quest MelonLoader/IL2CPP Unity
+references. Do not mix PC's managed Unity/game assemblies into the Quest build.
+The repository's framework reference HintPaths may need changing to your local
+installation. A missing `ArmorMaterials` error indicates that helper was not
+included in the build (or was imported into the wrong namespace).
+
+Quest decompiler cleanup disambiguates managed scratch collections from the
+native game registries, qualifies IL2CPP array factories, aliases Unity Object,
+and restores typed Unity texture/hide flags. Invalid compiler-generated delegate
+names are replaced with ordinary delegates. The native exit callback is rooted
+for its lifetime and marshaled with Cdecl rather than using decompiled `ldftn`
+or `UnmanagedCallersOnly` syntax. Both project files explicitly embed the pack
+under the exact name expected by their loaders.

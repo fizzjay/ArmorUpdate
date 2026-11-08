@@ -6,8 +6,8 @@ using Il2CppAlta.Networking;
 using Il2CppAlta.Utilities;
 using Il2CppInterop.Runtime;
 using Il2CppInterop.Runtime.InteropTypes.Arrays;
-using Il2CppSystem;
 using UnityEngine;
+using Object = UnityEngine.Object;
 
 namespace ArmorRestoredQuest
 {
@@ -477,7 +477,7 @@ namespace ArmorRestoredQuest
 							}
 						}
 					}
-					Hands._noProperties = new Il2CppReferenceArray<ISoundProperty>(Array.CreateInstance(Il2CppType.Of<ISoundProperty>(), 0).Pointer);
+					Hands._noProperties = new Il2CppReferenceArray<ISoundProperty>(Il2CppSystem.Array.CreateInstance(Il2CppType.Of<ISoundProperty>(), 0).Pointer);
 					Mod.Log.Msg("equipment sounds: " + ((Hands._soundOn != null) ? "on" : "-") + "/" + ((Hands._soundOff != null) ? "off" : "-"));
 				}
 				SoundEffectSet soundEffectSet2 = on ? Hands._soundOn : Hands._soundOff;

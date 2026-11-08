@@ -80,7 +80,9 @@
     <Compile Include="WornPart.cs" />
   </ItemGroup>
   <ItemGroup>
-    <EmbeddedResource Include="armor.pack" />
+    <EmbeddedResource Include="armor.pack">
+      <LogicalName>ArmorRestored.armor.pack</LogicalName>
+    </EmbeddedResource>
   </ItemGroup>
   <Import Project="$(MSBuildToolsPath)\Microsoft.CSharp.targets" />
 </Project>
