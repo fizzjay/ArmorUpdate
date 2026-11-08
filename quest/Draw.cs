@@ -118,7 +118,8 @@ namespace ArmorRestoredQuest
 			foreach (Object @object in Object.FindObjectsOfType(Il2CppType.Of<Player>()))
 			{
 				Player player2 = (@object == null) ? null : @object.TryCast<Player>();
-				if (!(player2 == null) && player2.UserInfo != null && !(player2.PlayerCharacter == null))
+                PlayerCharacter character = Draw.CharacterOf(player2);
+				if (!(player2 == null) && player2.UserInfo != null && character != null)
 				{
 					int identifier = player2.UserInfo.Identifier;
 					int[] array;
@@ -126,10 +127,10 @@ namespace ArmorRestoredQuest
 					{
 						array = Catalog.Empty();
 					}
-					Transform transform = Draw.RigOf(player2);
+					Transform transform = Draw.RigOf(character);
 					if (!(transform == null))
 					{
-						Transform transform2 = player2.PlayerCharacter.transform;
+						Transform transform2 = character.transform;
 						Dressed dressed;
 						if (Draw.Bodies.TryGetValue(transform2.Pointer, out dressed) && (dressed.Rig == null || dressed.Rig.Pointer != transform.Pointer))
 						{
@@ -192,12 +193,31 @@ namespace ArmorRestoredQuest
 		}
 
 		// Token: 0x06000016 RID: 22 RVA: 0x00002954 File Offset: 0x00000B54
-		private static Transform RigOf(Player p)
+        private static PlayerCharacter CharacterOf(Player player)
+        {
+            if (player == null) return null;
+            try
+            {
+                return player.PlayerCharacter;
+            }
+            catch (Il2CppInterop.Runtime.Il2CppException)
+            {
+                // Customization previews are Players too, but their controller is
+                // not a PlayerCharacter. Skip this entry, not the entire census.
+                return null;
+            }
+            catch (InvalidCastException)
+            {
+                return null;
+            }
+        }
+
+		private static Transform RigOf(PlayerCharacter character)
 		{
 			Transform result;
 			try
 			{
-				PlayerCustomizationHandler customizationHandler = p.PlayerCharacter.CustomizationHandler;
+				PlayerCustomizationHandler customizationHandler = character.CustomizationHandler;
 				result = ((customizationHandler == null || customizationHandler.IsDestroyed || customizationHandler.CharacterDummy == null) ? null : customizationHandler.RootBone);
 			}
 			catch (Exception)

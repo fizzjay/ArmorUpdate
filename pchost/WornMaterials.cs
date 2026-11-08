@@ -11,7 +11,6 @@ namespace ArmorRestored
     internal static class WornMaterials
     {
         private const BindingFlags Members = BindingFlags.Instance | BindingFlags.Public | BindingFlags.NonPublic;
-        private static readonly Dictionary<uint, Material> Native = new Dictionary<uint, Material>();
         private static readonly Dictionary<uint, Color> Colors = new Dictionary<uint, Color>();
         private static readonly Dictionary<uint, Dictionary<int, Material>> Tinted = new Dictionary<uint, Dictionary<int, Material>>();
         private static readonly HashSet<uint> Resolved = new HashSet<uint>();
@@ -27,8 +26,6 @@ namespace ArmorRestored
         {
             if (piece / 8 != 1 || hash == 0U || original == null) return original;
             Resolve(hash);
-            Material native;
-            if (Native.TryGetValue(hash, out native) && native != null) return native;
             Color color;
             if (!Colors.TryGetValue(hash, out color)) return original;
             Dictionary<int, Material> variants;
@@ -65,8 +62,16 @@ namespace ArmorRestored
                         Material material = Read(physical, name) as Material;
                         if (material != null)
                         {
-                            Native[hash] = material;
-                            return;
+                            // Borrow only the tint, never the metal's texture/shader.
+                            // Armor UVs are authored for the original armor atlas.
+                            foreach (string property in new[] { "_BaseColor", "_Color" })
+                            {
+                                if (!material.HasProperty(property)) continue;
+                                Color tint = material.GetColor(property);
+                                tint.a = 1f;
+                                Colors[hash] = tint;
+                                return;
+                            }
                         }
                     }
                     foreach (string name in new[] { "color", "colour", "tint", "materialColor", "materialColour", "mainColor", "baseColor", "displayColor" })
@@ -74,7 +79,9 @@ namespace ArmorRestored
                         object value = Read(physical, name);
                         if (value is Color)
                         {
-                            Colors[hash] = (Color)value;
+                            Color tint = (Color)value;
+                            tint.a = 1f;
+                            Colors[hash] = tint;
                             return;
                         }
                     }
@@ -109,7 +116,6 @@ namespace ArmorRestored
                 foreach (Material material in variants.Values)
                     if (material != null) UnityEngine.Object.Destroy(material);
             Tinted.Clear();
-            Native.Clear();
             Colors.Clear();
             Resolved.Clear();
         }

@@ -152,6 +152,22 @@ class PcBuildContract(unittest.TestCase):
         for file in ('Catalog.cs', 'ClientArmor.cs', 'Loot.cs', 'MatDef.cs', 'MeshDef.cs', 'Prefabs.cs', 'TexDef.cs'):
             self.assertIn('using Object = UnityEngine.Object;', source('pchost/' + file))
 
+    def test_tint_preserves_armor_atlas(self):
+        for platform in ('pchost', 'quest'):
+            helper = source(platform + '/WornMaterials.cs')
+            self.assertNotIn('return native;', helper)
+            self.assertNotIn('Dictionary<uint, Material> Native', helper)
+            self.assertIn('material.GetColor(property)', helper)
+            self.assertIn('tinted = new Material(original);', helper)
+            self.assertIn('tint.a = 1f;', helper)
+
+    def test_quest_preview_character_is_skipped(self):
+        draw = source('quest/Draw.cs')
+        self.assertIn('PlayerCharacter character = Draw.CharacterOf(player2);', draw)
+        self.assertIn('catch (Il2CppInterop.Runtime.Il2CppException)', draw)
+        self.assertIn('Draw.RigOf(character)', draw)
+        self.assertNotIn('player2.PlayerCharacter', draw)
+
     def test_worn_armor_prefers_visible_avatar_bone_bindings(self):
         pc = source('pchost/ClientArmor.cs')
         quest = source('quest/Draw.cs')

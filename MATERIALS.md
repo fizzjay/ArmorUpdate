@@ -26,9 +26,11 @@ Late joiners receive the same full snapshot as existing clients.
 
 `WornMaterials` resolves a Unity material or color/tint from the game's
 `PhysicalMaterial` asset. Field/property reflection is used because PC has
-managed game fields while Quest has generated IL2CPP properties. Native Unity
-materials are reused without modification. For color-only assets, cached copies
-of the armor-pack materials preserve the original textures and normal maps.
+managed game fields while Quest has generated IL2CPP properties. Only the color
+is borrowed from a native Unity material (`_BaseColor` or `_Color`); its shader
+and textures never replace the armor atlas. Cached tinted copies of the original
+armor-pack materials preserve the original textures and normal maps. Tint alpha
+is kept opaque so physical-material color alpha cannot hide worn armor.
 Those copies are destroyed when disconnecting/clearing armor.
 
 **The visual-member lookup is not verified against game DLLs in this checkout.**
