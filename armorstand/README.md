@@ -108,3 +108,16 @@ map's `TryGetValue` on Quest (and the corresponding PC dictionary) both before
 registration and when verifying publication. Rebuild with the updated shared
 `ArmorStand.cs` on both platforms. Further docking/persistence testing is still
 required; this fixes the observed lookup failure, not a verified full stand run.
+
+### Invisible spawned stand diagnostics
+
+A user runtime test confirmed terrain placement on MasterTerrain, stand registration
+on both ends, and wire-3 join acceptance, but the stand remained invisible. This
+is not yet resolved. The Quest read-only `stand probe:` log scans every five
+seconds (including inactive objects), excludes the registered template, and logs
+only changed instance summaries. It reports entity IDs, positions, activation,
+parent/scale, mesh renderer state, bounds, vertex count, shader, and main-camera
+layer inclusion. `armor standinfo <entityId>` reports server state without spawning
+more objects. Update shared/ArmorStand.cs and quest/Main.cs for the client probe,
+and pchost/ArmorCommands.cs for standinfo. Capture both outputs after spawning and
+waiting at least five seconds; registration alone is not replication evidence.

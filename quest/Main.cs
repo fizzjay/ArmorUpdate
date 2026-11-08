@@ -98,6 +98,7 @@ namespace ArmorRestoredQuest
 			try
 			{
 				Hands.Tick();
+				ArmorStand.TickDiagnostics();
 			}
 			catch (Exception e3)
 			{

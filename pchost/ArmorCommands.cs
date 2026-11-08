@@ -81,6 +81,23 @@ namespace ArmorRestored
             });
         }
 
+        [Command("standinfo", "Inspect a spawned stand: armor standinfo <entityId>")]
+        public static string StandInfo(uint entityId)
+        {
+            return ArmorCommands.Run(delegate
+            {
+                NetworkEntity entity = NetworkSceneManager.Current == null ? null : NetworkSceneManager.Current.GetEntity(entityId);
+                if (entity == null) return "No server entity " + entityId;
+                if (entity.Prefab == null || entity.Prefab.Hash != ArmorStand.Number) return "Entity is not an armor stand";
+                GameObject root = entity.gameObject;
+                return "Stand " + entityId + " at " + root.transform.position.ToString("F2")
+                    + " active=" + root.activeSelf + "/" + root.activeInHierarchy
+                    + " scale=" + root.transform.lossyScale.ToString("F2")
+                    + " parent=" + (root.transform.parent == null ? "none" : root.transform.parent.name)
+                    + " embedded=" + entity.Prefab.Embedded.Count;
+            });
+        }
+
 		[Command("give", "Spawn armor in front of a player: armor give <player> <leather|metal|wyrm> <slot|all> (slots: helmet chest shoulder_l shoulder_r gauntlet_l gauntlet_r tasset_l tasset_r)")]
 		public static string Give(string player, string set, string slot)
 		{

@@ -238,10 +238,59 @@ namespace ArmorRestored
             return result;
         }
 
+#if ARMOR_QUEST
+        private static float nextProbe;
+        private static string lastProbe;
+
+        // Read-only diagnostics include inactive clones, which FindObjectsOfType misses.
+        internal static void TickDiagnostics()
+        {
+            if (Prefab == null || Time.unscaledTime < nextProbe) return;
+            nextProbe = Time.unscaledTime + 5f;
+            var lines = new List<string>();
+            foreach (Object value in Resources.FindObjectsOfTypeAll(Il2CppType.Of<NetworkEntity>()))
+            {
+                NetworkEntity entity = Native<NetworkEntity>(value);
+                if (entity == null || Same(entity, Get<NetworkEntity>(Prefab.gameObject))) continue;
+                NetworkPrefab prefab = Get<NetworkPrefab>(entity.gameObject);
+                if (prefab != null ? prefab.Hash != Number : !entity.gameObject.name.StartsWith(Name, StringComparison.Ordinal)) continue;
+                GameObject root = entity.gameObject;
+                string line = "id=" + entity.Identifier + " at=" + root.transform.position.ToString("F2")
+                    + " active=" + root.activeSelf + "/" + root.activeInHierarchy
+                    + " scale=" + root.transform.lossyScale.ToString("F2")
+                    + " parent=" + (root.transform.parent == null ? "none" : root.transform.parent.name);
+                int renderers = 0;
+                foreach (Component component in root.GetComponentsInChildren(Il2CppType.Of<MeshRenderer>(), true))
+                {
+                    MeshRenderer renderer = component.TryCast<MeshRenderer>();
+                    if (renderer == null) continue;
+                    renderers++;
+                    MeshFilter filter = Get<MeshFilter>(renderer.gameObject);
+                    Material mat = renderer.sharedMaterial;
+                    Camera camera = Camera.main;
+                    line += " renderer=" + renderer.name + " enabled=" + renderer.enabled
+                        + " active=" + renderer.gameObject.activeInHierarchy
+                        + " layer=" + renderer.gameObject.layer
+                        + " mainCameraSeesLayer=" + (camera == null ? "no-main-camera" : ((camera.cullingMask & (1 << renderer.gameObject.layer)) != 0).ToString())
+                        + " vertices=" + (filter == null || filter.sharedMesh == null ? 0 : filter.sharedMesh.vertexCount)
+                        + " bounds=" + renderer.bounds.ToString()
+                        + " shader=" + (mat == null || mat.shader == null ? "none" : mat.shader.name);
+                }
+                lines.Add(line + " renderers=" + renderers);
+            }
+            lines.Sort();
+            string report = lines.Count == 0 ? "no client stand instances (template is registered)" : string.Join("; ", lines.ToArray());
+            if (report != lastProbe) { lastProbe = report; Mod.Log.Msg("stand probe: " + report); }
+        }
+#endif
+
         internal static void Unregister()
         {
             RemoveMap(Prefab);
             Prefab = null;
+#if ARMOR_QUEST
+            nextProbe = 0f; lastProbe = null;
+#endif
             foreach (Object value in settings) if (value != null) Object.Destroy(value);
             settings.Clear();
             ClearVisuals();

@@ -162,6 +162,15 @@ class ArmorStandContracts(unittest.TestCase):
         self.assertIn('a.distance.CompareTo(b.distance)', code)
         self.assertIn('hit.point.ToString("F2")', code)
 
+    def test_spawn_diagnostics_distinguish_template_from_inactive_instances(self):
+        code = source('shared/ArmorStand.cs')
+        self.assertIn('Resources.FindObjectsOfTypeAll(Il2CppType.Of<NetworkEntity>())', code)
+        self.assertIn('Same(entity, Get<NetworkEntity>(Prefab.gameObject))', code)
+        self.assertIn('Time.unscaledTime + 5f', code)
+        self.assertIn('if (report != lastProbe)', code)
+        self.assertIn('ArmorStand.TickDiagnostics();', source('quest/Main.cs'))
+        self.assertIn('[Command("standinfo",', source('pchost/ArmorCommands.cs'))
+
     def test_new_prefab_requires_updated_clients(self):
         self.assertIn('hello.Wire < 3', source('pchost/Net.cs'))
         self.assertIn('hello.Wire > 3', source('pchost/Net.cs'))
