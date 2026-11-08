@@ -79,6 +79,7 @@ namespace ArmorRestoredQuest
 			{
 				return;
 			}
+            WornMaterials.Tick();
 			float unscaledTime = Time.unscaledTime;
 			if (Settings.Debug && unscaledTime >= Draw._nextCensus)
 			{

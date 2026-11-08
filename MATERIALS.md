@@ -24,23 +24,26 @@ with its piece ID. Both clients apply it to rigid and skinned worn meshes.
 A material-only swap rebuilds that slot, even when the piece ID is unchanged.
 Late joiners receive the same full snapshot as existing clients.
 
-`WornMaterials` resolves a Unity material or color/tint from the game's
-`PhysicalMaterial` asset. Field/property reflection is used because PC has
-managed game fields while Quest has generated IL2CPP properties. Only the color
-is borrowed from a native Unity material (`_BaseColor` or `_Color`); its shader
-and textures never replace the armor atlas. Cached tinted copies of the original
-armor-pack materials preserve the original textures and normal maps. Tint alpha
-is kept opaque so physical-material color alpha cannot hide worn armor.
-Those copies are destroyed when disconnecting/clearing armor.
+`WornMaterials` resolves the exact `PhysicalMaterial` hash from the game's
+registry and calls `GetNonAtlasedNonDeformingMaterial(0)`, following the palette
+implementation supplied by the user. It samples cold albedo on the client,
+including packed `_ColorA`/`_ColorB` metal shaders (blend factor is texture green).
+An 8x8 linear GPU downsample supports non-readable native textures. The saved
+RenderTexture is restored and temporary GPU/CPU textures are released in finally.
+Shader colors use the source implementation's linear-color-space conversion.
 
-**The visual-member lookup is not verified against game DLLs in this checkout.**
-It currently recognizes material/renderMaterial/unityMaterial/visualMaterial
-and color/colour/tint/materialColor/materialColour/mainColor/baseColor/displayColor.
-If the installed game exposes visual data differently, it logs
-`No visual material/color exposed for physical material ...` once per hash and
-keeps the pack appearance rather than breaking armor. That lookup will need
-adapting to the actual game API if the warning occurs; in-game verification is
-required before claiming every material renders correctly.
+Sampled RGB is divided by the sampled iron baseline (floor 0.01 per channel,
+ratio clamped 0..2). This retains the armor atlas's original iron appearance for
+iron and applies the other metal's relative color over its detail. Cached clones
+keep the original shader, texture and normal maps, with opaque tint alpha.
+Unavailable assets retry once per second and update existing cloned materials,
+without rebuilding fitted meshes or requiring another equip. Successful raw
+samples/tints are cached until disconnect. Clones are destroyed on clear.
+
+**The native method calls and GPU sampling still need matching-game compilation
+and Quest runtime validation.** Source-contract tests are not that validation.
+This replaces the earlier speculative field/property visual lookup, which failed
+for hash 31468 in the user's logs.
 
 Material-specific protection is not implemented. Protection continues to use
 the existing armor-set settings. Material changes do not add crafting recipes.
@@ -200,18 +203,27 @@ adjust working leather to troubleshoot color. Quest logs show the updated pack
 material 31468`. The material hash reaches the worn renderer; this failure is in
 visual-data discovery, not evidence that the saved item material was lost.
 
-The visual resolver now supports nested visual settings (bounded depth, cycle
-protection), typed Color/Color32 members with nonstandard names, additional base
-tint shader properties, and native `TryCast<Material>` for IL2CPP object proxies.
-Individual reflection getter failures no longer stop the remaining candidates.
-Only the discovered color is copied to the armor material, never native textures.
-If discovery still fails, the log includes physical-material member names/types
-so the installed game's actual API can be identified without another blind
-name-list guess. This is a candidate lookup fix, not verified against game DLLs.
+The initial nested-member reflection candidate has now been superseded by the
+user-supplied native palette path described above. Native cold-albedo method
+lookup, packed metal color sampling, iron-relative tint and retry-in-place replace
+that reflection code on both platforms. No placement or pack data changed.
 
-The user's supplied EquipmentSlot/EquipmentPartPickup classes are mod-side slot
-and release bookkeeping, not sufficient evidence of a native game API. Replacing
-body-proximity equip with mannequin/customization equipment interaction needs
-confirmation of the intended UI and its slot-creation/controller integration.
-No equip, removal, persistence or placement behavior is changed by this lookup
-patch.
+### Equipment-dummy integration reference (not implemented yet)
+
+The user supplied ArmorServer/ArmorHarness code confirms native
+EquipmentState.remoteDummyEffects as the active remote dummy anchor. Their
+harness accepts dummy equips only with an active session, live non-spirit owner,
+matching released armor, empty slot and finite positions within dummy/hand reach;
+its dock transaction rechecks ownership and reach. This is a useful reference,
+not a drop-in implementation: their harness persists live docked pickups in seven
+slots; this repository persists piece/material hashes in eight slots. Do not
+replace its save format or slot mapping by copying those classes wholesale.
+
+The supplied ArmorMaterialAppearance/ArmorMaterialMesh also require semantic UV
+metadata and mesh section support absent from our version-1 pack. Our single
+material hash per piece needs only the cold palette sampler, not those mesh
+rewrites. In particular preserve the new fitted skin weights and bind poses.
+
+The client code constructing EquipmentSlot.Point/Attach and rendering/interacting
+with the local quick-wheel dummy remains missing. No dummy equip/removal UI has
+been installed in this patch; current body-proximity interaction stays intact.

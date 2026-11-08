@@ -65,6 +65,7 @@ namespace ArmorRestored
 			{
 				return;
 			}
+            WornMaterials.Tick();
 			if (Settings.Debug && Time.unscaledTime >= ClientArmor._nextCensus)
 			{
 				ClientArmor.Census();

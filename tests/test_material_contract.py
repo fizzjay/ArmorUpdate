@@ -33,16 +33,31 @@ class MaterialContract(unittest.TestCase):
         self.assertIn('piece / 8 != 1', pc)  # Do not recolor leather or wyrm.
         self.assertIn('UnityEngine.Object.Destroy(material)', pc)
 
-    def test_visual_lookup_supports_nested_data_and_native_proxies(self):
+    def test_visual_lookup_uses_native_cold_material_palette(self):
         for platform in ('pchost', 'quest'):
             helper = source(platform + '/WornMaterials.cs')
-            self.assertIn('FindTint(physical, 0, new HashSet<object>()', helper)
-            self.assertIn('depth > 3', helper)
-            self.assertIn('value is Color32', helper)
-            self.assertIn('method.MakeGenericMethod(typeof(Material))', helper)
-            self.assertIn('visual lookup members:', helper)
-            self.assertIn('One inaccessible member must not hide the rest.', helper)
-            self.assertNotIn('return native;', helper)
+            self.assertIn('physical.GetNonAtlasedNonDeformingMaterial(0)', helper)
+            self.assertIn('HashedGeneralValue<PhysicalMaterial>.All', helper)
+            self.assertIn('physical.Hash != hash', helper)
+            self.assertIn('Get("iron", false)', helper)
+            self.assertIn('material.HasProperty("_ColorA") && material.HasProperty("_ColorB")', helper)
+            self.assertIn('Mathf.Clamp01(sample.g)', helper)
+            self.assertIn('value / Math.Max(baseline, 0.01f)', helper)
+            self.assertNotIn('FindTint(', helper)
+            self.assertNotIn('System.Reflection', helper)
+
+    def test_cold_sample_cleanup_and_late_load_retry(self):
+        for platform in ('pchost', 'quest'):
+            helper = source(platform + '/WornMaterials.cs')
+            self.assertIn('finally', helper)
+            self.assertIn('RenderTexture.active = active;', helper)
+            self.assertIn('RenderTexture.ReleaseTemporary(temporary)', helper)
+            self.assertIn('UnityEngine.Object.Destroy(readable)', helper)
+            self.assertIn('Retry[hash] = Time.unscaledTime + 1f;', helper)
+            self.assertIn('Paint(material, Colors[entry.Key])', helper)
+            self.assertIn('RawColors.Clear();', helper)
+        self.assertIn('WornMaterials.Tick();', source('pchost/ClientArmor.cs'))
+        self.assertIn('WornMaterials.Tick();', source('quest/Draw.cs'))
 
     def test_protocol_version_and_distinct_message(self):
         pc = source('pchost/Net.cs')
