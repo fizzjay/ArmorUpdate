@@ -40,7 +40,10 @@ namespace ArmorRestoredQuest
 			{
 				if (manifestResourceStream == null)
 				{
-					throw new FileNotFoundException("the DLL carries no armor.pack");
+					throw new FileNotFoundException("Missing embedded resource ArmorRestored.armor.pack in "
+                        + typeof(Pack).Assembly.FullName + ". Embedded resources: ["
+                        + string.Join(", ", typeof(Pack).Assembly.GetManifestResourceNames())
+                        + "]. Set the pack Build Action to Embedded Resource and LogicalName to ArmorRestored.armor.pack, then rebuild.");
 				}
 				BinaryReader binaryReader = new BinaryReader(manifestResourceStream);
 				if (new string(binaryReader.ReadChars(4)) != "ARMR" || binaryReader.ReadInt32() != 1)

@@ -152,6 +152,16 @@ class PcBuildContract(unittest.TestCase):
         for file in ('Catalog.cs', 'ClientArmor.cs', 'Loot.cs', 'MatDef.cs', 'MeshDef.cs', 'Prefabs.cs', 'TexDef.cs'):
             self.assertIn('using Object = UnityEngine.Object;', source('pchost/' + file))
 
+    def test_missing_pack_fails_before_prefab_or_join_setup(self):
+        pack = source('pchost/Pack.cs')
+        self.assertIn('return Pack.Pieces.Count == Catalog.Count;', pack)
+        self.assertIn('if (num != Catalog.Count)', pack)
+        prefabs = source('pchost/Prefabs.cs')
+        self.assertLess(prefabs.index('if (!Pack.Loaded)'), prefabs.index('Prefabs._busy = true;'))
+        self.assertIn('if (!isServer || !Pack.Loaded)', source('pchost/ServerSeam.cs'))
+        for platform in ('pchost', 'quest'):
+            self.assertIn('GetManifestResourceNames()', source(platform + '/Pack.cs'))
+
     def test_pc_private_material_member_access(self):
         text = source('pchost/ArmorMaterials.cs')
         self.assertIn('BindingFlags.NonPublic', text)

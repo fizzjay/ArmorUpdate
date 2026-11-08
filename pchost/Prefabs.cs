@@ -44,6 +44,17 @@ namespace ArmorRestored
 			{
 				return;
 			}
+            // Harmony seams may still run after initialization has failed.
+            // Never index an empty/partial pack or publish invalid armor prefabs.
+            if (!Pack.Loaded)
+            {
+                if (!Prefabs._packWaitLogged)
+                {
+                    Prefabs._packWaitLogged = true;
+                    Mod.Log.Error("armor registration skipped: armor.pack is not fully loaded; fix the earlier pack error and restart");
+                }
+                return;
+            }
 			Prefabs._busy = true;
 			try
 			{
@@ -424,6 +435,8 @@ namespace ArmorRestored
 
 		// Token: 0x040000A2 RID: 162
 		private static bool _busy;
+
+        private static bool _packWaitLogged;
 
 		// Token: 0x040000A3 RID: 163
 		private static bool _waitLogged;

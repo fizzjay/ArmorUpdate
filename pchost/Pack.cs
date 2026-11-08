@@ -15,7 +15,7 @@ namespace ArmorRestored
 		{
 			get
 			{
-				return Pack.Pieces.Count > 0;
+				return Pack.Pieces.Count == Catalog.Count;
 			}
 		}
 
@@ -29,7 +29,10 @@ namespace ArmorRestored
 			Stream manifestResourceStream = typeof(Pack).Assembly.GetManifestResourceStream("ArmorRestored.armor.pack");
 			if (manifestResourceStream == null)
 			{
-				throw new FileNotFoundException("the DLL carries no armor.pack");
+				throw new FileNotFoundException("Missing embedded resource ArmorRestored.armor.pack in "
+                        + typeof(Pack).Assembly.FullName + ". Embedded resources: ["
+                        + string.Join(", ", typeof(Pack).Assembly.GetManifestResourceNames())
+                        + "]. Set the pack Build Action to Embedded Resource and LogicalName to ArmorRestored.armor.pack, then rebuild.");
 			}
 			using (BinaryReader binaryReader = new BinaryReader(manifestResourceStream))
 			{
@@ -89,6 +92,10 @@ namespace ArmorRestored
 					Pack.Meshes.Add(Pack.ReadMesh(binaryReader, visuals));
 				}
 				num = binaryReader.ReadInt32();
+				if (num != Catalog.Count)
+                {
+                    throw new InvalidDataException("armor.pack has " + num + " pieces; expected " + Catalog.Count);
+                }
 				for (int l = 0; l < num; l++)
 				{
 					Pack.Pieces.Add(Pack.ReadPiece(binaryReader));

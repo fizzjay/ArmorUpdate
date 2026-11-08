@@ -15,7 +15,7 @@ namespace ArmorRestored
 		[HarmonyPriority(800)]
 		private static void Postfix(bool isServer)
 		{
-			if (!isServer)
+			if (!isServer || !Pack.Loaded)
 			{
 				return;
 			}
