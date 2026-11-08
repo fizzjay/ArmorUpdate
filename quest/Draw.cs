@@ -267,6 +267,22 @@ namespace ArmorRestoredQuest
 					}
 				}
 			}
+            // The baked body's renderer owns the skeleton actually used to draw
+            // this avatar. RootBone's descendants can also contain dummy/reference
+            // joints with the same names; those must not win name lookup.
+            int bound = 0;
+            foreach (Component component in d.Root.GetComponentsInChildren(Il2CppType.Of<SkinnedMeshRenderer>(), true))
+            {
+                SkinnedMeshRenderer body = component == null ? null : component.TryCast<SkinnedMeshRenderer>();
+                if (body == null || body.transform.parent == null || body.transform.parent.name != "Baked" || body.bones == null) continue;
+                foreach (Transform bone in body.bones)
+                {
+                    if (bone == null) continue;
+                    d.Bones[bone.name] = bone;
+                    bound++;
+                }
+            }
+            Mod.Log.Msg("armor rig on " + d.Name + ": " + bound + " bone bindings from baked avatar renderers");
 			foreach (Component component2 in d.Root.GetComponentsInChildren(Il2CppType.Of<SkinnedMeshRenderer>(), true))
 			{
 				if (!(component2 == null) && !(component2.transform.parent == null) && !(component2.transform.parent.name != "Baked"))

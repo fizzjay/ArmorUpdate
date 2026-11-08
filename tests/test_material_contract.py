@@ -152,6 +152,17 @@ class PcBuildContract(unittest.TestCase):
         for file in ('Catalog.cs', 'ClientArmor.cs', 'Loot.cs', 'MatDef.cs', 'MeshDef.cs', 'Prefabs.cs', 'TexDef.cs'):
             self.assertIn('using Object = UnityEngine.Object;', source('pchost/' + file))
 
+    def test_worn_armor_prefers_visible_avatar_bone_bindings(self):
+        pc = source('pchost/ClientArmor.cs')
+        quest = source('quest/Draw.cs')
+        self.assertIn('foreach (Transform bone in body.bones)', pc)
+        self.assertIn('dressed.Bones.Bones[bone.name] = bone;', pc)
+        self.assertIn('foreach (Transform bone in body.bones)', quest)
+        self.assertIn('d.Bones[bone.name] = bone;', quest)
+        for text in (pc, quest):
+            self.assertIn('body.transform.parent.name != "Baked"', text)
+            self.assertIn('bone bindings from baked avatar renderers', text)
+
     def test_material_roundtrip_and_reachable_removal(self):
         server = source('pchost/ServerArmor.cs')
         self.assertIn('ArmorMaterials.Restore(networkEntity, material);', server)

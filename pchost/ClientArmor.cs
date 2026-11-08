@@ -186,6 +186,20 @@ namespace ArmorRestored
 								Shown = ServerArmor.Empty()
 							};
 							dressed.Bones = Body.Wire(transform, false);
+                            // Prefer the visible avatar's renderer bindings over
+                            // similarly named dummy/reference joints.
+                            int bound = 0;
+                            foreach (SkinnedMeshRenderer body in dressed.Root.GetComponentsInChildren<SkinnedMeshRenderer>(true))
+                            {
+                                if (body.transform.parent == null || body.transform.parent.name != "Baked" || body.bones == null) continue;
+                                foreach (Transform bone in body.bones)
+                                {
+                                    if (bone == null) continue;
+                                    dressed.Bones.Bones[bone.name] = bone;
+                                    bound++;
+                                }
+                            }
+                            Mod.Log.Msg("armor rig on " + Players.Name(player2) + ": " + bound + " bone bindings from baked avatar renderers");
 							ClientArmor.Bodies[instanceID] = dressed;
 						}
 						bool flag = object.ReferenceEquals(player2, objB);

@@ -138,3 +138,18 @@ non-nullable enum to null. GetLoot's output count uses `out`. PC string-encoding
 texture-format and mesh-index-format values use explicit enum types. The
 ServerSettings obsolescence warning remains: it is not a compilation error and
 switching damage diagnostics to a replacement API needs its actual game signature.
+
+### Worn alignment diagnostics
+
+PC and Quest now prefer the native `Baked` avatar renderers' bone arrays over
+name matches found beneath the customization root. This prevents a same-named
+dummy/reference joint from taking precedence over the joint used to render the
+body. The fallback hierarchy scan is retained for joints not present in a body
+renderer. Armor renderers are not used to seed the map.
+
+On first wiring, the client logs `armor rig on ...: N bone bindings from baked
+avatar renderers`. If N is zero, or armor remains offset, report that line and
+whether the offset changes while bending the wrist or turning the torso. This
+change does not recalibrate pack bind poses or prove that the pack's original
+rest skeleton matches the current game's rest skeleton; in-game alignment still
+needs verification. No manual offsets or gameplay/persistence changes are made.
