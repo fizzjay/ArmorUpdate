@@ -30,7 +30,7 @@ namespace ArmorRestoredQuest
 				}
 				else
 				{
-					new Harmony("armorrestored.client").Patch(methodInfo, null, new HarmonyMethod(typeof(Main), "ApprovedPostfix", null), null, null, null);
+					new HarmonyLib.Harmony("armorrestored.client").Patch(methodInfo, null, new HarmonyMethod(typeof(Main), "ApprovedPostfix", null), null, null, null);
 					this._running = true;
 					Mod.Log.Msg(string.Concat(new string[]
 					{

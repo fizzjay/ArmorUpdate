@@ -21,7 +21,7 @@ namespace ArmorRestoredQuest
 		internal static void Listen(Connection c)
 		{
 			Crumb.At("SetHandler 137");
-			c.SetHandler(137, Wire._handler);
+			c.SetHandler((MessageType)137, Wire._handler);
 			Crumb.At("add_Disconnected");
 			c.Disconnected += Wire._onDisconnected;
 		}
@@ -43,7 +43,7 @@ namespace ArmorRestoredQuest
 				{
 					string version = null;
 					int wire = 0;
-					s.SerializeString(ref version, 1);
+					s.SerializeString(ref version, (Stream.StringEncoding)1);
 					s.SerializeInteger(ref wire);
 					Gate.Heard(c, version, wire);
 				}
@@ -83,7 +83,7 @@ namespace ArmorRestoredQuest
 				else if (num2 == 12U)
 				{
 					string str2 = null;
-					s.SerializeString(ref str2, 1);
+					s.SerializeString(ref str2, (Stream.StringEncoding)1);
 					Mod.Log.Msg("server: " + str2);
 				}
 				else
@@ -118,8 +118,8 @@ namespace ArmorRestoredQuest
 				s.SerializeInteger(ref num2);
 				string version2 = version;
 				string refused2 = refused;
-				s.SerializeString(ref version2, 1);
-				s.SerializeString(ref refused2, 1);
+				s.SerializeString(ref version2, (Stream.StringEncoding)1);
+				s.SerializeString(ref refused2, (Stream.StringEncoding)1);
 			});
 		}
 
@@ -158,11 +158,9 @@ namespace ArmorRestoredQuest
 			}
 			Wire.ResolveChannel();
 			Crumb.First("send " + what);
-			Wire._last = delegate(Connection conn, Stream s)
-			{
-				body(s);
-			};
-			bool flag = c.Send(Wire._channel, 137, Wire._last);
+			// IL2CPP delegates are wrapper classes: convert a managed Action explicitly.
+			Wire._last = new Action<Connection, Stream>((conn, s) => body(s));
+			bool flag = c.Send(Wire._channel, (MessageType)137, Wire._last);
 			if (!flag)
 			{
 				Crumb.At("send " + what + " returned false");
@@ -204,7 +202,7 @@ namespace ArmorRestoredQuest
 		internal const int Type = 137;
 
 		// Token: 0x04000093 RID: 147
-		internal const int Number = 1;
+		internal const int Number = 2;
 
 		// Token: 0x04000094 RID: 148
 		private const uint Equip = 2U;

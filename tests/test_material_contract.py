@@ -101,6 +101,27 @@ class QuestBuildContract(unittest.TestCase):
         self.assertEqual(3, text.count('hideFlags = HideFlags.DontUnloadUnusedAsset'))
         self.assertNotIn('> false', text)
 
+    def test_quest_network_api_types(self):
+        text = source('quest/Wire.cs')
+        self.assertIn('c.SetHandler((MessageType)137, Wire._handler)', text)
+        self.assertIn('c.Send(Wire._channel, (MessageType)137, Wire._last)', text)
+        self.assertEqual(4, text.count('(Stream.StringEncoding)1'))
+        self.assertIn('Wire._last = new Action<Connection, Stream>', text)
+        self.assertNotIn('Wire._last = delegate', text)
+        self.assertIn('new HarmonyLib.Harmony(', source('quest/Main.cs'))
+
+    def test_dxt_interpolation_byte_casts(self):
+        text = source('quest/Dxt.cs')
+        self.assertIn('c[8 + i] = (byte)((2 * c[i] + c[4 + i]) / 3)', text)
+        self.assertIn('c[12 + i] = (byte)((c[i] + 2 * c[4 + i]) / 3)', text)
+        self.assertIn('c[8 + j] = (byte)((c[j] + c[4 + j]) / 2)', text)
+        # Weighted averages of byte channels always remain representable as bytes.
+        for a in range(256):
+            for b in range(256):
+                self.assertTrue(0 <= (2 * a + b) // 3 <= 255)
+                self.assertTrue(0 <= (a + 2 * b) // 3 <= 255)
+                self.assertTrue(0 <= (a + b) // 2 <= 255)
+
     def test_managed_and_native_collection_boundaries(self):
         for f in ('Registry.cs', 'Hands.cs', 'Draw.cs'):
             text = source('quest/' + f)
