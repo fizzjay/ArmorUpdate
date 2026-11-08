@@ -22,7 +22,7 @@ namespace ArmorRestored
 		public static string List()
 		{
 			StringBuilder stringBuilder = new StringBuilder();
-			stringBuilder.Append("ArmorRestored ").Append("0.3.0").Append(", registered via ").Append(Prefabs.Seam ?? "nothing yet").Append('\n');
+			stringBuilder.Append("ArmorRestored ").Append("0.4.0").Append(", registered via ").Append(Prefabs.Seam ?? "nothing yet").Append('\n');
 			for (int i = 0; i < Catalog.Count; i++)
 			{
 				stringBuilder.Append(Catalog.Number(i)).Append("  ").Append(Catalog.Id(i)).Append("  ").Append(Catalog.Title(i));
@@ -36,11 +36,37 @@ namespace ArmorRestored
 				}
 				stringBuilder.Append('\n');
 			}
+			stringBuilder.Append(ArmorStand.Number).Append("  ").Append(ArmorStand.Name).Append("  ").Append(ArmorStand.Status).Append('\n');
 			stringBuilder.Append("loot: ").Append(Loot.Report);
 			return stringBuilder.ToString();
 		}
 
 		// Token: 0x0600003A RID: 58 RVA: 0x000047D0 File Offset: 0x000029D0
+        [Command("stand", "Spawn a fixed eight-slot armor stand on the ground in front of a player: armor stand <player>")]
+        public static string Stand(string player)
+        {
+            return ArmorCommands.Run(delegate
+            {
+                if (ArmorStand.Prefab == null) return "Armor stand unavailable: " + ArmorStand.Status;
+                string problem;
+                Player target = Players.Find(player, out problem);
+                if (target == null) return problem;
+                Vector3 front = ServerArmor.Front(target);
+                front.y = 0f;
+                if (front.sqrMagnitude < 0.001f) front = Vector3.forward;
+                front.Normalize();
+                Vector3 at = ServerArmor.Head(target) + front * 1.5f;
+                int layer = LayerMask.NameToLayer("Ground");
+                RaycastHit hit;
+                if (layer < 0 || !Physics.Raycast(at + Vector3.up, Vector3.down, out hit, 6f, 1 << layer))
+                    return "No ground in front of player; move to a clear level area and try again";
+                if (hit.normal.y < 0.9f) return "Ground is too steep for a fixed armor stand";
+                NetworkEntity stand = SpawnHelper.Spawn(ArmorStand.Prefab, SpawnData.Default, null,
+                    hit.point, Quaternion.LookRotation(-front, Vector3.up), null);
+                return stand == null ? "Could not spawn armor stand" : "Spawned " + ArmorStand.Name + " as " + stand.Identifier;
+            });
+        }
+
 		[Command("give", "Spawn armor in front of a player: armor give <player> <leather|metal|wyrm> <slot|all> (slots: helmet chest shoulder_l shoulder_r gauntlet_l gauntlet_r tasset_l tasset_r)")]
 		public static string Give(string player, string set, string slot)
 		{

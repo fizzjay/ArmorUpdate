@@ -1,12 +1,14 @@
 # Armor materials
 
+For the new PC/Quest armor stand and its spawn command, see [armorstand/README.md](armorstand/README.md).
+
 Metal armor prefabs now register a native `PhysicalMaterialPart` on material
 channel 0 using `distributions/Metal Material Distribution`, matching the
 EnoughIron approach. This enables the game's existing item-material system;
 it does not introduce new armor item IDs or a crafting recipe/UI.
 
 Both PC/server and Quest register the same additional network behaviour. Update
-both builds together (version 0.3.0, wire protocol 2); old clients do not have
+both builds together (version 0.4.0, wire protocol 3); old clients do not have
 the matching prefab layout or worn-material table format.
 Leather and wyrm pieces keep their original materials. The entire metal armor
 pickup renderer is material-controlled (including any trim sharing that renderer).
@@ -50,7 +52,7 @@ the existing armor-set settings. Material changes do not add crafting recipes.
 
 The changed table uses message kind 13 rather than the old kind 10, preventing
 old clients from accidentally parsing material bits as piece IDs. Both sides
-advertise and check protocol 2; install matching updates on server, PC and Quest.
+advertise and check protocol 3; install matching updates on server, PC and Quest.
 
 ## In-game verification needed
 

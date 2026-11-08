@@ -114,7 +114,7 @@ namespace ArmorRestoredQuest
 			{
 				uint num = 5U;
 				s.SerializeBits(ref num, 8);
-				int num2 = 2;
+				int num2 = 3;
 				s.SerializeInteger(ref num2);
 				string version2 = version;
 				string refused2 = refused;
@@ -202,7 +202,7 @@ namespace ArmorRestoredQuest
 		internal const int Type = 137;
 
 		// Token: 0x04000093 RID: 147
-		internal const int Number = 2;
+		internal const int Number = 3;
 
 		// Token: 0x04000094 RID: 148
 		private const uint Equip = 2U;

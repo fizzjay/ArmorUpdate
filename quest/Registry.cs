@@ -121,7 +121,9 @@ namespace ArmorRestoredQuest
 								Mod.Log.Error(Catalog.Id(i) + " refused: " + text2);
 							}
 						}
-						Crumb.At("register: itemsByName reset");
+						ArmorStand.Register(Registry._holder, Registry.Prefabs, Registry.Items);
+                        if (ArmorStand.Prefab == null) list.Add("armorstand");
+                        Crumb.At("register: itemsByName reset");
 						HashedGeneralValue<Item>.itemsByName = null;
 						Registry._refused = string.Join(",", list.ToArray());
 						Mod.Log.Msg(string.Concat(new string[]
@@ -484,6 +486,7 @@ namespace ArmorRestoredQuest
 		// Token: 0x0600006D RID: 109 RVA: 0x0000768C File Offset: 0x0000588C
 		internal static string Unregister()
 		{
+            ArmorStand.Unregister();
 			Il2CppSystem.Collections.Generic.Dictionary<uint, NetworkPrefab> prefabMap = PrefabManager.prefabMap;
 			Il2CppSystem.Collections.Generic.Dictionary<uint, Item> items = HashedGeneralValue<Item>.items;
 			int num = 0;

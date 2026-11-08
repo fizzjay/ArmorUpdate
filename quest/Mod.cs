@@ -7,7 +7,7 @@ namespace ArmorRestoredQuest
 	internal static class Mod
 	{
 		// Token: 0x0400003E RID: 62
-		internal const string Version = "0.3.0";
+		internal const string Version = "0.4.0";
 
 		// Token: 0x0400003F RID: 63
 		internal static MelonLogger.Instance Log;

@@ -63,10 +63,10 @@ class MaterialContract(unittest.TestCase):
     def test_protocol_version_and_distinct_message(self):
         pc = source('pchost/Net.cs')
         quest = source('quest/Wire.cs')
-        self.assertIn('int num = 2;', pc)
-        self.assertIn('int num2 = 2;', quest)
-        self.assertIn('wire != 2', source('pchost/Gate.cs'))
-        self.assertIn('_heardWire != 2', source('quest/Gate.cs'))
+        self.assertIn('int num = 3;', pc)
+        self.assertIn('int num2 = 3;', quest)
+        self.assertIn('wire != 3', source('pchost/Gate.cs'))
+        self.assertIn('_heardWire != 3', source('quest/Gate.cs'))
         self.assertIn('byte b = 13;', pc)
         self.assertIn('if (b == 13)', pc)
         self.assertIn('num2 == 13U && Gate.IsOpen', quest)
@@ -111,8 +111,8 @@ class QuestBuildContract(unittest.TestCase):
         for platform in ('pchost', 'quest'):
             tree = ET.parse(ROOT / platform / 'ArmorRestored.csproj')
             resources = tree.findall('.//ms:EmbeddedResource', ns)
-            self.assertEqual(1, len(resources))
-            self.assertEqual('ArmorRestored.armor.pack', resources[0].find('ms:LogicalName', ns).text)
+            self.assertEqual({'ArmorRestored.armor.pack', 'ArmorRestored.stand'},
+                             {r.find('ms:LogicalName', ns).text for r in resources})
 
     def test_no_decompiler_delegate_syntax(self):
         text = source('quest/Crumb.cs') + source('quest/Wire.cs')

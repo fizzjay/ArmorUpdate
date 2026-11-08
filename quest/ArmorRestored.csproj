@@ -63,6 +63,9 @@
     <AppDesigner Include="Properties\" />
   </ItemGroup>
   <ItemGroup>
+    <Compile Include="..\shared\ArmorStand.cs">
+      <Link>ArmorStand.cs</Link>
+    </Compile>
     <Compile Include="WornMaterials.cs" />
     <Compile Include="CosmeticCoverage.cs" />
     <Compile Include="NativeEnumerable.cs" />
@@ -94,5 +97,13 @@
       <LogicalName>ArmorRestored.armor.pack</LogicalName>
     </EmbeddedResource>
   </ItemGroup>
+  <ItemGroup>
+    <EmbeddedResource Include="..\armorstand\stand.bin">
+      <LogicalName>ArmorRestored.stand</LogicalName>
+    </EmbeddedResource>
+  </ItemGroup>
+  <PropertyGroup>
+    <DefineConstants>$(DefineConstants);ARMOR_QUEST</DefineConstants>
+  </PropertyGroup>
   <Import Project="$(MSBuildToolsPath)\Microsoft.CSharp.targets" />
 </Project>

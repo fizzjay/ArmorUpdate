@@ -52,6 +52,9 @@
     <Compile Include="ArmorCommands.cs" />
     <Compile Include="ArmorSet.cs" />
     <Compile Include="Body.cs" />
+    <Compile Include="..\shared\ArmorStand.cs">
+      <Link>ArmorStand.cs</Link>
+    </Compile>
     <Compile Include="WornMaterials.cs" />
     <Compile Include="CosmeticCoverage.cs" />
     <Compile Include="ArmorMaterials.cs" />
@@ -85,6 +88,11 @@
   <ItemGroup>
     <EmbeddedResource Include="armor.pack">
       <LogicalName>ArmorRestored.armor.pack</LogicalName>
+    </EmbeddedResource>
+  </ItemGroup>
+  <ItemGroup>
+    <EmbeddedResource Include="..\armorstand\stand.bin">
+      <LogicalName>ArmorRestored.stand</LogicalName>
     </EmbeddedResource>
   </ItemGroup>
   <Import Project="$(MSBuildToolsPath)\Microsoft.CSharp.targets" />

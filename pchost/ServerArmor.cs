@@ -288,7 +288,12 @@ namespace ArmorRestored
 				Net.SendNote(p, "equip " + entityId + ": not an armor piece");
 				return;
 			}
-			int num = Catalog.PieceOf(networkEntity.Prefab.Hash);
+			if (ArmorStand.Contains(networkEntity.GetComponent<Alta.Inventory.Pickup>()))
+            {
+                Net.SendNote(p, "equip: take the armor off its stand first");
+                return;
+            }
+            int num = Catalog.PieceOf(networkEntity.Prefab.Hash);
 			Vector3 position = networkEntity.transform.position;
 			Vector3 vector = ServerArmor.Head(p);
 			if ((position - vector).magnitude > 2f)

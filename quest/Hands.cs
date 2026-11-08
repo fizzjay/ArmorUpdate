@@ -223,6 +223,7 @@ namespace ArmorRestoredQuest
 		// Token: 0x06000038 RID: 56 RVA: 0x00004078 File Offset: 0x00002278
 		private static void LetGo(Dressed me, Pickup was)
 		{
+            if (ArmorStand.NearSocket(was)) return;
 			int num = Hands.PieceOf(was);
 			if (num < 0)
 			{

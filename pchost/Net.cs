@@ -18,9 +18,9 @@ namespace ArmorRestored
 			{
 				byte b = 20;
 				s.SerializeByte(ref b);
-				string text = "0.3.0";
+				string text = "0.4.0";
 				s.SerializeString(ref text, (Stream.StringEncoding)1);
-				int num = 2;
+				int num = 3;
 				s.SerializeInteger(ref num);
 			});
 		}
@@ -32,9 +32,9 @@ namespace ArmorRestored
 			{
 				byte b = 5;
 				s.SerializeByte(ref b);
-				int num = 2;
+				int num = 3;
 				s.SerializeInteger(ref num);
-				string text = "0.3.0";
+				string text = "0.4.0";
 				string text2 = Prefabs.RefusedLine();
 				s.SerializeString(ref text, (Stream.StringEncoding)1);
 				s.SerializeString(ref text2, (Stream.StringEncoding)1);
@@ -328,15 +328,15 @@ namespace ArmorRestored
 				}
 				else if (hello == null)
 				{
-					problem = "This server needs the ArmorRestored mod 0.3.0. Install it, then join again.";
+					problem = "This server needs the ArmorRestored mod 0.4.0. Install it, then join again.";
 				}
-				else if (hello.Wire < 2)
+				else if (hello.Wire < 3)
 				{
-					problem = "Your ArmorRestored " + hello.Version + " is too old for this server's 0.3.0. Update it, then join again.";
+					problem = "Your ArmorRestored " + hello.Version + " is too old for this server's 0.4.0. Update it, then join again.";
 				}
-				else if (hello.Wire > 2)
+				else if (hello.Wire > 3)
 				{
-					problem = "Your ArmorRestored " + hello.Version + " is newer than this server's 0.3.0. The server needs an update first.";
+					problem = "Your ArmorRestored " + hello.Version + " is newer than this server's 0.4.0. The server needs an update first.";
 				}
 				else if (hello.Refused != Prefabs.RefusedLine())
 				{
@@ -455,7 +455,7 @@ namespace ArmorRestored
 		internal const byte Here = 20;
 
 		// Token: 0x04000055 RID: 85
-		internal const int Wire = 2;
+		internal const int Wire = 3;
 
 		// Token: 0x04000056 RID: 86
 		private const int AnswerWait = 5000;

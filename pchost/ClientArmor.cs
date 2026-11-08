@@ -583,6 +583,7 @@ namespace ArmorRestored
 		// Token: 0x0600002F RID: 47 RVA: 0x0000408C File Offset: 0x0000228C
 		private static void LetGo(ClientArmor.Dressed me, Pickup was)
 		{
+            if (ArmorStand.NearSocket(was)) return;
 			if (was == null || was.Entity == null)
 			{
 				return;
