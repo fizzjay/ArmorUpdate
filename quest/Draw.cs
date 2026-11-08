@@ -59,6 +59,7 @@ namespace ArmorRestoredQuest
 		{
 			foreach (Dressed dressed in Draw.Bodies.Values)
 			{
+                dressed.Coverage.Clear();
 				for (int i = 0; i < dressed.Slots.Length; i++)
 				{
 					Draw.Remove(dressed, i);
@@ -107,7 +108,8 @@ namespace ArmorRestoredQuest
 			}
 			foreach (IntPtr key in list)
 			{
-				Draw.Bodies.Remove(key);
+				Draw.Bodies[key].Coverage.Clear();
+                Draw.Bodies.Remove(key);
 			}
 			if (Draw.Local != null && Draw.Local.Root == null)
 			{
@@ -135,6 +137,7 @@ namespace ArmorRestoredQuest
 						Dressed dressed;
 						if (Draw.Bodies.TryGetValue(transform2.Pointer, out dressed) && (dressed.Rig == null || dressed.Rig.Pointer != transform.Pointer))
 						{
+                            dressed.Coverage.Clear();
 							for (int i = 0; i < 8; i++)
 							{
 								Draw.Remove(dressed, i);
@@ -184,6 +187,7 @@ namespace ArmorRestoredQuest
 								flag2 = true;
 							}
 						}
+                        dressed.Coverage.Update(dressed.Root, dressed.Shown);
 						if (flag2)
 						{
 							Draw.Cost(dressed, flag);

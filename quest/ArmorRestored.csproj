@@ -64,6 +64,7 @@
   </ItemGroup>
   <ItemGroup>
     <Compile Include="WornMaterials.cs" />
+    <Compile Include="CosmeticCoverage.cs" />
     <Compile Include="ArmorMaterials.cs" />
     <Compile Include="Catalog.cs" />
     <Compile Include="ColliderDef.cs" />

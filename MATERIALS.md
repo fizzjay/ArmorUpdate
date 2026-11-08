@@ -227,3 +227,42 @@ rewrites. In particular preserve the new fitted skin weights and bind poses.
 The client code constructing EquipmentSlot.Point/Attach and rendering/interacting
 with the local quick-wheel dummy remains missing. No dummy equip/removal UI has
 been installed in this patch; current body-proximity interaction stays intact.
+
+### Cosmetic coverage (native compact meshes)
+
+PC and Quest now maintain a per-avatar `CosmeticCoverage` overlay alongside worn
+rendering. It resolves the native PlayerCharacterCustomizationManager from typed
+character/handler members, reads its internalManager/items (fields on Mono,
+generated properties supported on Quest), and applies temporary TwoColors with
+IsImpeded=true to each active native handler. Native packing uses the cosmetic's
+authored ImpededLods, with its original primary/secondary colors preserved.
+
+Coverage uses this repository's shown eight-slot order, **not** the native
+EquipmentSlot enum values or the reference mod's seven-slot mask. The two tasset
+bits both cover the shared lower-body cosmetic slots; coverage remains while
+either is shown. Local hidden helmets do not compact local head cosmetics.
+Entries are reevaluated on each dress scan, so cosmetic changes and repacks can
+be handled without re-equipping. Removal, rig replacement, avatar cleanup and
+session clear release owned overlays. Restoration checks the actual packed
+argument identity and does not overwrite an unrelated native/mod change.
+
+Safety boundaries: only PlayerCosmeticDefinition clothing with TwoColors and a
+complete authored compact LOD set is supported. SkinMeshPart, forced texture
+sharing, disabled entries, and non-clothing accessory slots are excluded. No
+whole Baked renderer is disabled, no saved customization argument is mutated,
+and no armor geometry, tint, persistence or equip protocol is changed. Cosmetics
+without compact LODs remain unchanged: the reference's additional custom fabric
+shrink/packing path is **not** implemented. Thus this is not a promise to hide
+every possible cosmetic or eliminate all clipping.
+
+Rebuild client DLLs and restart. Validate covered clothing before/after equipping
+each slot, both tassets independently, cosmetic changes while wearing armor,
+remote avatars, respawn and reconnect. Look for `Cosmetic armor coverage deferred`
+if the installed native API differs. Source-contract tests cover registration,
+slot ranges, cleanup and safety guards; matching-reference C# compilation and
+Unity/Quest runtime validation are still unavailable in this checkout.
+
+Equipment-dummy interaction remains a separate unfinished request. The supplied
+ArmorClient now identifies ArmorDummyInteraction as the relevant client class;
+EditableSlot handles native CustomizationPickup objects, not these armor pickups.
+No native cosmetic slot triggers or saved customization definitions are replaced.

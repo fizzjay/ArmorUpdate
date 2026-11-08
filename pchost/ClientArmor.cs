@@ -38,7 +38,8 @@ namespace ArmorRestored
 		{
 			foreach (ClientArmor.Dressed dressed in ClientArmor.Bodies.Values)
 			{
-				foreach (GameObject gameObject in dressed.Slots)
+				dressed.Coverage.Clear();
+                foreach (GameObject gameObject in dressed.Slots)
 				{
 					if (gameObject != null)
 					{
@@ -148,7 +149,8 @@ namespace ArmorRestored
 			}
 			foreach (int key in list)
 			{
-				ClientArmor.Bodies.Remove(key);
+				ClientArmor.Bodies[key].Coverage.Clear();
+                ClientArmor.Bodies.Remove(key);
 			}
 			Player objB = (PlayerController.Current != null) ? PlayerController.Current.NetworkPlayer : null;
 			foreach (IPlayer player in Player.AllPlayers)
@@ -168,6 +170,7 @@ namespace ArmorRestored
 						ClientArmor.Dressed dressed;
 						if (ClientArmor.Bodies.TryGetValue(instanceID, out dressed) && dressed.Rig != transform)
 						{
+                            dressed.Coverage.Clear();
 							foreach (GameObject gameObject in dressed.Slots)
 							{
 								if (gameObject != null)
@@ -227,6 +230,7 @@ namespace ArmorRestored
 								}
 							}
 						}
+                        dressed.Coverage.Update(dressed.Root, dressed.Shown);
 					}
 				}
 			}
@@ -811,6 +815,7 @@ namespace ArmorRestored
 			// Token: 0x04000037 RID: 55
 			public int[] Shown;
 			public uint[] ShownMaterials = new uint[8];
+            public CosmeticCoverage Coverage = new CosmeticCoverage();
 
 			// Token: 0x04000038 RID: 56
 			public GameObject[] Slots = new GameObject[8];
