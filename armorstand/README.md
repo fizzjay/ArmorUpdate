@@ -98,3 +98,13 @@ Before using this on an important world, back it up and verify:
 
 Existing cosmetic coverage remains a separate runtime-unverified issue; this
 addition does not claim to fix it.
+
+### Quest registration follow-up
+
+A Quest runtime test reached stand registration but failed at the initial
+collision check: `PrefabManager.GetPrefab(52854)` throws KeyNotFoundException for
+an unregistered ID, rather than returning null. Stand lookup now uses the native
+map's `TryGetValue` on Quest (and the corresponding PC dictionary) both before
+registration and when verifying publication. Rebuild with the updated shared
+`ArmorStand.cs` on both platforms. Further docking/persistence testing is still
+required; this fixes the observed lookup failure, not a verified full stand run.

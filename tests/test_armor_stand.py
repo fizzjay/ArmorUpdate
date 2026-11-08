@@ -141,6 +141,13 @@ class ArmorStandContracts(unittest.TestCase):
         self.assertNotIn('Alta.Inventory.Pickup', code)
         self.assertIn('[Command("stand",', source('pchost/ArmorCommands.cs'))
 
+    def test_stand_checks_new_id_without_throwing_getprefab(self):
+        code = source('shared/ArmorStand.cs')
+        self.assertNotIn('PrefabManager.GetPrefab(Number)', code)
+        self.assertIn('if (FindPrefab() != null || ItemNumberOccupied())', code)
+        self.assertIn('Same(FindPrefab(), prefab)', code)
+        self.assertIn('map.TryGetValue(Number, out prefab) ? prefab : null', code)
+
     def test_new_prefab_requires_updated_clients(self):
         self.assertIn('hello.Wire < 3', source('pchost/Net.cs'))
         self.assertIn('hello.Wire > 3', source('pchost/Net.cs'))

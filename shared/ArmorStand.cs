@@ -54,7 +54,7 @@ namespace ArmorRestored
                 for (int i = 0; i < 24; i++)
                     if (pieces[i] == null || items[i] == null)
                         throw new InvalidOperationException("Stand requires armor template " + i);
-                if (PrefabManager.GetPrefab(Number) != null || ItemNumberOccupied())
+                if (FindPrefab() != null || ItemNumberOccupied())
                     throw new InvalidOperationException("Stand number 52854 is already occupied");
                 int ground = LayerMask.NameToLayer("Ground");
                 if (ground < 0) throw new InvalidOperationException("Ground layer missing");
@@ -100,7 +100,7 @@ namespace ArmorRestored
                 typeof(PrefabManager).GetMethod("AddToPrefabMap", BindingFlags.Static | BindingFlags.Public | BindingFlags.NonPublic)
                     .Invoke(null, new object[] { new NetworkPrefab[] { prefab } });
 #endif
-                if (!Same(PrefabManager.GetPrefab(Number), prefab))
+                if (!Same(FindPrefab(), prefab))
                     throw new InvalidOperationException("Stand prefab map registration failed");
                 Prefab = prefab;
                 Status = "ready";
@@ -254,6 +254,21 @@ namespace ArmorRestored
             if (material != null) Object.Destroy(material);
             if (texture != null) Object.Destroy(texture);
             mesh = null; material = null; texture = null;
+        }
+
+        private static NetworkPrefab FindPrefab()
+        {
+            // Quest GetPrefab indexes the dictionary and throws for a new ID.
+            // An absent ID is expected before registration, not a refusal.
+#if ARMOR_QUEST
+            var map = PrefabManager.prefabMap;
+#else
+            var map = (Dictionary<uint, NetworkPrefab>)typeof(PrefabManager)
+                .GetField("prefabMap", BindingFlags.Static | BindingFlags.Public | BindingFlags.NonPublic).GetValue(null);
+#endif
+            if (map == null) throw new InvalidOperationException("Stand prefab map is not loaded");
+            NetworkPrefab prefab;
+            return map.TryGetValue(Number, out prefab) ? prefab : null;
         }
 
         private static bool ItemNumberOccupied()
