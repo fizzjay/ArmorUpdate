@@ -171,6 +171,16 @@ class ArmorStandContracts(unittest.TestCase):
         self.assertIn('ArmorStand.TickDiagnostics();', source('quest/Main.cs'))
         self.assertIn('[Command("standinfo",', source('pchost/ArmorCommands.cs'))
 
+    def test_stand_root_links_to_prefab_before_activation_and_publication(self):
+        code = source('shared/ArmorStand.cs')
+        link = code.index('Set(entity, "prefab", prefab)')
+        self.assertLess(code.index('Set(prefab, "entity", entity)'), link)
+        self.assertLess(link, code.index('Bind(entity, new MonoBehaviour[0])'))
+        self.assertLess(link, code.index('root.SetActive(true)'))
+        self.assertLess(link, code.index('PrefabManager.prefabMap.Add(Number, prefab)'))
+        self.assertIn('if (!Same(entity.Prefab, prefab))', code)
+        self.assertNotIn('Set(entity, "hash", (int)Number)', code)
+
     def test_standinfo_reports_broken_prefab_links_instead_of_rejecting(self):
         code = source('pchost/ArmorCommands.cs')
         self.assertNotIn('return "Entity is not an armor stand"', code)

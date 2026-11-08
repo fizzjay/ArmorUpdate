@@ -67,6 +67,14 @@ namespace ArmorRestored
                 Set(prefab, "entity", entity);
                 Set(prefab, "hash", (int)Number);
                 Set(prefab, "SaveMode", 0);
+                // Native templates serialize both directions. A newly constructed
+                // component has no entity->prefab link; map registration alone
+                // does not populate it (observed on a live server clone).
+                // Keep the root's local entity hash at zero; that is distinct
+                // from the NetworkPrefab catalog number and dock hashes 1..8.
+                Set(entity, "prefab", prefab);
+                if (!Same(entity.Prefab, prefab))
+                    throw new InvalidOperationException("Stand root entity prefab link failed");
                 Bind(entity, new MonoBehaviour[0]);
                 // Solid base/post only: do not block hands from reaching the armor.
                 BoxCollider foot = Add<BoxCollider>(root);

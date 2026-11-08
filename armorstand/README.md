@@ -121,3 +121,15 @@ layer inclusion. `armor standinfo <entityId>` reports server state without spawn
 more objects. Update shared/ArmorStand.cs and quest/Main.cs for the client probe,
 and pchost/ArmorCommands.cs for standinfo. Capture both outputs after spawning and
 waiting at least five seconds; registration alone is not replication evidence.
+
+### Missing root prefab link correction
+
+A subsequent server probe found an active stand clone with attached prefab 52854
+and eight embedded entities, but `NetworkEntity.prefab` / `entity.Prefab` was null.
+The builder now explicitly assigns the root entity's prefab reference as well as
+the prefab's entity reference, before activation or publication, and checks it
+using platform-appropriate identity. The root local entity hash stays zero; dock
+hashes remain 1..8. Update shared/ArmorStand.cs in **both** builds, restart both
+ends, and spawn a fresh stand. Confirm standinfo now reports linkedPrefab 52854,
+then check Quest instance probes and visibility. This corrects the observed setup
+defect; successful replication, rendering, and docking still need runtime proof.
