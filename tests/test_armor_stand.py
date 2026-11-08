@@ -137,6 +137,8 @@ class ArmorStandContracts(unittest.TestCase):
             self.assertIn('if (ArmorStand.NearSocket(was)) return;', source(path))
         code = source('pchost/ServerArmor.cs')
         self.assertLess(code.index('ArmorStand.Contains('), code.index('ArmorMaterials.Read(networkEntity)'))
+        self.assertIn('GetComponent<global::Pickup>()', code)
+        self.assertNotIn('Alta.Inventory.Pickup', code)
         self.assertIn('[Command("stand",', source('pchost/ArmorCommands.cs'))
 
     def test_new_prefab_requires_updated_clients(self):

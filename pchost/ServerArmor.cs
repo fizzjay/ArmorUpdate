@@ -288,7 +288,7 @@ namespace ArmorRestored
 				Net.SendNote(p, "equip " + entityId + ": not an armor piece");
 				return;
 			}
-			if (ArmorStand.Contains(networkEntity.GetComponent<Alta.Inventory.Pickup>()))
+			if (ArmorStand.Contains(networkEntity.GetComponent<global::Pickup>()))
             {
                 Net.SendNote(p, "equip: take the armor off its stand first");
                 return;
