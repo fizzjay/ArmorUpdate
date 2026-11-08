@@ -33,6 +33,17 @@ class MaterialContract(unittest.TestCase):
         self.assertIn('piece / 8 != 1', pc)  # Do not recolor leather or wyrm.
         self.assertIn('UnityEngine.Object.Destroy(material)', pc)
 
+    def test_visual_lookup_supports_nested_data_and_native_proxies(self):
+        for platform in ('pchost', 'quest'):
+            helper = source(platform + '/WornMaterials.cs')
+            self.assertIn('FindTint(physical, 0, new HashSet<object>()', helper)
+            self.assertIn('depth > 3', helper)
+            self.assertIn('value is Color32', helper)
+            self.assertIn('method.MakeGenericMethod(typeof(Material))', helper)
+            self.assertIn('visual lookup members:', helper)
+            self.assertIn('One inaccessible member must not hide the rest.', helper)
+            self.assertNotIn('return native;', helper)
+
     def test_protocol_version_and_distinct_message(self):
         pc = source('pchost/Net.cs')
         quest = source('quest/Wire.cs')

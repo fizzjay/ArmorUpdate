@@ -191,3 +191,27 @@ Tests exercise the binary resources: 60 conversions, unchanged original assets,
 valid normalized skin weights, reference bind palettes, rest-space transforms,
 real changes to bone influences, matching client packs, nearest-vertex search,
 and idempotent conversion. These tests are not Unity rendering validation.
+
+### Confirmed fitting / unresolved Quest tint lookup
+
+The user reports that the re-skinned metal now fits. Do not undo the pack or
+adjust working leather to troubleshoot color. Quest logs show the updated pack
+(285 meshes), and specifically `No visual material/color exposed for physical
+material 31468`. The material hash reaches the worn renderer; this failure is in
+visual-data discovery, not evidence that the saved item material was lost.
+
+The visual resolver now supports nested visual settings (bounded depth, cycle
+protection), typed Color/Color32 members with nonstandard names, additional base
+tint shader properties, and native `TryCast<Material>` for IL2CPP object proxies.
+Individual reflection getter failures no longer stop the remaining candidates.
+Only the discovered color is copied to the armor material, never native textures.
+If discovery still fails, the log includes physical-material member names/types
+so the installed game's actual API can be identified without another blind
+name-list guess. This is a candidate lookup fix, not verified against game DLLs.
+
+The user's supplied EquipmentSlot/EquipmentPartPickup classes are mod-side slot
+and release bookkeeping, not sufficient evidence of a native game API. Replacing
+body-proximity equip with mannequin/customization equipment interaction needs
+confirmation of the intended UI and its slot-creation/controller integration.
+No equip, removal, persistence or placement behavior is changed by this lookup
+patch.
