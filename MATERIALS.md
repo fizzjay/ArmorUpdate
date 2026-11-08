@@ -279,3 +279,32 @@ IEnumerable<ICustomizationHandler>, rather than a native array that does not
 implicitly implement the expected interface in these generated references.
 This addresses the user's reported compile errors; the matching DLL references
 are still not present here, so successful C# compilation is not claimed.
+
+### Quest runtime follow-up: enumeration failures block tint and coverage
+
+The user's Quest log confirms both new paths run, but tint 31468 fails inside
+native Dictionary.ValueCollection.Enumerator.MoveNext and cosmetic coverage
+fails inside native HashSet.Enumerator.MoveNext with "Collection was modified".
+Neither feature is runtime-verified working. Server equip/remove succeeds and
+these exceptions are client presentation failures, not evidence of lost hashes.
+
+The generic-to-nongeneric enumerator bridge has been removed. Material lookup on
+both clients now uses Get(hash) with an exact physical.Hash check (no All scan).
+Quest customization handler reads copy the native ICollection into a native
+reference array and then a managed array, with no generated struct enumerator.
+Quest cosmetic entry groups use ValueCollection.CopyTo and indexed list reads.
+Packing/ChangeArguments happens after snapshot reads, not during a live handler
+walk. Copy failures still abort/defer rather than applying a partial snapshot.
+
+Quest manager identity is now compared by native Pointer, not CLR wrapper
+reference. New generated wrappers for the same manager must not clear coverage,
+drop owned overlays or reset the one-warning guard every half-second. This also
+addresses the repeated warnings seen in the user's log. Fitting resources, native
+compact-mesh eligibility, shader sampling, persistent hashes and gameplay are
+unchanged. Rebuild/restart the Quest client to test; a server-only DLL replacement
+cannot fix these client errors. PC clients should rebuild for the keyed lookup.
+
+Source-contract tests prohibit native enumerator use in this bridge and require
+snapshot CopyTo, exact hash lookup and native manager identity. These are not
+matching-game compilation/runtime tests. Check for successful "worn cold-albedo
+tint resolved" and absence of repeated "coverage deferred" errors after testing.

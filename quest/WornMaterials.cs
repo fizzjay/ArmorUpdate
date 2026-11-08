@@ -106,17 +106,14 @@ namespace ArmorRestoredQuest
         {
             Color cached;
             if (RawColors.TryGetValue(hash, out cached)) return cached;
-            // Match the original palette's exact hash search; do not accept a
-            // default/fallback asset returned for an unknown physical-material hash.
-            foreach (PhysicalMaterial physical in NativeEnumerable.Items(HashedGeneralValue<PhysicalMaterial>.All))
-            {
-                if (physical == null || physical.Hash != hash) continue;
-                Material material = physical.GetNonAtlasedNonDeformingMaterial(0);
-                Color? sampled = SampleColdColor(material);
-                if (sampled.HasValue) RawColors[hash] = sampled.Value;
-                return sampled;
-            }
-            return null;
+            // Direct keyed lookup avoids walking the live native registry. Validate
+            // the hash because an unresolved lookup may return a default asset.
+            PhysicalMaterial physical = HashedGeneralValue<PhysicalMaterial>.Get(hash);
+            if (physical == null || physical.Hash != hash) return null;
+            Material material = physical.GetNonAtlasedNonDeformingMaterial(0);
+            Color? sampled = SampleColdColor(material);
+            if (sampled.HasValue) RawColors[hash] = sampled.Value;
+            return sampled;
         }
 
         private static bool Finite(Color c)

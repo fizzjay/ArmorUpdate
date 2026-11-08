@@ -55,13 +55,16 @@ class CosmeticCoverageTests(unittest.TestCase):
         self.assertNotIn('new Il2CppReferenceArray<ICustomizationHandler>', quest)
         self.assertIn('new Il2CppSystem.Collections.Generic.List<ICustomizationHandler>()', quest)
         bridge = source('quest/NativeEnumerable.cs')
-        self.assertIn('Cast<Il2CppSystem.Collections.IEnumerator>()', bridge)
-        self.assertIn('iterator.MoveNext()', bridge)
-        self.assertIn('current.Current', bridge)
-        self.assertNotIn('current.MoveNext()', bridge)
-        self.assertIn('disposable.Dispose()', bridge)
-        self.assertIn('NativeEnumerable.Items(HashedGeneralValue<PhysicalMaterial>.All)',
-                      source('quest/WornMaterials.cs'))
+        self.assertIn('TryCast<Il2CppSystem.Collections.Generic.ICollection<T>>()', bridge)
+        self.assertIn('collection.CopyTo(copy, 0)', bridge)
+        self.assertNotIn('MoveNext(', bridge)
+        self.assertNotIn('GetEnumerator(', bridge)
+        self.assertIn('items.Values.CopyTo(groups, 0)', quest)
+        self.assertNotIn('in items.Values)', quest)
+        self.assertIn('manager.Pointer != next.Pointer', quest)
+        self.assertNotIn('if (manager != next)', quest)
+        self.assertNotIn('HashedGeneralValue<PhysicalMaterial>.All',
+                         source('quest/WornMaterials.cs'))
         tree = ET.parse(ROOT / 'quest/ArmorRestored.csproj')
         ns = {'m': 'http://schemas.microsoft.com/developer/msbuild/2003'}
         self.assertEqual(sum(x.attrib['Include'] == 'NativeEnumerable.cs'

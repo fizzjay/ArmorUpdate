@@ -23,7 +23,9 @@ namespace ArmorRestoredQuest
             try
             {
                 PlayerCharacterCustomizationManager next = root == null ? null : ManagerOf(root);
-                if (manager != next) { Clear(); manager = next; }
+                if ((manager == null) != (next == null) ||
+                    (manager != null && next != null && manager.Pointer != next.Pointer))
+                { Clear(); manager = next; }
                 if (manager == null)
                 {
                     if (!warned && Array.Exists(shown, piece => piece >= 0))
@@ -154,9 +156,17 @@ namespace ArmorRestoredQuest
             var items = Native<Il2CppSystem.Collections.Generic.Dictionary<uint, Il2CppSystem.Collections.Generic.List<CustomizationSlotEntry>>>(Read(visuals, "items"));
             if (items == null) throw new InvalidOperationException("Native cosmetic entries unavailable");
             HashSet<CustomizationSlotEntry> entries = new HashSet<CustomizationSlotEntry>();
-            foreach (var list in items.Values)
-                foreach (CustomizationSlotEntry entry in list)
+            var groups = new Il2CppReferenceArray<Il2CppSystem.Collections.Generic.List<CustomizationSlotEntry>>(items.Count);
+            items.Values.CopyTo(groups, 0);
+            for (int group = 0; group < groups.Length; group++)
+            {
+                var list = groups[group];
+                for (int i = 0; i < list.Count; i++)
+                {
+                    CustomizationSlotEntry entry = list[i];
                     if (entry != null) entries.Add(entry);
+                }
+            }
             return entries;
         }
 
