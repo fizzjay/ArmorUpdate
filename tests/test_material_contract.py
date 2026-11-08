@@ -106,6 +106,26 @@ class MaterialContract(unittest.TestCase):
 
 
 class QuestBuildContract(unittest.TestCase):
+    def test_quest_uses_sdk_net8_without_manual_runtime_references(self):
+        ns = {'ms': 'http://schemas.microsoft.com/developer/msbuild/2003'}
+        tree = ET.parse(ROOT / 'quest/ArmorRestored.csproj')
+        self.assertEqual('Microsoft.NET.Sdk', tree.getroot().attrib['Sdk'])
+        def prop(name):
+            return tree.find('.//ms:' + name, ns).text
+        self.assertEqual('net8.0', prop('TargetFramework'))
+        self.assertEqual('false', prop('EnableDefaultItems'))
+        self.assertEqual('false', prop('GenerateAssemblyInfo'))
+        self.assertEqual('true', prop('AllowUnsafeBlocks'))
+        self.assertIn('ARMOR_QUEST', prop('DefineConstants'))
+        self.assertIsNone(tree.find('.//ms:TargetFrameworkVersion', ns))
+        self.assertIsNone(tree.find('.//ms:TargetFrameworkIdentifier', ns))
+        references = tree.findall('.//ms:Reference', ns)
+        self.assertTrue(all(not x.attrib['Include'].startswith('System.') for x in references))
+        for item in references:
+            self.assertIn('$(QuestReferenceDir)', item.find('ms:HintPath', ns).text)
+            self.assertEqual('false', item.find('ms:Private', ns).text)
+        self.assertNotIn('Microsoft.CSharp.targets', source('quest/ArmorRestored.csproj'))
+
     def test_embedded_pack_names_match_loaders(self):
         ns = {'ms': 'http://schemas.microsoft.com/developer/msbuild/2003'}
         for platform in ('pchost', 'quest'):
