@@ -19,7 +19,7 @@ namespace ArmorRestored
 				byte b = 20;
 				s.SerializeByte(ref b);
 				string text = "0.3.0";
-				s.SerializeString(ref text, 1);
+				s.SerializeString(ref text, (Stream.StringEncoding)1);
 				int num = 2;
 				s.SerializeInteger(ref num);
 			});
@@ -36,8 +36,8 @@ namespace ArmorRestored
 				s.SerializeInteger(ref num);
 				string text = "0.3.0";
 				string text2 = Prefabs.RefusedLine();
-				s.SerializeString(ref text, 1);
-				s.SerializeString(ref text2, 1);
+				s.SerializeString(ref text, (Stream.StringEncoding)1);
+				s.SerializeString(ref text2, (Stream.StringEncoding)1);
 			});
 		}
 
@@ -101,8 +101,8 @@ namespace ArmorRestored
 				}
 				string text = null;
 				string text2 = null;
-				s.SerializeString(ref text, 1);
-				s.SerializeString(ref text2, 1);
+				s.SerializeString(ref text, (Stream.StringEncoding)1);
+				s.SerializeString(ref text2, (Stream.StringEncoding)1);
 				lock (Net.Hellos)
 				{
 					Net.Hellos[connection.Identifier] = new Net.Greeting
@@ -204,7 +204,7 @@ namespace ArmorRestored
 				byte b = 12;
 				s.SerializeByte(ref b);
 				string text2 = text;
-				s.SerializeString(ref text2, 1);
+				s.SerializeString(ref text2, (Stream.StringEncoding)1);
 			});
 		}
 
@@ -217,7 +217,7 @@ namespace ArmorRestored
 			{
 				string version = null;
 				int wire = 0;
-				s.SerializeString(ref version, 1);
+				s.SerializeString(ref version, (Stream.StringEncoding)1);
 				s.SerializeInteger(ref wire);
 				Gate.Open(connection, version, wire);
 				return;
@@ -264,7 +264,7 @@ namespace ArmorRestored
 			if (b == 12)
 			{
 				string str = null;
-				s.SerializeString(ref str, 1);
+				s.SerializeString(ref str, (Stream.StringEncoding)1);
 				Mod.Log.Msg("server: " + str);
 			}
 		}
@@ -385,7 +385,7 @@ namespace ArmorRestored
 					{
 						progress(Net.Ascii(problem));
 						await Task.Delay(1500);
-						connection.Send(null, 10, delegate(Connection c, Stream s)
+						connection.Send(null, (MessageType)10, delegate(Connection c, Stream s)
 						{
 							bool flag3 = false;
 							bool flag4 = false;
@@ -394,7 +394,7 @@ namespace ArmorRestored
 							s.SerializeBool(ref flag3);
 							s.SerializeBool(ref flag4);
 							s.SerializeInteger(ref num);
-							s.SerializeString(ref text, 0);
+							s.SerializeString(ref text, (Stream.StringEncoding)0);
 						});
 						await Task.Delay(500);
 						throw new InvalidOperationException("ArmorRestored refused the join: " + problem);

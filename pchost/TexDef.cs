@@ -19,7 +19,7 @@ namespace ArmorRestored
 				Mod.Log.Warning("texture " + this.Name + " is not DXT; left out");
 				return null;
 			}
-			this._tex = new Texture2D(this.W, this.H, this.Format, this.Mips > 1, this.Linear);
+			this._tex = new Texture2D(this.W, this.H, (TextureFormat)this.Format, this.Mips > 1, this.Linear);
 			this._tex.name = "ArmorRestored " + this.Name;
 			this._tex.LoadRawTextureData(this.Data);
 			this._tex.Apply(false, true);

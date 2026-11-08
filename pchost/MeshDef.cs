@@ -18,7 +18,7 @@ namespace ArmorRestored
 			mesh.name = "ArmorRestored " + this.Name;
 			if (this.V.Length > 65000)
 			{
-				mesh.indexFormat = 1;
+				mesh.indexFormat = UnityEngine.Rendering.IndexFormat.UInt32;
 			}
 			mesh.vertices = this.V;
 			if (this.N.Length == this.V.Length)

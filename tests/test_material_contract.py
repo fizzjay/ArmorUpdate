@@ -152,6 +152,28 @@ class PcBuildContract(unittest.TestCase):
         for file in ('Catalog.cs', 'ClientArmor.cs', 'Loot.cs', 'MatDef.cs', 'MeshDef.cs', 'Prefabs.cs', 'TexDef.cs'):
             self.assertIn('using Object = UnityEngine.Object;', source('pchost/' + file))
 
+    def test_pc_private_material_member_access(self):
+        text = source('pchost/ArmorMaterials.cs')
+        self.assertIn('BindingFlags.NonPublic', text)
+        self.assertIn('type = type.BaseType', text)
+        self.assertIn('throw new MissingMemberException', text)
+        self.assertNotIn('part.physicalMaterial', text)
+        self.assertNotIn('entity.networkEntityBehaviours', text)
+        for member in ('physicalMaterial', 'renderers', 'materialChannel', 'impactors', 'listenToPhysicalMaterial', 'durabilityModule', 'entity', 'materialDistribution'):
+            self.assertIn('Set(part, "' + member + '",', text)
+        self.assertIn('Set(entity, "networkEntityBehaviours",', text)
+
+    def test_pc_remaining_typed_api_calls(self):
+        net = source('pchost/Net.cs')
+        import re
+        self.assertIsNone(re.search(r'SerializeString\(ref \w+, [01]\)', net))
+        self.assertIn('connection.Send(null, (MessageType)10,', net)
+        self.assertIn('UnityEngine.Rendering.IndexFormat.UInt32', source('pchost/MeshDef.cs'))
+        self.assertIn('(TextureFormat)this.Format', source('pchost/TexDef.cs'))
+        loot = source('pchost/Loot.cs')
+        self.assertIn('num6, out num7)', loot)
+        self.assertNotIn('allowedResult == null', loot)
+
     def test_pc_architecture_matches_x64_loader(self):
         ns = {'ms': 'http://schemas.microsoft.com/developer/msbuild/2003'}
         tree = ET.parse(ROOT / 'pchost/ArmorRestored.csproj')

@@ -122,3 +122,19 @@ versions the host actually loads. Do not overwrite game DLLs, copy arbitrary
 NuGet versions into the game's Managed directory, or assume a binding redirect
 in a mod DLL config can control the Unity host. Set Copy Local=False on external
 game/loader references to avoid accidentally packaging them with the mod.
+
+
+PC native material setup uses reflection for the non-public backing members that
+Quest exposes as public IL2CPP properties. It walks base types to find inherited
+fields/properties as well. The member names still need to exist in the installed
+game build: if registration logs a MissingMemberException, send that full error
+and the PhysicalMaterialPart/NetworkEntity declarations from your game DLLs.
+Reflection removes the compile-time accessibility problem; it does not prove
+that a different game version has the same runtime layout. An unexpected
+network-behaviour collection type is rejected instead of discarding behaviours.
+
+The loot diagnostic reports each named AllowedResult rather than comparing the
+non-nullable enum to null. GetLoot's output count uses `out`. PC string-encoding,
+texture-format and mesh-index-format values use explicit enum types. The
+ServerSettings obsolescence warning remains: it is not a compilation error and
+switching damage diagnostics to a replacement API needs its actual game signature.

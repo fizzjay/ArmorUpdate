@@ -132,7 +132,6 @@ namespace ArmorRestored
 			Dictionary<string, int> dictionary2 = new Dictionary<string, int>();
 			int num = 0;
 			int num2 = 0;
-			int num3 = 0;
 			int num4 = 0;
 			int num5 = 0;
 			foreach (LootModule lootModule in Object.FindObjectsOfType<LootModule>())
@@ -147,19 +146,14 @@ namespace ArmorRestored
 						{
 							num2++;
 							PickupDock.AllowedResult allowedResult = pickupDock.CheckAllowed(Prefabs.Items[Catalog.Piece(0, 1)]);
-							if (allowedResult == null)
-							{
-								num3++;
-							}
-							else
-							{
-								string key = allowedResult.ToString();
-								dictionary2[key] = (dictionary2.ContainsKey(key) ? (dictionary2[key] + 1) : 1);
-							}
+							// AllowedResult is an enum, not a nullable rejection object.
+							// Report the game's named results without guessing its success value.
+							string key = allowedResult.ToString();
+							dictionary2[key] = dictionary2.ContainsKey(key) ? dictionary2[key] + 1 : 1;
 							for (int k = 0; k < rolls; k++)
 							{
 								int num7;
-								Item loot = LootTable.GetLoot(pickupDock, new LootTable[0], num6, ref num7);
+								Item loot = LootTable.GetLoot(pickupDock, new LootTable[0], num6, out num7);
 								num4++;
 								if (!(loot == null) && Prefabs.IsArmor(loot.Hash))
 								{
@@ -184,7 +178,7 @@ namespace ArmorRestored
 				}
 				stringBuilder.Append("prefabs with a loot module: ").Append(string.Join(", ", list2.ToArray())).Append('\n');
 			}
-			stringBuilder.Append(num).Append(" loot modules, ").Append(num2).Append(" docks, ").Append(num3).Append(" take leather");
+			stringBuilder.Append(num).Append(" loot modules, ").Append(num2).Append(" docks; leather allowance results");
 			foreach (KeyValuePair<string, int> keyValuePair in dictionary2)
 			{
 				stringBuilder.Append("; ").Append(keyValuePair.Value).Append(' ').Append(keyValuePair.Key);
