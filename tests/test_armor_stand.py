@@ -171,6 +171,13 @@ class ArmorStandContracts(unittest.TestCase):
         self.assertIn('ArmorStand.TickDiagnostics();', source('quest/Main.cs'))
         self.assertIn('[Command("standinfo",', source('pchost/ArmorCommands.cs'))
 
+    def test_standinfo_reports_broken_prefab_links_instead_of_rejecting(self):
+        code = source('pchost/ArmorCommands.cs')
+        self.assertNotIn('return "Entity is not an armor stand"', code)
+        self.assertIn('linkedPrefab=', code)
+        self.assertIn('attachedPrefab=', code)
+        self.assertIn('field.GetValue(entity)', code)
+
     def test_new_prefab_requires_updated_clients(self):
         self.assertIn('hello.Wire < 3', source('pchost/Net.cs'))
         self.assertIn('hello.Wire > 3', source('pchost/Net.cs'))

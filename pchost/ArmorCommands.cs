@@ -88,13 +88,29 @@ namespace ArmorRestored
             {
                 NetworkEntity entity = NetworkSceneManager.Current == null ? null : NetworkSceneManager.Current.GetEntity(entityId);
                 if (entity == null) return "No server entity " + entityId;
-                if (entity.Prefab == null || entity.Prefab.Hash != ArmorStand.Number) return "Entity is not an armor stand";
                 GameObject root = entity.gameObject;
-                return "Stand " + entityId + " at " + root.transform.position.ToString("F2")
+                NetworkPrefab attached = root.GetComponent<NetworkPrefab>();
+                NetworkPrefab linked = entity.Prefab;
+                string identity = "Entity " + entityId + " name=" + root.name
+                    + " linkedPrefab=" + (linked == null ? "null" : linked.name + "/" + linked.Hash)
+                    + " attachedPrefab=" + (attached == null ? "null" : attached.name + "/" + attached.Hash);
+                // Keep reporting even when the native prefab link is broken.
+                StringBuilder fields = new StringBuilder();
+                for (Type type = entity.GetType(); type != null && type != typeof(MonoBehaviour); type = type.BaseType)
+                {
+                    foreach (FieldInfo field in type.GetFields(BindingFlags.Instance | BindingFlags.Public | BindingFlags.NonPublic | BindingFlags.DeclaredOnly))
+                    {
+                        if (field.Name.IndexOf("prefab", StringComparison.OrdinalIgnoreCase) < 0
+                            && field.Name.IndexOf("hash", StringComparison.OrdinalIgnoreCase) < 0) continue;
+                        object value = field.GetValue(entity);
+                        fields.Append(" ").Append(field.Name).Append("=").Append(value == null ? "null" : value.ToString());
+                    }
+                }
+                return identity + fields.ToString() + " at " + root.transform.position.ToString("F2")
                     + " active=" + root.activeSelf + "/" + root.activeInHierarchy
                     + " scale=" + root.transform.lossyScale.ToString("F2")
                     + " parent=" + (root.transform.parent == null ? "none" : root.transform.parent.name)
-                    + " embedded=" + entity.Prefab.Embedded.Count;
+                    + " embedded=" + (attached == null ? "none" : attached.Embedded.Count.ToString());
             });
         }
 
