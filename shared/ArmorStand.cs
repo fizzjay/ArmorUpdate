@@ -151,7 +151,7 @@ namespace ArmorRestored
             Set(dock, "settings", config);
             Set(dock, "snapPoint", frame.transform);
             Set(dock, "pickupRange", range);
-            dock.Channels = 1;
+            dock.Channels = (InteractionChannel)1;
             // Grab the docked pickup itself, never the fixed stand socket.
             dock.IsInteractable = false;
             Bind(entity, new MonoBehaviour[] { dock });

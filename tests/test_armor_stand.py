@@ -114,6 +114,8 @@ class ArmorStandContracts(unittest.TestCase):
         self.assertIn('prefab.Embedded.Add(entity)', code)
         self.assertIn('Bind(entity, new MonoBehaviour[] { dock })', code)
         self.assertIn('Set(prefab, "SaveMode", 0)', code)
+        self.assertIn('dock.Channels = (InteractionChannel)1;', code)
+        self.assertNotIn('dock.Channels = 1;', code)
         self.assertIn('"tasset_l", "tasset_r"', code)
         self.assertNotIn('SpawnHelper.Spawn', code)  # never replaces deposited armor
         self.assertNotIn('SyncLib', code)
