@@ -108,7 +108,7 @@ namespace ArmorRestoredQuest
             if (RawColors.TryGetValue(hash, out cached)) return cached;
             // Match the original palette's exact hash search; do not accept a
             // default/fallback asset returned for an unknown physical-material hash.
-            foreach (PhysicalMaterial physical in HashedGeneralValue<PhysicalMaterial>.All)
+            foreach (PhysicalMaterial physical in NativeEnumerable.Items(HashedGeneralValue<PhysicalMaterial>.All))
             {
                 if (physical == null || physical.Hash != hash) continue;
                 Material material = physical.GetNonAtlasedNonDeformingMaterial(0);

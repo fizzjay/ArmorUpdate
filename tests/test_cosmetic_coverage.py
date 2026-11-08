@@ -47,6 +47,26 @@ class CosmeticCoverageTests(unittest.TestCase):
             self.assertNotRegex(code, r'entry\.Arguments\s*=(?!=)')
             self.assertNotRegex(code, r'DisablerCount\s*=(?!=)')
 
+    def test_platform_specific_collection_bridge(self):
+        pc = source('pchost/CosmeticCoverage.cs')
+        self.assertIn('using Alta.Character;', pc)
+        quest = source('quest/CosmeticCoverage.cs')
+        self.assertNotIn('in manager.Handlers)', quest)
+        self.assertNotIn('new Il2CppReferenceArray<ICustomizationHandler>', quest)
+        self.assertIn('new Il2CppSystem.Collections.Generic.List<ICustomizationHandler>()', quest)
+        bridge = source('quest/NativeEnumerable.cs')
+        self.assertIn('Cast<Il2CppSystem.Collections.IEnumerator>()', bridge)
+        self.assertIn('iterator.MoveNext()', bridge)
+        self.assertIn('current.Current', bridge)
+        self.assertNotIn('current.MoveNext()', bridge)
+        self.assertIn('disposable.Dispose()', bridge)
+        self.assertIn('NativeEnumerable.Items(HashedGeneralValue<PhysicalMaterial>.All)',
+                      source('quest/WornMaterials.cs'))
+        tree = ET.parse(ROOT / 'quest/ArmorRestored.csproj')
+        ns = {'m': 'http://schemas.microsoft.com/developer/msbuild/2003'}
+        self.assertEqual(sum(x.attrib['Include'] == 'NativeEnumerable.cs'
+                             for x in tree.findall('.//m:Compile', ns)), 1)
+
     def test_clients_register_and_release_coverage(self):
         for platform in ('pchost', 'quest'):
             tree = ET.parse(ROOT / platform / 'ArmorRestored.csproj')
@@ -59,6 +79,7 @@ class CosmeticCoverageTests(unittest.TestCase):
             self.assertGreaterEqual(code.count('Coverage.Clear();'), 3)
         self.assertIn('new CosmeticCoverage()', source('quest/Dressed.cs'))
         quest = source('quest/CosmeticCoverage.cs')
-        self.assertIn('Il2CppReferenceArray<ICustomizationHandler>', quest)
+        self.assertIn('handlers.Cast<Il2CppSystem.Collections.Generic.IEnumerable<ICustomizationHandler>>()', quest)
+        self.assertIn('NativeEnumerable.Items(manager.Handlers)', quest)
         self.assertIn('Native<TwoColors>(entry.Arguments)', quest)
         self.assertIn('PropertyInfo property', quest)  # generated IL2CPP properties

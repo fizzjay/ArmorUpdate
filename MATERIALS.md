@@ -266,3 +266,16 @@ Equipment-dummy interaction remains a separate unfinished request. The supplied
 ArmorClient now identifies ArmorDummyInteraction as the relevant client class;
 EditableSlot handles native CustomizationPickup objects, not these armor pickups.
 No native cosmetic slot triggers or saved customization definitions are replaced.
+
+### Compilation follow-up: native enumerable interfaces
+
+PC CosmeticCoverage imports Alta.Character for PlayerCharacter. Quest registry
+All and customization Handlers are generated native IEnumerable<T> interfaces,
+whose IEnumerator<T> proxy does not expose inherited MoveNext. NativeEnumerable
+bridges iteration with a cast to Il2CppSystem.Collections.IEnumerator for MoveNext,
+reads typed Current on the generic proxy, and disposes the native enumerator.
+ChangeArguments now receives a native List<ICustomizationHandler> cast to native
+IEnumerable<ICustomizationHandler>, rather than a native array that does not
+implicitly implement the expected interface in these generated references.
+This addresses the user's reported compile errors; the matching DLL references
+are still not present here, so successful C# compilation is not claimed.

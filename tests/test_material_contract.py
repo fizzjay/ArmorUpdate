@@ -29,6 +29,7 @@ class MaterialContract(unittest.TestCase):
         quest = source('quest/WornMaterials.cs')
         quest = quest.replace('using Il2Cpp;\nusing Il2CppAlta;', 'using Alta;')
         quest = quest.replace('namespace ArmorRestoredQuest', 'namespace ArmorRestored')
+        quest = quest.replace('NativeEnumerable.Items(HashedGeneralValue<PhysicalMaterial>.All)', 'HashedGeneralValue<PhysicalMaterial>.All')
         self.assertEqual(pc, quest)
         self.assertIn('piece / 8 != 1', pc)  # Do not recolor leather or wyrm.
         self.assertIn('UnityEngine.Object.Destroy(material)', pc)

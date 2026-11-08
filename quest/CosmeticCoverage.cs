@@ -38,7 +38,7 @@ namespace ArmorRestoredQuest
                     if (shown[i] >= 0) mask |= 1U << i;
                 HashSet<CustomizationSlotEntry> current = Entries();
                 List<ICustomizationHandler> handlers = new List<ICustomizationHandler>();
-                foreach (ICustomizationHandler handler in manager.Handlers)
+                foreach (ICustomizationHandler handler in NativeEnumerable.Items(manager.Handlers))
                     if (handler != null && !handler.IsDestroyed) handlers.Add(handler);
                 foreach (CustomizationSlotEntry entry in new List<CustomizationSlotEntry>(owned.Keys))
                 {
@@ -142,7 +142,9 @@ namespace ArmorRestoredQuest
 
         private static void Change(CustomizationSlotEntry entry, ICustomizationHandler handler, CustomizationArguments colors)
         {
-            entry.Part.ChangeArguments(new Il2CppReferenceArray<ICustomizationHandler>(new ICustomizationHandler[] { handler }), colors);
+            var handlers = new Il2CppSystem.Collections.Generic.List<ICustomizationHandler>();
+            handlers.Add(handler);
+            entry.Part.ChangeArguments(handlers.Cast<Il2CppSystem.Collections.Generic.IEnumerable<ICustomizationHandler>>(), colors);
         }
 
         private HashSet<CustomizationSlotEntry> Entries()
@@ -240,7 +242,7 @@ namespace ArmorRestoredQuest
                 {
                     HashSet<CustomizationSlotEntry> current = Entries();
                     List<ICustomizationHandler> handlers = new List<ICustomizationHandler>();
-                    foreach (ICustomizationHandler handler in manager.Handlers)
+                    foreach (ICustomizationHandler handler in NativeEnumerable.Items(manager.Handlers))
                         if (handler != null && !handler.IsDestroyed) handlers.Add(handler);
                     foreach (var pair in owned)
                         try { Restore(pair.Key, pair.Value, current.Contains(pair.Key), handlers); }

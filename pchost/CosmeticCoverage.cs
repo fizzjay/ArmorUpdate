@@ -2,6 +2,7 @@ using System;
 using System.Collections.Generic;
 using System.Reflection;
 using Alta.Customization;
+using Alta.Character;
 using UnityEngine;
 
 namespace ArmorRestored
