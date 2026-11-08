@@ -22,7 +22,7 @@ namespace ArmorRestored
 		public static string List()
 		{
 			StringBuilder stringBuilder = new StringBuilder();
-			stringBuilder.Append("ArmorRestored ").Append("0.2.1").Append(", registered via ").Append(Prefabs.Seam ?? "nothing yet").Append('\n');
+			stringBuilder.Append("ArmorRestored ").Append("0.3.0").Append(", registered via ").Append(Prefabs.Seam ?? "nothing yet").Append('\n');
 			for (int i = 0; i < Catalog.Count; i++)
 			{
 				stringBuilder.Append(Catalog.Number(i)).Append("  ").Append(Catalog.Id(i)).Append("  ").Append(Catalog.Title(i));

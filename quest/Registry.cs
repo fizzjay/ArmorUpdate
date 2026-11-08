@@ -255,6 +255,7 @@ namespace ArmorRestoredQuest
 					Mod.Log.Error(Catalog.Id(piece) + " keeps the spoon look: " + text);
 				}
 			}
+			ArmorMaterials.Configure(piece, gameObject);
 			Crumb.First("prefabMap.Add");
 			map.Add(num, networkPrefab);
 			NetworkPrefab prefab = PrefabManager.GetPrefab(num);

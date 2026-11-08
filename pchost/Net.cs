@@ -18,9 +18,9 @@ namespace ArmorRestored
 			{
 				byte b = 20;
 				s.SerializeByte(ref b);
-				string text = "0.2.1";
+				string text = "0.3.0";
 				s.SerializeString(ref text, 1);
-				int num = 1;
+				int num = 2;
 				s.SerializeInteger(ref num);
 			});
 		}
@@ -32,9 +32,9 @@ namespace ArmorRestored
 			{
 				byte b = 5;
 				s.SerializeByte(ref b);
-				int num = 1;
+				int num = 2;
 				s.SerializeInteger(ref num);
-				string text = "0.2.1";
+				string text = "0.3.0";
 				string text2 = Prefabs.RefusedLine();
 				s.SerializeString(ref text, 1);
 				s.SerializeString(ref text2, 1);
@@ -155,7 +155,7 @@ namespace ArmorRestored
 			}
 			to.ConnectionToRemotePlayer.Send(null, 137, delegate(Connection conn, Stream s)
 			{
-				byte b = 10;
+				byte b = 13;
 				s.SerializeByte(ref b);
 				int count = rows.Count;
 				s.SerializeInteger(ref count);
@@ -167,6 +167,8 @@ namespace ArmorRestored
 					{
 						byte b2 = (byte)(keyValuePair.Value[i] + 1);
 						s.SerializeByte(ref b2);
+						uint material = unchecked((uint)keyValuePair.Value[8 + i]);
+						s.SerializeBits(ref material, 32);
 					}
 				}
 			});
@@ -224,7 +226,7 @@ namespace ArmorRestored
 			{
 				return;
 			}
-			if (b == 10)
+			if (b == 13)
 			{
 				int num = 0;
 				s.SerializeInteger(ref num);
@@ -234,12 +236,15 @@ namespace ArmorRestored
 				{
 					int key = 0;
 					s.SerializeInteger(ref key);
-					int[] array = new int[8];
+					int[] array = new int[16];
 					for (int i = 0; i < 8; i++)
 					{
 						byte b2 = 0;
 						s.SerializeByte(ref b2);
 						array[i] = ((b2 == 0 || (int)b2 > Catalog.Count) ? -1 : ((int)(b2 - 1)));
+						uint material = 0U;
+						s.SerializeBits(ref material, 32);
+						array[8 + i] = unchecked((int)material);
 					}
 					dictionary[key] = array;
 					num2++;
@@ -323,15 +328,15 @@ namespace ArmorRestored
 				}
 				else if (hello == null)
 				{
-					problem = "This server needs the ArmorRestored mod 0.2.1. Install it, then join again.";
+					problem = "This server needs the ArmorRestored mod 0.3.0. Install it, then join again.";
 				}
-				else if (hello.Wire < 1)
+				else if (hello.Wire < 2)
 				{
-					problem = "Your ArmorRestored " + hello.Version + " is too old for this server's 0.2.1. Update it, then join again.";
+					problem = "Your ArmorRestored " + hello.Version + " is too old for this server's 0.3.0. Update it, then join again.";
 				}
-				else if (hello.Wire > 1)
+				else if (hello.Wire > 2)
 				{
-					problem = "Your ArmorRestored " + hello.Version + " is newer than this server's 0.2.1. The server needs an update first.";
+					problem = "Your ArmorRestored " + hello.Version + " is newer than this server's 0.3.0. The server needs an update first.";
 				}
 				else if (hello.Refused != Prefabs.RefusedLine())
 				{
@@ -438,7 +443,7 @@ namespace ArmorRestored
 		internal const byte Hello = 5;
 
 		// Token: 0x04000051 RID: 81
-		internal const byte Table = 10;
+		internal const byte Table = 13;
 
 		// Token: 0x04000052 RID: 82
 		internal const byte Took = 11;
@@ -450,7 +455,7 @@ namespace ArmorRestored
 		internal const byte Here = 20;
 
 		// Token: 0x04000055 RID: 85
-		internal const int Wire = 1;
+		internal const int Wire = 2;
 
 		// Token: 0x04000056 RID: 86
 		private const int AnswerWait = 5000;

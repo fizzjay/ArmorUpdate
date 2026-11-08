@@ -34,13 +34,13 @@ namespace ArmorRestoredQuest
 					this._running = true;
 					Mod.Log.Msg(string.Concat(new string[]
 					{
-						"0.2.1 started: idle until a server says it runs ArmorRestored (own helmet ",
+						"0.3.0 started: idle until a server says it runs ArmorRestored (own helmet ",
 						Settings.OwnHelmet ? "shown" : "hidden",
 						", debug ",
 						Settings.Debug ? "on" : "off",
 						")."
 					}));
-					Crumb.At("started 0.2.1");
+					Crumb.At("started 0.3.0");
 				}
 			}
 			catch (Exception ex)

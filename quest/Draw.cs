@@ -21,7 +21,7 @@ namespace ArmorRestoredQuest
 			{
 				Draw.Table[keyValuePair.Key] = keyValuePair.Value;
 				int[] value = keyValuePair.Value;
-				for (int i = 0; i < value.Length; i++)
+				for (int i = 0; i < 8; i++)
 				{
 					if (value[i] >= 0)
 					{
@@ -65,6 +65,7 @@ namespace ArmorRestoredQuest
 				}
 			}
 			Draw.Bodies.Clear();
+			WornMaterials.Clear();
 			Draw.Table.Clear();
 			Draw.Local = null;
 			Draw._dirty = false;
@@ -167,15 +168,17 @@ namespace ArmorRestoredQuest
 							{
 								num = -1;
 							}
-							if (dressed.Shown[j] != num || (num >= 0 && !Draw.HolderLive(dressed, j)))
+							uint material = array.Length >= 16 ? unchecked((uint)array[8 + j]) : 0U;
+							if (dressed.Shown[j] != num || dressed.ShownMaterials[j] != material || (num >= 0 && !Draw.HolderLive(dressed, j)))
 							{
 								Draw.Remove(dressed, j);
 								dressed.Shown[j] = -1;
 								if (num >= 0)
 								{
-									Draw.Build(dressed, j, num, flag);
+									Draw.Build(dressed, j, num, flag, material);
 								}
 								dressed.Shown[j] = num;
+								dressed.ShownMaterials[j] = material;
 								flag2 = true;
 							}
 						}
@@ -330,7 +333,7 @@ namespace ArmorRestoredQuest
 		}
 
 		// Token: 0x0600001C RID: 28 RVA: 0x00002D28 File Offset: 0x00000F28
-		private static void Build(Dressed d, int s, int piece, bool isLocal)
+		private static void Build(Dressed d, int s, int piece, bool isLocal, uint material)
 		{
 			DateTime utcNow = DateTime.UtcNow;
 			List<GameObject> list = new List<GameObject>();
@@ -349,7 +352,7 @@ namespace ArmorRestoredQuest
 			foreach (PartDef partDef in Pack.Pieces[piece].Worn)
 			{
 				Mesh sharedMesh = Pack.MeshOf(partDef.Mesh);
-				Material sharedMaterial = Pack.MaterialOf(partDef.Mat);
+				Material sharedMaterial = WornMaterials.Apply(piece, material, Pack.MaterialOf(partDef.Mat));
 				GameObject gameObject2 = new GameObject(Pack.Meshes[partDef.Mesh].Name);
 				gameObject2.layer = d.Layer;
 				if (!partDef.Skinned)

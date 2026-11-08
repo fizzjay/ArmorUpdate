@@ -57,7 +57,7 @@ namespace ArmorRestoredQuest
 					s.SerializeInteger(ref wire);
 					Gate.Heard(c, version, wire);
 				}
-				else if (num2 == 10U)
+				else if (num2 == 13U && Gate.IsOpen)
 				{
 					int num3 = 0;
 					s.SerializeInteger(ref num3);
@@ -67,12 +67,15 @@ namespace ArmorRestoredQuest
 					{
 						int key = 0;
 						s.SerializeInteger(ref key);
-						int[] array = new int[8];
-						for (int i = 0; i < array.Length; i++)
+						int[] array = new int[16];
+						for (int i = 0; i < 8; i++)
 						{
 							uint num5 = 0U;
 							s.SerializeBits(ref num5, 8);
 							array[i] = (int)((num5 == 0U || num5 > 24U) ? uint.MaxValue : (num5 - 1U));
+							uint material = 0U;
+							s.SerializeBits(ref material, 32);
+							array[8 + i] = unchecked((int)material);
 						}
 						dictionary[key] = array;
 						num4++;
@@ -121,7 +124,7 @@ namespace ArmorRestoredQuest
 			{
 				uint num = 5U;
 				s.SerializeBits(ref num, 8);
-				int num2 = 1;
+				int num2 = 2;
 				s.SerializeInteger(ref num2);
 				string version2 = version;
 				string refused2 = refused;
@@ -226,7 +229,7 @@ namespace ArmorRestoredQuest
 		private const uint Hello = 5U;
 
 		// Token: 0x04000098 RID: 152
-		private const uint Table = 10U;
+		private const uint Table = 13U;
 
 		// Token: 0x04000099 RID: 153
 		private const uint Took = 11U;

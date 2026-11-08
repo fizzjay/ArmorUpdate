@@ -308,6 +308,7 @@ namespace ArmorRestored
 					pickup.Item = item3;
 				}
 			}
+			ArmorMaterials.Configure(piece, gameObject);
 			addToMap.Invoke(null, new object[]
 			{
 				new NetworkPrefab[]

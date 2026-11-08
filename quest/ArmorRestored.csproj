@@ -63,6 +63,8 @@
     <AppDesigner Include="Properties\" />
   </ItemGroup>
   <ItemGroup>
+    <Compile Include="WornMaterials.cs" />
+    <Compile Include="ArmorMaterials.cs" />
     <Compile Include="Catalog.cs" />
     <Compile Include="ColliderDef.cs" />
     <Compile Include="Crumb.cs" />

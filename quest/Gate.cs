@@ -91,11 +91,11 @@ namespace ArmorRestoredQuest
 			{
 				return;
 			}
-			if (Gate._heardWire != 1)
+			if (Gate._heardWire != 2)
 			{
-				Mod.Log.Warning("this server runs ArmorRestored " + Gate._heard + ", which does not play with 0.2.1; the server decides and armor stays off.");
+				Mod.Log.Warning("this server runs ArmorRestored " + Gate._heard + ", which does not play with 0.3.0; the server decides and armor stays off.");
 				Crumb.At("gate stays shut, server " + Gate._heard + " wire " + Gate._heardWire.ToString());
-				Wire.SendHello(Gate._listening, "0.2.1", "not registered");
+				Wire.SendHello(Gate._listening, "0.3.0", "not registered");
 				return;
 			}
 			Gate.IsOpen = true;
@@ -121,7 +121,7 @@ namespace ArmorRestoredQuest
 				return;
 			}
 			string text = Registry.Register();
-			bool flag = Wire.SendHello(Gate._listening, "0.2.1", text);
+			bool flag = Wire.SendHello(Gate._listening, "0.3.0", text);
 			Mod.Log.Msg(string.Concat(new string[]
 			{
 				"hello ",

@@ -30,7 +30,7 @@ namespace ArmorRestored
 				{
 					Mod.Log.Msg(string.Concat(new object[]
 					{
-						"0.2.1 started on the server: ",
+						"0.3.0 started on the server: ",
 						Pack.Pieces.Count,
 						" pieces, join check ",
 						Settings.Join,
@@ -41,7 +41,7 @@ namespace ArmorRestored
 				}
 				else
 				{
-					Mod.Log.Msg("0.2.1 started on the game client: idle until a server says it runs ArmorRestored.");
+					Mod.Log.Msg("0.3.0 started on the game client: idle until a server says it runs ArmorRestored.");
 				}
 			}
 			catch (Exception arg)

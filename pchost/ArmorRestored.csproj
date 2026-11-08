@@ -50,6 +50,8 @@
     <Compile Include="ArmorCommands.cs" />
     <Compile Include="ArmorSet.cs" />
     <Compile Include="Body.cs" />
+    <Compile Include="WornMaterials.cs" />
+    <Compile Include="ArmorMaterials.cs" />
     <Compile Include="Catalog.cs" />
     <Compile Include="ClientArmor.cs" />
     <Compile Include="ClientConnectionSeam.cs" />
