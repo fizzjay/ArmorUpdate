@@ -51,7 +51,9 @@ namespace ArmorRestored
             if (entity == null || hash == 0U) return;
             PhysicalMaterialPart part = entity.GetComponent<PhysicalMaterialPart>();
             PhysicalMaterial material = HashedGeneralValue<PhysicalMaterial>.Get(hash);
-            if (part != null && material != null) Set(part, "physicalMaterial", material);
+            if (part == null || material == null)
+                throw new InvalidOperationException("Cannot restore armor physical material " + hash);
+            Set(part, "physicalMaterial", material);
         }
         private const BindingFlags Members = BindingFlags.Instance | BindingFlags.Public | BindingFlags.NonPublic | BindingFlags.DeclaredOnly;
 

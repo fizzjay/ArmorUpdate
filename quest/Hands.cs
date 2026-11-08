@@ -110,7 +110,7 @@ namespace ArmorRestoredQuest
 				return;
 			}
 			Vector3 position = interactor.transform.position;
-			if (flag3)
+			if (flag3 || Hands.PendingSlot[hand] < 0)
 			{
 				Hands.PendingSlot[hand] = Hands.TouchedSlot(me, worn, position, hand);
 				Hands.PendingAt[hand] = Time.unscaledTime;
@@ -309,13 +309,8 @@ namespace ArmorRestoredQuest
 		// Token: 0x0600003B RID: 59 RVA: 0x00004264 File Offset: 0x00002464
 		private static Vector3 SlotPoint(Dressed me, int s)
 		{
-			List<Renderer> list = me.Skinned[s];
-			Vector3 result;
-			if (s == 0 || list == null || !Hands.Center(list, out result))
-			{
-				return Hands.Anchor(me, s);
-			}
-			return result;
+            // Keep removal reachable even when the visual mesh bounds are offset.
+            return Hands.Anchor(me, s);
 		}
 
 		// Token: 0x0600003C RID: 60 RVA: 0x00004294 File Offset: 0x00002494

@@ -456,7 +456,7 @@ namespace ArmorRestored
 					}
 					else if (array != null && dressed != null && Time.unscaledTime >= ClientArmor._cooldown)
 					{
-						if (flag2)
+						if (flag2 || ClientArmor.PendingSlot[i] < 0)
 						{
 							ClientArmor.PendingSlot[i] = ClientArmor.TouchedSlot(dressed, array, interactor.transform.position, i);
 							ClientArmor.PendingAt[i] = Time.unscaledTime;
@@ -542,10 +542,7 @@ namespace ArmorRestored
 		// Token: 0x0600002D RID: 45 RVA: 0x00003FE0 File Offset: 0x000021E0
 		private static Vector3 SlotPoint(ClientArmor.Dressed me, int s)
 		{
-			if (s != 0 && !(me.Slots[s] == null) && !ClientArmor.NoRenderers(me.Slots[s]))
-			{
-				return ClientArmor.Center(me.Slots[s].transform);
-			}
+            // Grab the anatomical slot, not a potentially offset renderer bound.
 			return Body.Anchor(me.Bones, s);
 		}
 

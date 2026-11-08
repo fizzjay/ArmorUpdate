@@ -152,6 +152,21 @@ class PcBuildContract(unittest.TestCase):
         for file in ('Catalog.cs', 'ClientArmor.cs', 'Loot.cs', 'MatDef.cs', 'MeshDef.cs', 'Prefabs.cs', 'TexDef.cs'):
             self.assertIn('using Object = UnityEngine.Object;', source('pchost/' + file))
 
+    def test_material_roundtrip_and_reachable_removal(self):
+        server = source('pchost/ServerArmor.cs')
+        self.assertIn('ArmorMaterials.Restore(networkEntity, material);', server)
+        self.assertIn('ArmorMaterials.Read(networkEntity) != material', server)
+        self.assertIn('could not read this item', server)
+        equip = server[server.index('internal static void OnEquip'):server.index('internal static void OnUnequip')]
+        self.assertLess(equip.index('ServerArmor.Spawn(num3'), equip.index('networkEntity.SceneDestroy();'))
+        pc = source('pchost/ClientArmor.cs')
+        quest = source('quest/Hands.cs')
+        self.assertIn('flag2 || ClientArmor.PendingSlot[i] < 0', pc)
+        self.assertIn('flag3 || Hands.PendingSlot[hand] < 0', quest)
+        for text, end in ((pc, 'private static int PieceOf'), (quest, 'private static Vector3 Anchor')):
+            slot = text[text.index('private static Vector3 SlotPoint'):text.index(end)]
+            self.assertNotIn('Center(', slot)
+
     def test_missing_pack_fails_before_prefab_or_join_setup(self):
         pack = source('pchost/Pack.cs')
         self.assertIn('return Pack.Pieces.Count == Catalog.Count;', pack)

@@ -308,11 +308,19 @@ namespace ArmorRestored
 			int num3 = array[num2];
 			uint material = ArmorMaterials.Read(networkEntity);
 			uint[] materials = MaterialsFor(Players.Name(p));
-			networkEntity.SceneDestroy();
-			if (num3 >= 0)
-			{
-				ServerArmor.Spawn(num3, position, Quaternion.identity, materials[num2]);
-			}
+            if (Catalog.SetOf(num).Id == "metal" && material == 0U)
+            {
+                Net.SendNote(p, "equip cancelled: could not read this item's metal material; item was not consumed");
+                Mod.Log.Error("metal equip refused: PhysicalMaterialPart has no readable material on entity " + entityId);
+                return;
+            }
+            // Do not consume the incoming item if the replaced piece cannot be returned.
+            if (num3 >= 0 && ServerArmor.Spawn(num3, position, Quaternion.identity, materials[num2]) == null)
+            {
+                Net.SendNote(p, "equip cancelled: could not return the previously worn piece");
+                return;
+            }
+            networkEntity.SceneDestroy();
 			array[num2] = num;
 			materials[num2] = material;
 			Mod.Log.Msg(Players.Name(p) + " put on " + Catalog.Title(num) + ((num3 >= 0) ? (" (dropped " + Catalog.Title(num3) + ")") : ""));
@@ -376,6 +384,11 @@ namespace ArmorRestored
 			}
 			if (networkEntity != null)
 			{
+                // Spawn initialization can overwrite the cloned template's material.
+                // Restore the live entity too, rather than relying solely on the prefab.
+                ArmorMaterials.Restore(networkEntity, material);
+                if (material != 0U && ArmorMaterials.Read(networkEntity) != material)
+                    throw new InvalidOperationException("spawned armor did not retain material " + material);
 				networkEntity.Chunk = LocationChunkHelper.GetBestContaining(at, null);
 			}
 			return networkEntity;
