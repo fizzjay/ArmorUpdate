@@ -525,49 +525,20 @@ namespace ArmorRestored
 					{
 						ClientArmor.PendingSlot[i] = -1;
 					}
-					else if (array != null && dressed != null && Time.unscaledTime >= ClientArmor._cooldown)
-					{
-						if (flag2 || ClientArmor.PendingSlot[i] < 0)
-						{
-							ClientArmor.PendingSlot[i] = ClientArmor.TouchedSlot(dressed, array, interactor.transform.position, i);
-							ClientArmor.PendingAt[i] = Time.unscaledTime;
-							if (Settings.Debug)
-							{
-								Mod.Log.Msg(string.Concat(new string[]
-								{
-									ClientArmor.HandName(i),
-									" hand closed empty ",
-									(ClientArmor.PendingSlot[i] >= 0) ? ("on " + Catalog.Title(array[ClientArmor.PendingSlot[i]])) : "on no worn piece",
-									" (",
-									ClientArmor.Distances(dressed, array, interactor.transform.position),
-									")"
-								}));
-							}
-						}
-						else
-						{
-							int num = ClientArmor.PendingSlot[i];
-							if (num >= 0 && Time.unscaledTime - ClientArmor.PendingAt[i] >= 0.35f)
-							{
-								ClientArmor.PendingSlot[i] = -1;
-								if (array[num] >= 0 && ClientArmor.TouchedSlot(dressed, array, interactor.transform.position, i) == num)
-								{
-									ClientArmor._cooldown = Time.unscaledTime + 1f;
-									Net.SendUnequip(num, i);
-									Mod.Log.Msg(string.Concat(new string[]
-									{
-										"take off ",
-										Catalog.Title(array[num]),
-										" with the ",
-										ClientArmor.HandName(i),
-										" hand"
-									}));
-								}
-							}
-						}
-					}
-				}
-			}
+                    else if (flag2 && array != null && dressed != null && Time.unscaledTime >= ClientArmor._cooldown)
+                    {
+                        // Request immediately on a fresh grip, never while dwelling.
+                        int slot = ClientArmor.TouchedSlot(dressed, array, interactor.transform.position, i);
+                        if (slot >= 0)
+                        {
+                            ClientArmor._cooldown = Time.unscaledTime + 1f;
+                            Net.SendUnequip(slot, i);
+                            Mod.Log.Msg("take off " + Catalog.Title(array[slot]) + " with the " + ClientArmor.HandName(i) + " hand");
+                        }
+                    }
+                }
+            }
+
             Transform target = dressed == null ? null : dressed.Rig;
             bool dummy;
             Transform live = EquipmentMode.Resolve(target, out dummy);
@@ -801,7 +772,6 @@ namespace ArmorRestored
 		}
 
 		// Token: 0x04000020 RID: 32
-		private const float HoldToRemove = 0.35f;
 
 		// Token: 0x04000021 RID: 33
 		private static readonly Dictionary<int, int[]> Table = new Dictionary<int, int[]>();

@@ -36,7 +36,7 @@ class ArmorVisibilityContracts(unittest.TestCase):
         self.assertIn('Stroke(button.transform, "eye"', code)
         self.assertIn('Stroke(button.transform, "pupil"', code)
         self.assertIn('slashes[slot].SetActive(Hidden(slot))', code)
-        self.assertIn('side * (halfWidth + 0.12f)', code)
+        self.assertIn('right * (side * lateral) + toward * 0.20f', code)
         self.assertIn('Object.Destroy(holder)', code)
         self.assertIn('Object.Destroy(ink)', code)
 
@@ -63,11 +63,22 @@ class ArmorVisibilityContracts(unittest.TestCase):
         self.assertNotIn('Camera.main', code)
         self.assertNotIn('holder.transform.SetParent(rig', code)
 
-    def test_placement_uses_viewer_facing_bounds_clearance(self):
+    def test_slot_offsets_freeze_view_frame_and_never_recompute_body_bounds(self):
         code = read('shared/ArmorVisibility.cs')
         self.assertIn('local.Head', code)
-        self.assertIn('bounds.Encapsulate(candidate)', code)
-        self.assertIn('halfWidth + 0.12f', code)
-        self.assertIn('extents.z + 0.15f', code)
+        self.assertIn('slotFront = rig.InverseTransformDirection(front)', code)
+        self.assertIn('slotRight = rig.InverseTransformDirection', code)
+        self.assertIn('rig.TransformDirection(slotRight)', code)
+        self.assertNotIn('bounds.Encapsulate', code)
+        self.assertNotIn('halfWidth', code)
         self.assertIn('0.09f / Mathf.Max', code)
         self.assertIn('waiting for native quick-access bubble', code)
+        placement = code[code.index('Vector3 right = rig.TransformDirection'):code.index('private static Vector3[] Ring')]
+        self.assertNotIn('view.position - rig.position', placement)
+        self.assertIn('Vector3 point = anchor(slot)', placement)
+
+    def test_styled_eye_has_dark_rim_iris_and_glint(self):
+        code = read('shared/ArmorVisibility.cs')
+        for token in ('"dark outer ring"', '"iris"', '"eye glint"', 'Object.Destroy(rim)',
+                      'new Vector3[49]', 'rim.color = new Color(0.035f'):
+            self.assertIn(token, code)

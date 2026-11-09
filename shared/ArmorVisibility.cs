@@ -24,6 +24,9 @@ namespace ArmorRestored
         private static readonly GameObject[] slashes = new GameObject[8];
         private static readonly bool[] pressed = new bool[2];
         private static Material ink;
+        private static Material rim;
+        private static Vector3 slotRight;
+        private static Vector3 slotFront;
         private static Transform target;
         private static Mesh bubbleMesh;
         private static Material bubbleMaterial;
@@ -141,6 +144,8 @@ namespace ArmorRestored
         {
             if (holder != null) Object.Destroy(holder);
             if (ink != null) Object.Destroy(ink);
+            if (rim != null) Object.Destroy(rim);
+            rim = null;
             holder = null;
             ink = null;
             target = null;
@@ -187,7 +192,17 @@ namespace ArmorRestored
                 if (shader == null) { Status("eye icon shader unavailable"); return; }
                 if (!NativeBubble()) return;
                 ink = new Material(shader);
-                ink.color = new Color(0.6f, 1f, 1f, 1f);
+                ink.color = new Color(0.9f, 0.98f, 1f, 1f);
+                rim = new Material(shader);
+                rim.color = new Color(0.035f, 0.045f, 0.06f, 1f);
+                // Freeze the room-facing frame once, never chase the player's head.
+                Vector3 front = view.position - rig.position;
+                front.y = 0f;
+                if (front.sqrMagnitude < 0.0001f) front = -view.forward;
+                front.y = 0f;
+                front.Normalize();
+                slotFront = rig.InverseTransformDirection(front);
+                slotRight = rig.InverseTransformDirection(Vector3.Cross(front, Vector3.up).normalized);
                 holder = new GameObject("Armor visibility eyes (local)");
                 // Keep world scale/layer independent of the avatar skeleton.
                 holder.layer = bubbleLayer;
@@ -210,63 +225,37 @@ namespace ArmorRestored
                     shell.transform.localScale = Vector3.one * scale;
                     shell.transform.localPosition = -bubbleMesh.bounds.center * scale;
                     // Copy mesh/material only: no pooled bubble callbacks with null content.
-                    Vector3[] eye = new Vector3[25];
+                    Stroke(button.transform, "dark outer ring", Ring(0.047f, 64), true, rim, 0.006f);
+                    Vector3[] eye = new Vector3[49];
                     for (int i = 0; i < eye.Length; i++)
                     {
                         float t = i * Mathf.PI * 2f / (eye.Length - 1);
-                        eye[i] = new Vector3(Mathf.Cos(t) * 0.021f, Mathf.Sin(t) * 0.010f, -0.052f);
+                        eye[i] = new Vector3(Mathf.Cos(t) * 0.021f, Mathf.Sin(t) * Mathf.Abs(Mathf.Sin(t)) * 0.012f, -0.052f);
                     }
                     Stroke(button.transform, "eye", eye, true);
-                    Stroke(button.transform, "pupil", Ring(0.005f, 16), true);
+                    Stroke(button.transform, "iris", Ring(0.008f, 32), true);
+                    Stroke(button.transform, "pupil", Ring(0.0035f, 24), true, ink, 0.004f);
+                    Stroke(button.transform, "eye glint", new[] {
+                        new Vector3(-0.004f, 0.004f, -0.055f), new Vector3(-0.002f, 0.006f, -0.055f) }, false, ink, 0.003f);
                     slashes[slot] = Stroke(button.transform, "hidden", new[] {
                         new Vector3(-0.022f, -0.022f, -0.054f), new Vector3(0.022f, 0.022f, -0.054f) }, false);
                 }
                 Mod.Log.Msg("visibility bubbles: created 8, mesh=" + bubbleMesh.name + " material="
                     + bubbleMaterial.name + " layer=" + bubbleLayer + " rig=" + rig.name);
             }
-            Status("8 native bubble visuals active; outside dummy bounds, local saved visibility");
-            Vector3 toward = view.position - rig.position;
-            toward.y = 0f;
-            if (toward.sqrMagnitude < 0.0001f) toward = -view.forward;
-            toward.y = 0f;
-            toward.Normalize();
-            Vector3 right = Vector3.Cross(toward, Vector3.up).normalized;
-            // Include the visible body AND worn armor, not just skeleton anchors.
-            Bounds bounds = new Bounds(anchor(0), Vector3.one * 0.1f);
-            for (int slot = 0; slot < 8; slot++) bounds.Encapsulate(anchor(slot));
-#if ARMOR_QUEST
-            var renderers = rig.GetComponentsInChildren(Il2CppType.Of<Renderer>(), false);
-#else
-            var renderers = rig.GetComponentsInChildren<Renderer>(false);
-#endif
-            foreach (var value in renderers)
-            {
-#if ARMOR_QUEST
-                Renderer renderer = value == null ? null : value.TryCast<Renderer>();
-#else
-                Renderer renderer = value;
-#endif
-                if (renderer == null || !renderer.enabled) continue;
-                Bounds candidate = renderer.bounds;
-                if (candidate.size.magnitude > 4f || (candidate.center - rig.position).magnitude > 3f) continue;
-                bounds.Encapsulate(candidate);
-            }
-            Vector3 extents = bounds.extents;
-            float halfWidth = Mathf.Abs(right.x) * extents.x + Mathf.Abs(right.y) * extents.y + Mathf.Abs(right.z) * extents.z;
-            float front = Vector3.Dot(bounds.center, toward) + Mathf.Abs(toward.x) * extents.x
-                + Mathf.Abs(toward.y) * extents.y + Mathf.Abs(toward.z) * extents.z + 0.15f;
+            Status("8 native bubble visuals active; fixed per-slot offsets, no viewer-driven translation");
+            Vector3 right = rig.TransformDirection(slotRight).normalized;
+            Vector3 toward = rig.TransformDirection(slotFront).normalized;
             for (int slot = 0; slot < 8; slot++)
             {
                 Vector3 point = anchor(slot);
                 float side = slot == 2 || slot == 4 || slot == 6 ? -1f : 1f;
-                // Distinct left/right tasset buttons even though both share a hip anchor.
-                float edge = Vector3.Dot(bounds.center, right) + side * (halfWidth + 0.12f);
-                point += right * (edge - Vector3.Dot(point, right));
-                point += toward * Mathf.Max(0f, front - Vector3.Dot(point, toward));
-                // Separate near-identical shoulder/chest or paired hip anchors.
-                for (int earlier = 0; earlier < slot; earlier++)
-                    if (Vector3.Distance(point, buttons[earlier].position) < 0.12f) point += Vector3.down * 0.12f;
+                // Small slot-relative offsets, not the full-body bounding box edge.
+                // Anchor already separates the left/right hips in both clients.
+                float lateral = slot < 2 ? 0.15f : 0.11f;
+                point += right * (side * lateral) + toward * 0.20f;
                 buttons[slot].position = point;
+                // Only the artwork turns toward the viewer; its center stays put.
                 buttons[slot].rotation = Quaternion.LookRotation(point - view.position, Vector3.up);
                 slashes[slot].SetActive(Hidden(slot));
             }
@@ -281,7 +270,7 @@ namespace ArmorRestored
             }
             return points;
         }
-        private static GameObject Stroke(Transform parent, string name, Vector3[] points, bool loop)
+        private static GameObject Stroke(Transform parent, string name, Vector3[] points, bool loop, Material material = null, float width = 0.002f)
         {
             GameObject child = new GameObject(name);
             child.layer = bubbleLayer;
@@ -291,10 +280,10 @@ namespace ArmorRestored
 #else
             LineRenderer line = child.AddComponent<LineRenderer>();
 #endif
-            line.sharedMaterial = ink;
+            line.sharedMaterial = material == null ? ink : material;
             line.useWorldSpace = false;
             line.loop = loop;
-            line.startWidth = line.endWidth = 0.002f;
+            line.startWidth = line.endWidth = width;
             line.positionCount = points.Length;
             for (int i = 0; i < points.Length; i++) line.SetPosition(i, points[i]);
             return child;

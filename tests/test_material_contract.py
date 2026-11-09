@@ -235,8 +235,8 @@ class PcBuildContract(unittest.TestCase):
         self.assertLess(equip.index('ServerArmor.Spawn(num3'), equip.index('networkEntity.SceneDestroy();'))
         pc = source('pchost/ClientArmor.cs')
         quest = source('quest/Hands.cs')
-        self.assertIn('flag2 || ClientArmor.PendingSlot[i] < 0', pc)
-        self.assertIn('flag3 || Hands.PendingSlot[hand] < 0', quest)
+        self.assertIn('else if (flag2 && array != null', pc)
+        self.assertIn('if (!flag3) return;', quest)
         for text, end in ((pc, 'private static int PieceOf'), (quest, 'private static Vector3 Anchor')):
             slot = text[text.index('private static Vector3 SlotPoint'):text.index(end)]
             self.assertNotIn('Center(', slot)

@@ -169,3 +169,29 @@ loaded, open the quick-access wheel once and retry equipment mode. Look for
 `visibility bubbles: created 8, mesh=... material=... layer=... rig=...`, the
 active status, or a waiting message. Appearance, clearance and Quest shader/API
 compatibility still require runtime verification; source tests cannot prove them.
+
+### Stable per-slot buttons and immediate grip follow-up
+
+Runtime now confirms eight bubble meshes render on Quest, but the prior global
+bounds/view-dependent placement was reported far from slots and moving away.
+It is replaced by small per-slot anchor offsets: 11 cm sideways (15 cm for
+head/chest), 20 cm forward. The horizontal orientation is captured once when
+creating controls and stored relative to the dummy rig; walking/leaning no longer
+translates buttons. Only icon orientation billboards toward the viewer. There is
+no whole-body bounds projection or displacement from other slots. Placement is
+still a runtime fit to verify, not a claim of perfect mesh clearance.
+
+The native shell is retained, with a charcoal outer ring, brighter almond eye,
+outlined iris, filled-looking pupil and glint. Crossed-eye state and saved local
+preferences are unchanged. Update shared/ArmorVisibility.cs in both builds.
+
+PC ClientArmor.cs and Quest Hands.cs now submit removal on the initial free-hand
+grip edge at a worn dummy slot; no 0.35-second hold. A held grip does not repeat
+or remove a slot merely by sliding onto it. The existing request cooldown and
+server roundtrip/returned-pickup handoff remain; this is not zero network latency.
+
+The supplied original ArmorSurfaceGrip has NOT been installed: it depends on
+ArmorCraftingMesh.BuildSurfaceQuery, ArmorNative, ArmorHarness, ArmorPickup and
+original seven-slot instance registration that this implementation does not have.
+This update changes removal timing, not native pickup surface snap or triangle
+selection. Existing native free-grab behavior for loose armor stays unchanged.

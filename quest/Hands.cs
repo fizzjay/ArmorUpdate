@@ -150,34 +150,10 @@ namespace ArmorRestoredQuest
 				return;
 			}
 			Vector3 position = interactor.transform.position;
-			if (flag3 || Hands.PendingSlot[hand] < 0)
-			{
-				Hands.PendingSlot[hand] = Hands.TouchedSlot(me, worn, position, hand);
-				Hands.PendingAt[hand] = Time.unscaledTime;
-				if (Settings.Debug)
-				{
-					Mod.Log.Msg(string.Concat(new string[]
-					{
-						Hands.HandName(hand),
-						" hand closed empty ",
-						(Hands.PendingSlot[hand] >= 0) ? ("on " + Catalog.Title(worn[Hands.PendingSlot[hand]])) : "on no worn piece",
-						" (",
-						Hands.Distances(me, worn, position),
-						")"
-					}));
-				}
-				return;
-			}
-			int num = Hands.PendingSlot[hand];
-			if (num < 0 || Time.unscaledTime - Hands.PendingAt[hand] < 0.35f)
-			{
-				return;
-			}
-			Hands.PendingSlot[hand] = -1;
-			if (worn[num] < 0 || Hands.TouchedSlot(me, worn, position, hand) != num)
-			{
-				return;
-			}
+            // One fresh press = one removal request. No dwell or hold timer.
+            if (!flag3) return;
+            int num = Hands.TouchedSlot(me, worn, position, hand);
+            if (num < 0) return;
 			Hands._cooldown = Time.unscaledTime + 1f;
 			Wire.SendUnequip(num, hand);
 			Mod.Log.Msg(string.Concat(new string[]
@@ -539,7 +515,6 @@ namespace ArmorRestoredQuest
 		}
 
 		// Token: 0x0400002C RID: 44
-		private const float HoldToRemove = 0.35f;
 
 		// Token: 0x0400002D RID: 45
 		private const float TouchReach = 0.2f;

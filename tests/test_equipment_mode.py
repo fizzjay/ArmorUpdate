@@ -69,3 +69,13 @@ class EquipmentModeContracts(unittest.TestCase):
 
     def test_quest_menu_uses_unambiguous_harmony_type(self):
         self.assertIn('new HarmonyLib.Harmony(', source('quest/EquipmentMenu.cs'))
+
+    def test_dummy_removal_is_on_grip_edge_without_dwell(self):
+        quest = source('quest/Hands.cs')
+        pc = source('pchost/ClientArmor.cs')
+        self.assertIn('if (!flag3) return;', quest)
+        self.assertIn('Wire.SendUnequip(num, hand)', quest)
+        self.assertIn('else if (flag2 && array != null', pc)
+        self.assertIn('Net.SendUnequip(slot, i)', pc)
+        self.assertNotIn('Time.unscaledTime - Hands.PendingAt', quest)
+        self.assertNotIn('Time.unscaledTime - ClientArmor.PendingAt', pc)
