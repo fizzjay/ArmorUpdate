@@ -111,3 +111,35 @@ admin wear/strip commands and the existing server message handlers are unchanged
 An old or modified client is not prevented from sending the legacy requests.
 Verify body-release and body-grip do nothing, dummy equip/remove still work, and
 closing the room during a release cannot equip an item afterward.
+
+## Local saved eye controls
+
+Both clients now show eight small cyan outlined eye buttons beside the equipment
+room dummy, offset sideways 0.27 m and toward the viewer 0.16 m from the slot
+anchors. Move a **free hand** within 7.5 cm of an eye and press/release **grip** to
+toggle that slot. This is a lightweight world-space button styled like a wheel
+bubble, not an action inserted into the native quick-access wheel. A diagonal
+slash indicates hidden. Eye input takes priority over the armor-removal gesture.
+No physics colliders are added, so the buttons do not obstruct pickup docking.
+
+The controls appear only on the active owned dummy, including for empty/hidden
+slots so visibility can always be restored. Preferences apply only to your own
+armor on this client, both in the dummy preview and after leaving equipment mode.
+Other clients see normal armor. Equipping, removal, protection, saved equipment
+and the server protocol are unchanged. The separate first-person own_helmet
+setting still applies when outside equipment mode.
+
+The eight-bit visibility mask persists in `UserData/ArmorRestored/visibility.txt`
+on this client installation (not per-server or per-character); it is not cleared
+on disconnect. Removing that file and restarting restores default visibility.
+The original settings.txt and worn.txt are not modified by these controls.
+
+Build updates: add **shared/ArmorVisibility.cs** as compiled source in both local
+classic projects. Update **pchost/ClientArmor.cs** on PC, and **quest/Draw.cs** plus
+**quest/Hands.cs** on Quest. Repository project includes are already updated.
+No new image assets, resource pack changes or server update are required.
+
+Runtime validation remains required: check all eight eyes are outside the dummy,
+both hands toggle once per press without also removing armor, hidden slots stay
+selectable, closing the room destroys the controls, local body visibility follows
+the selection, other players still see the armor, and choices survive a restart.

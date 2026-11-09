@@ -38,6 +38,7 @@ namespace ArmorRestored
 		// Token: 0x0600001E RID: 30 RVA: 0x00002FE4 File Offset: 0x000011E4
 		internal static void Clear()
 		{
+            ArmorVisibility.ClearButtons();
 			foreach (ClientArmor.Dressed dressed in ClientArmor.Bodies.Values)
 			{
 				dressed.Coverage.Clear();
@@ -230,6 +231,7 @@ namespace ArmorRestored
 						for (int j = 0; j < 8; j++)
 						{
 							int num = array[j];
+                            if (flag && ArmorVisibility.Hidden(j)) num = -1;
 							if (flag && !dressed.Dummy && j == 0 && !Settings.OwnHelmet)
 							{
 								num = -1;
@@ -450,13 +452,15 @@ namespace ArmorRestored
             if (dressed == null || !modeDummy || !dressed.Dummy || !EquipmentMode.Same(modeRig, dressed.Rig) || modeDummy != dressed.Dummy
                 || !dressed.Rig.gameObject.activeInHierarchy)
             {
+                ArmorVisibility.ClearButtons();
                 Releases.Clear();
                 ClientArmor.Held[0] = ClientArmor.Held[1] = null;
                 ClientArmor.PendingSlot[0] = ClientArmor.PendingSlot[1] = -1;
                 ClientArmor.Closed[0] = ClientArmor.Closed[1] = false;
                 return;
             }
-			int[] array = null;
+			ArmorVisibility.Show(dressed.Rig, delegate(int slot) { return Body.Anchor(dressed.Bones, slot); });
+            int[] array = null;
 			if (dressed != null && dressed.Player.UserInfo != null)
 			{
 				ClientArmor.Table.TryGetValue(dressed.Player.UserInfo.Identifier, out array);
@@ -509,7 +513,13 @@ namespace ArmorRestored
 					catch (Exception)
 					{
 					}
-					bool flag2 = flag && !ClientArmor.Closed[i];
+					if (ArmorVisibility.Hand(i, interactor.transform.position, flag, !interactor.IsInteracting))
+                    {
+                        ClientArmor.PendingSlot[i] = -1;
+                        ClientArmor.Closed[i] = flag;
+                        continue;
+                    }
+                    bool flag2 = flag && !ClientArmor.Closed[i];
 					ClientArmor.Closed[i] = flag;
 					if (!flag || interactor.IsInteracting)
 					{

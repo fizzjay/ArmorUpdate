@@ -27,6 +27,7 @@ namespace ArmorRestoredQuest
 		// Token: 0x06000031 RID: 49 RVA: 0x00003BC8 File Offset: 0x00001DC8
 		internal static void Clear()
 		{
+            ArmorVisibility.ClearButtons();
 			Hands.Held[0] = (Hands.Held[1] = null);
 			Hands.Closed[0] = (Hands.Closed[1] = false);
 			Hands.PendingSlot[0] = (Hands.PendingSlot[1] = -1);
@@ -72,13 +73,15 @@ namespace ArmorRestoredQuest
             if (dressed == null || !modeDummy || !dressed.Dummy || !EquipmentMode.Same(modeRig, dressed.Rig) || modeDummy != dressed.Dummy
                 || !dressed.Rig.gameObject.activeInHierarchy)
             {
+                ArmorVisibility.ClearButtons();
                 Releases.Clear();
                 Hands.Held[0] = Hands.Held[1] = null;
                 Hands.PendingSlot[0] = Hands.PendingSlot[1] = -1;
                 Hands.Closed[0] = Hands.Closed[1] = false;
                 return;
             }
-			int[] worn = Draw.WornBy(dressed);
+			ArmorVisibility.Show(dressed.Rig, delegate(int slot) { return Hands.Anchor(dressed, slot); });
+            int[] worn = Draw.WornBy(dressed);
 			for (int i = 0; i < 2; i++)
 			{
 				Hands.Hand(i, dressed, worn);
@@ -129,6 +132,12 @@ namespace ArmorRestoredQuest
 			Hands.Held[hand] = pickup;
             Releases.Holding(pickup);
 			bool flag2 = Hands.Grip(interactor);
+            if (ArmorVisibility.Hand(hand, interactor.transform.position, flag2, !isInteracting))
+            {
+                Hands.PendingSlot[hand] = -1;
+                Hands.Closed[hand] = flag2;
+                return;
+            }
 			bool flag3 = flag2 && !Hands.Closed[hand];
 			Hands.Closed[hand] = flag2;
 			if (!flag2 || isInteracting)
