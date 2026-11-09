@@ -7,3 +7,7 @@
 # Local reference inspection tooling (not runtime mod dependencies).
 /.venv/
 __pycache__/
+
+/refs/pc/
+/pchost/bin/
+/pchost/obj/

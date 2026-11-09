@@ -10,7 +10,7 @@ namespace ArmorRestored
 		internal const string Name = "ArmorRestored";
 
 		// Token: 0x04000045 RID: 69
-		internal const string Version = "0.4.0";
+		internal const string Version = "0.5.0";
 
 		// Token: 0x04000046 RID: 70
 		internal static bool IsServer;

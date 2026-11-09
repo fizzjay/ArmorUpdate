@@ -10,7 +10,7 @@ namespace ArmorRestored
 #endif
 {
     // Platform-neutral construction data, not a replacement for armor.pack.
-    // No native recipe is published until the native transaction adapter is ready.
+    // Loaded and validated before native recipe publication.
     internal sealed class ArmorConstructionData
     {
         internal sealed class Ingredient
@@ -157,8 +157,8 @@ namespace ArmorRestored
         }
     }
 
-    // Recipe identity and per-input material provenance. This codec is ready for
-    // a native saved component; it is NOT an external object-id sidecar (native
+    // Recipe identity and per-input material provenance, used by ArmorCraftRecord
+    // and the worn-slot save; it is NOT an external object-id sidecar (native
     // entity ids are reused). Missing/invalid data must never trigger a refund.
     internal sealed class ArmorCraftOrigin
     {

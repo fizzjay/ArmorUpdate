@@ -67,7 +67,7 @@ class GeneratedConstructionTests(unittest.TestCase):
         self.assertEqual(stream.read(4), b'ACRF')
         self.assertEqual(read('i')[0], 1)
         self.assertEqual(stream.read(32).hex().upper(), manifest['model_sha256'])
-        self.assertEqual(read('i')[0], 14)
+        self.assertEqual(read('i')[0], 16)
         ids = []
         for recipe in manifest['recipes']:
             name, glyph = text(), text()
@@ -85,7 +85,11 @@ class GeneratedConstructionTests(unittest.TestCase):
                 self.assertAlmostEqual(sum(v*v for v in pose[3:7]), 1, places=3)
                 vertices = read('i')[0]
                 self.assertEqual(vertices, recipe['vertex_counts'][index])
-                stream.read(vertices * 32)
+                attributes = [read('8f') for _ in range(vertices)]
+                if nail:
+                    for axis in range(3):
+                        self.assertGreaterEqual(pose[axis], min(v[axis] for v in attributes)-1e-5)
+                        self.assertLessEqual(pose[axis], max(v[axis] for v in attributes)+1e-5)
                 total = 0
                 for _ in range(read('i')[0]):
                     size = read('i')[0]
@@ -102,9 +106,10 @@ class GeneratedConstructionTests(unittest.TestCase):
                     seen.add(start)
                     start = parents[start]
         self.assertEqual(stream.tell(), len(data))
-        self.assertEqual(len(set(ids)), 14)
-        self.assertTrue(all(i.startswith(('leather.', 'metal.')) for i in ids))
-        self.assertEqual(sum(not r['reference_only'] for r in manifest['recipes']), 12)
+        self.assertEqual(len(set(ids)), 16)
+        self.assertEqual(set(ids), {style+'.'+slot for style in ('leather','metal')
+                                   for slot in ('helmet','chest','shoulder_l','shoulder_r','gauntlet_l','gauntlet_r','tasset_l','tasset_r')})
+        self.assertEqual(sum(not r['reference_only'] for r in manifest['recipes']), 16)
 
     def test_both_projects_embed_the_same_construction_resource(self):
         ns = {'m': 'http://schemas.microsoft.com/developer/msbuild/2003'}

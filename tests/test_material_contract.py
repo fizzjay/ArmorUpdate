@@ -63,10 +63,10 @@ class MaterialContract(unittest.TestCase):
     def test_protocol_version_and_distinct_message(self):
         pc = source('pchost/Net.cs')
         quest = source('quest/Wire.cs')
-        self.assertIn('int num = 3;', pc)
-        self.assertIn('int num2 = 3;', quest)
-        self.assertIn('wire != 3', source('pchost/Gate.cs'))
-        self.assertIn('_heardWire != 3', source('quest/Gate.cs'))
+        self.assertIn('int num = 4;', pc)
+        self.assertIn('int num2 = 4;', quest)
+        self.assertIn('wire != 4', source('pchost/Gate.cs'))
+        self.assertIn('_heardWire != 4', source('quest/Gate.cs'))
         self.assertIn('byte b = 13;', pc)
         self.assertIn('if (b == 13)', pc)
         self.assertIn('num2 == 13U && Gate.IsOpen', quest)
@@ -131,7 +131,7 @@ class QuestBuildContract(unittest.TestCase):
         for platform in ('pchost', 'quest'):
             tree = ET.parse(ROOT / platform / 'ArmorRestored.csproj')
             resources = tree.findall('.//ms:EmbeddedResource', ns)
-            self.assertEqual({'ArmorRestored.armor.pack', 'ArmorRestored.stand', 'ArmorRestored.construction.bin'},
+            self.assertEqual({'ArmorRestored.armor.pack', 'ArmorRestored.stand', 'ArmorRestored.construction.bin', 'ArmorRestored.recipe-glyphs'},
                              {r.find('ms:LogicalName', ns).text for r in resources})
 
     def test_no_decompiler_delegate_syntax(self):
@@ -152,7 +152,7 @@ class QuestBuildContract(unittest.TestCase):
         text = source('quest/Wire.cs')
         self.assertIn('c.SetHandler((MessageType)137, Wire._handler)', text)
         self.assertIn('c.Send(Wire._channel, (MessageType)137, Wire._last)', text)
-        self.assertEqual(4, text.count('(Stream.StringEncoding)1'))
+        self.assertEqual(5, text.count('(Stream.StringEncoding)1'))
         self.assertIn('Wire._last = new Action<Connection, Stream>', text)
         self.assertNotIn('Wire._last = delegate', text)
         self.assertIn('new HarmonyLib.Harmony(', source('quest/Main.cs'))

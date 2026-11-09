@@ -67,6 +67,9 @@
     </Reference>
   </ItemGroup>
   <ItemGroup>
+    <Compile Include="..\shared\ArmorCrafting.cs">
+      <Link>ArmorCrafting.cs</Link>
+    </Compile>
     <Compile Include="..\shared\ArmorCraftingData.cs">
       <Link>ArmorCraftingData.cs</Link>
     </Compile>
@@ -122,6 +125,11 @@
   <ItemGroup>
     <EmbeddedResource Include="..\crafting\construction.bin">
       <LogicalName>ArmorRestored.construction.bin</LogicalName>
+    </EmbeddedResource>
+  </ItemGroup>
+  <ItemGroup>
+    <EmbeddedResource Include="..\crafting\glyphs.bin">
+      <LogicalName>ArmorRestored.recipe-glyphs</LogicalName>
     </EmbeddedResource>
   </ItemGroup>
 </Project>

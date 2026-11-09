@@ -22,7 +22,7 @@ namespace ArmorRestored
 		public static string List()
 		{
 			StringBuilder stringBuilder = new StringBuilder();
-			stringBuilder.Append("ArmorRestored ").Append("0.4.0").Append(", registered via ").Append(Prefabs.Seam ?? "nothing yet").Append('\n');
+			stringBuilder.Append("ArmorRestored ").Append("0.5.0").Append(", registered via ").Append(Prefabs.Seam ?? "nothing yet").Append('\n');
 			for (int i = 0; i < Catalog.Count; i++)
 			{
 				stringBuilder.Append(Catalog.Number(i)).Append("  ").Append(Catalog.Id(i)).Append("  ").Append(Catalog.Title(i));
@@ -37,7 +37,8 @@ namespace ArmorRestored
 				stringBuilder.Append('\n');
 			}
 			stringBuilder.Append(ArmorStand.Number).Append("  ").Append(ArmorStand.Name).Append("  ").Append(ArmorStand.Status).Append('\n');
-			stringBuilder.Append("loot: ").Append(Loot.Report);
+			stringBuilder.Append("crafting: ").Append(ArmorCrafting.Status).Append('\n');
+            stringBuilder.Append("loot: ").Append(Loot.Report);
 			return stringBuilder.ToString();
 		}
 
@@ -78,6 +79,27 @@ namespace ArmorRestored
                 NetworkEntity stand = SpawnHelper.Spawn(ArmorStand.Prefab, SpawnData.Default, null,
                     hit.point, Quaternion.LookRotation(-front, Vector3.up), null);
                 return stand == null ? "Could not spawn armor stand" : "Spawned " + ArmorStand.Name + " as " + stand.Identifier + " at " + hit.point.ToString("F2") + " on " + hit.collider.name;
+            });
+        }
+
+        [Command("recipes", "Spawn the 16 Leather/Metal recipe pages near a player: armor recipes <player>")]
+        public static string Recipes(string player)
+        {
+            return ArmorCommands.Run(delegate
+            {
+                if (!ArmorCrafting.Ready) return "Armor recipes unavailable: " + ArmorCrafting.Status;
+                string error;
+                Player target = Players.Find(player, out error);
+                if (target == null) return error;
+                Vector3 at = ServerArmor.Head(target) + ServerArmor.Front(target);
+                int count = 0;
+                for (int i=0;i<16;i++)
+                {
+                    var page = SpawnHelper.Spawn(ArmorCrafting.Pages[i], SpawnData.DontGenerate, null,
+                        at + new Vector3((i%4)*.15f-.225f,(i/4)*.04f,0f), Quaternion.identity, null);
+                    if (page != null) count++;
+                }
+                return "Spawned " + count + "/16 armor recipe pages. Use a native crafting workbench; no Wyrm recipes.";
             });
         }
 

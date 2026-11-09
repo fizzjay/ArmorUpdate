@@ -1,8 +1,7 @@
 """Export verified construction data without touching either armor.pack.
 
 Requires development-only dnfile and UnityPy. No DLL code is executed. This
-exports the 14 original Leather/Metal plans; combined tassets are reference-only
-until their topology and nail poses have been adapted for eight-slot recipes.
+exports 16 Leather/Metal plans, with separate left/right tasset recipes.
 Run with .venv/bin/python tools/build_crafting.py.
 """
 import argparse
@@ -12,11 +11,14 @@ import json
 import math
 from pathlib import Path
 import struct
+import copy
 
 try:
     from tools.inspect_crafting_reference import verify
+    from tools.crafting_geometry import split_tassets, nail_pose
 except ModuleNotFoundError:
     from inspect_crafting_reference import verify
+    from crafting_geometry import split_tassets, nail_pose
 
 ROOT = Path(__file__).resolve().parents[1]
 SLOTS = ('helmet', 'chest', 'shoulder_l', 'shoulder_r', 'gauntlet_l', 'gauntlet_r', 'tassets')
@@ -157,6 +159,22 @@ def build(dll):
             records.append(dict(id=style.lower() + '.' + slot_name,
                                 glyph='ATT_' + glyph_style + 'Armor_' + suffix + '.png',
                                 parts=parts, plan=plan))
+    records = [p for record in records for p in
+               (split_tassets(record) if record['id'].endswith('.tassets') else [record])]
+    # Donor archive nails belong to its folded jig poses, not compact pickup
+    # meshes. Seat new nails on exposed compact-mesh surfaces instead of leaving
+    # the donor nail coordinates floating outside our construction geometry.
+    for record in records:
+        record['plan'] = copy.deepcopy(record['plan'])
+        plan = record['plan']
+        for i, part in enumerate(record['parts']):
+            if not plan['requiresNails'][i]: continue
+            blockers = [other for j,other in enumerate(record['parts'])
+                        if j != i and plan['levels'][j] <= plan['levels'][i]]
+            pos, rot = nail_pose(part,blockers)
+            plan['nailPositions'][i] = pos
+            plan['nailRotations'][i] = rot
+            plan['clearanceDegrees'][i] = 45
     data = encode(records, report['model_sha256'])
     summary = dict(schema=1, model_sha256=report['model_sha256'],
                    pack_sha256=hashlib.sha256(data).hexdigest().upper(),
@@ -176,6 +194,18 @@ def main():
     args.output.mkdir(parents=True, exist_ok=True)
     (args.output / 'construction.bin').write_bytes(data)
     (args.output / 'construction-manifest.json').write_text(json.dumps(summary, indent=2) + '\n')
+    try:
+        from tools.build_stand import png_rgba
+    except ModuleNotFoundError:
+        from build_stand import png_rgba
+    glyphs = io.BytesIO()
+    glyphs.write(b'AGLY' + struct.pack('<ii', 1, 14))
+    for path in sorted((ROOT / 'RecipeGlyphs').glob('*.png')):
+        name = path.name.encode('utf8')
+        width, height, rgba = png_rgba(path.read_bytes())
+        glyphs.write(struct.pack('<i', len(name)) + name)
+        glyphs.write(struct.pack('<ii', width, height) + rgba)
+    (args.output / 'glyphs.bin').write_bytes(glyphs.getvalue())
     print('Exported', len(summary['recipes']), 'plans;', len(data), 'bytes; no worn armor changed')
 
 

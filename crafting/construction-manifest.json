@@ -1,7 +1,7 @@
 {
   "schema": 1,
   "model_sha256": "119EDC0C48D29C7DBA66F5EA3CC7537E17601BF32184E4EDDEACE6716E897B4A",
-  "pack_sha256": "4100487E5A00DDA1C13E52ECE409D088DA9BBDDEA5DD4C4558295C5F7EA09AEC",
+  "pack_sha256": "D003C7633163F4784922B63AE29E25AA3555855853C5996A017C654BB66B5CA7",
   "recipes": [
     {
       "id": "leather.helmet",
@@ -88,11 +88,9 @@
       ]
     },
     {
-      "id": "leather.tassets",
-      "reference_only": true,
+      "id": "leather.tasset_l",
+      "reference_only": false,
       "sources": [
-        47760,
-        47760,
         47760,
         47760,
         63204
@@ -100,9 +98,21 @@
       "vertex_counts": [
         34,
         128,
+        156
+      ]
+    },
+    {
+      "id": "leather.tasset_r",
+      "reference_only": false,
+      "sources": [
+        47760,
+        47760,
+        63204
+      ],
+      "vertex_counts": [
         34,
         128,
-        68
+        156
       ]
     },
     {
@@ -192,11 +202,9 @@
       ]
     },
     {
-      "id": "metal.tassets",
-      "reference_only": true,
+      "id": "metal.tasset_l",
+      "reference_only": false,
       "sources": [
-        50988,
-        50988,
         50988,
         50988,
         62594
@@ -204,9 +212,21 @@
       "vertex_counts": [
         110,
         120,
+        144
+      ]
+    },
+    {
+      "id": "metal.tasset_r",
+      "reference_only": false,
+      "sources": [
+        50988,
+        50988,
+        62594
+      ],
+      "vertex_counts": [
         110,
         120,
-        70
+        144
       ]
     }
   ]
