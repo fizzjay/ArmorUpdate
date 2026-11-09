@@ -143,3 +143,29 @@ Runtime validation remains required: check all eight eyes are outside the dummy,
 both hands toggle once per press without also removing armor, hidden slots stay
 selectable, closing the room destroys the controls, local body visibility follows
 the selection, other players still see the armor, and choices survive a restart.
+
+### Native bubble visuals follow-up
+
+The first eye implementation was reported invisible on Quest; the supplied log
+confirms dummy armor interactions but contains no eye creation evidence. The
+exact runtime cause is not established. The replacement now reads the real
+QuickAccessMenuBubble's bubbleRenderer mesh and active platform material (Android
+on Quest, PC otherwise), and copies those visuals into eight 9 cm shells with eye
+and crossed-eye icons. It deliberately does not instantiate an uninitialized
+pooled QuickAccessMenuBubble behaviour: those callbacks require content/controller
+and could run unrelated actions or dereference null. Selection remains the free
+hand/grip gesture, not wheel-button input.
+
+Placement now uses horizontal projected dummy/armor renderer bounds plus anchors:
+12 cm outside the side edges, at least 15 cm in front of the front bounds plane,
+with separation for nearby slot buttons. The world-space holder is not parented
+to the skeleton (no inherited scale); all visuals use the native bubble renderer's
+layer. The local player's Head replaces the Camera.main requirement. These changes
+supersede the original fixed 0.27 m/0.16 m placement described above.
+
+Update **shared/ArmorVisibility.cs** in both projects and rebuild; existing call
+sites and visibility.txt remain unchanged. If native bubble assets are not yet
+loaded, open the quick-access wheel once and retry equipment mode. Look for
+`visibility bubbles: created 8, mesh=... material=... layer=... rig=...`, the
+active status, or a waiting message. Appearance, clearance and Quest shader/API
+compatibility still require runtime verification; source tests cannot prove them.

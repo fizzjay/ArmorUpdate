@@ -36,7 +36,7 @@ class ArmorVisibilityContracts(unittest.TestCase):
         self.assertIn('Stroke(button.transform, "eye"', code)
         self.assertIn('Stroke(button.transform, "pupil"', code)
         self.assertIn('slashes[slot].SetActive(Hidden(slot))', code)
-        self.assertIn('side * 0.27f', code)
+        self.assertIn('side * (halfWidth + 0.12f)', code)
         self.assertIn('Object.Destroy(holder)', code)
         self.assertIn('Object.Destroy(ink)', code)
 
@@ -50,3 +50,24 @@ class ArmorVisibilityContracts(unittest.TestCase):
             self.assertIn('ArmorVisibility.Show(dressed.Rig', code)
             self.assertIn('ArmorVisibility.Hand(', code)
             self.assertIn('ArmorVisibility.ClearButtons();', code)
+
+    def test_native_bubble_visuals_not_uninitialized_pooled_behaviours(self):
+        code = read('shared/ArmorVisibility.cs')
+        for token in ('QuickAccessMenuBubble', '"bubbleRenderer"', '"activeBubbleMaterialAndroid"',
+                      '"activeBubbleMaterial"', 'Add<MeshFilter>(shell).sharedMesh = bubbleMesh',
+                      'Add<MeshRenderer>(shell).sharedMaterial = bubbleMaterial', 'holder.layer = bubbleLayer',
+                      'child.layer = bubbleLayer', 'created 8, mesh='):
+            self.assertIn(token, code)
+        self.assertNotIn('Object.Instantiate', code)
+        self.assertNotIn('Add<QuickAccessMenuBubble>', code)
+        self.assertNotIn('Camera.main', code)
+        self.assertNotIn('holder.transform.SetParent(rig', code)
+
+    def test_placement_uses_viewer_facing_bounds_clearance(self):
+        code = read('shared/ArmorVisibility.cs')
+        self.assertIn('local.Head', code)
+        self.assertIn('bounds.Encapsulate(candidate)', code)
+        self.assertIn('halfWidth + 0.12f', code)
+        self.assertIn('extents.z + 0.15f', code)
+        self.assertIn('0.09f / Mathf.Max', code)
+        self.assertIn('waiting for native quick-access bubble', code)
