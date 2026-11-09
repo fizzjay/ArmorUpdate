@@ -67,6 +67,9 @@
     </Reference>
   </ItemGroup>
   <ItemGroup>
+    <Compile Include="..\shared\EquipmentMode.cs">
+      <Link>EquipmentMode.cs</Link>
+    </Compile>
     <Compile Include="..\shared\ArmorStand.cs">
       <Link>ArmorStand.cs</Link>
     </Compile>
@@ -84,6 +87,7 @@
     <Compile Include="Hands.cs" />
     <Compile Include="LookPart.cs" />
     <Compile Include="Main.cs" />
+    <Compile Include="EquipmentMenu.cs" />
     <Compile Include="MatDef.cs" />
     <Compile Include="MeshDef.cs" />
     <Compile Include="Mod.cs" />

@@ -22,6 +22,7 @@ namespace ArmorRestoredQuest
 				Mod.DataDir = Path.Combine(MelonEnvironment.UserDataDirectory, "ArmorRestored");
 				Directory.CreateDirectory(Mod.DataDir);
 				Settings.Load();
+                EquipmentMenu.Install();
 				Wire.Prepare();
 				MethodInfo methodInfo = AccessTools.Method(typeof(JoinServerPipeline), "ConnectionApprovedByServer", null, null);
 				if (methodInfo == null)
@@ -82,6 +83,7 @@ namespace ArmorRestoredQuest
 			try
 			{
 				Gate.Tick();
+                EquipmentMenu.Tick();
 			}
 			catch (Exception e)
 			{

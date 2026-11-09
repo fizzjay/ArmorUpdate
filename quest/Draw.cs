@@ -130,7 +130,21 @@ namespace ArmorRestoredQuest
 					{
 						array = Catalog.Empty();
 					}
-					Transform transform = Draw.RigOf(character);
+					bool isLocal = player2.Pointer == intPtr;
+                    bool dummy = false;
+                    Transform transform = Draw.RigOf(character);
+                    if (isLocal) transform = EquipmentMode.Resolve(transform, out dummy);
+                    if (isLocal && transform == null)
+                    {
+                        Dressed stale;
+                        if (Draw.Bodies.TryGetValue(character.transform.Pointer, out stale))
+                        {
+                            stale.Coverage.Clear();
+                            for (int slot = 0; slot < 8; slot++) Draw.Remove(stale, slot);
+                            Draw.Bodies.Remove(character.transform.Pointer);
+                            if (Draw.Local == stale) Draw.Local = null;
+                        }
+                    }
 					if (!(transform == null))
 					{
 						Transform transform2 = character.transform;
@@ -154,7 +168,8 @@ namespace ArmorRestoredQuest
 							{
 								Name = player2.UserInfo.Username,
 								User = identifier,
-								Root = transform2,
+								Root = dummy ? transform : transform2,
+                                Dummy = dummy,
 								Rig = transform
 							};
 							Draw.Wire(dressed);
@@ -169,7 +184,7 @@ namespace ArmorRestoredQuest
 						for (int j = 0; j < 8; j++)
 						{
 							int num = array[j];
-							if (flag && j == 0 && !Settings.OwnHelmet)
+							if (flag && !dressed.Dummy && j == 0 && !Settings.OwnHelmet)
 							{
 								num = -1;
 							}
@@ -180,7 +195,7 @@ namespace ArmorRestoredQuest
 								dressed.Shown[j] = -1;
 								if (num >= 0)
 								{
-									Draw.Build(dressed, j, num, flag, material);
+									Draw.Build(dressed, j, num, flag && !dressed.Dummy, material);
 								}
 								dressed.Shown[j] = num;
 								dressed.ShownMaterials[j] = material;
