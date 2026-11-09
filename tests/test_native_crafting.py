@@ -148,3 +148,16 @@ class NativeIntegrationContracts(unittest.TestCase):
             self.assertEqual(len(stream.read(256*256*4)),256*256*4)
         self.assertEqual(len(set(names)),14)
         self.assertEqual(stream.read(),b'')
+
+
+class QuestCraftingBuildRegressionTests(unittest.TestCase):
+    def test_harmony_type_is_qualified(self):
+        for path in ('shared/ArmorCrafting.cs', 'pchost/ArmorCraftingServer.cs'):
+            text = source(path)
+            self.assertNotIn('new Harmony(', text)
+            self.assertIn('new HarmonyLib.Harmony(', text)
+
+    def test_quest_recipe_registry_uses_native_snapshot(self):
+        text = source('shared/ArmorCrafting.cs')
+        self.assertIn('NativeEnumerable.Items<GenericCraftingRecipe>(HashedGeneralValue<GenericCraftingRecipe>.All)', text)
+        self.assertIn('#else\n                foreach (GenericCraftingRecipe recipe in HashedGeneralValue<GenericCraftingRecipe>.All)', text)

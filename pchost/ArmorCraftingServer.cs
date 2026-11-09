@@ -30,7 +30,7 @@ namespace ArmorRestored
         {
             if (Installed || !Mod.IsServer) return;
             ArmorCraftRecord.Register();
-            var harmony = new Harmony("armorrestored.crafting-server");
+            var harmony = new HarmonyLib.Harmony("armorrestored.crafting-server");
             harmony.Patch(AccessTools.Method(typeof(SavingSystem),"Reinitialize"),
                 postfix: new HarmonyMethod(typeof(ArmorCraftRecord),"Register"));
             harmony.Patch(AccessTools.Method(typeof(GenericCraftingStation),"SpawnResult"),

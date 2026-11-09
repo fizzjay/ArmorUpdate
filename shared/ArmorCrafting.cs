@@ -66,7 +66,11 @@ namespace ArmorRestored
                 resultItems = items;
                 InstallHooks();
                 var templates = new Dictionary<uint, GenericCraftingPieceDefinition>();
+#if ARMOR_QUEST
+                foreach (GenericCraftingRecipe recipe in NativeEnumerable.Items<GenericCraftingRecipe>(HashedGeneralValue<GenericCraftingRecipe>.All))
+#else
                 foreach (GenericCraftingRecipe recipe in HashedGeneralValue<GenericCraftingRecipe>.All)
+#endif
                     foreach (GenericCraftingPieceDefinition piece in recipe.Pieces)
                         if (piece != null && piece.source != null && piece.source.Prefab != null && !templates.ContainsKey(piece.source.Prefab.Hash))
                             templates.Add(piece.source.Prefab.Hash, piece);
@@ -205,9 +209,9 @@ namespace ArmorRestored
         private static void InstallHooks()
         {
             if (hooks) return;
-            new Harmony("armorrestored.crafting-pages").Patch(AccessTools.Method(typeof(PageInstance), "Generate"),
+            new HarmonyLib.Harmony("armorrestored.crafting-pages").Patch(AccessTools.Method(typeof(PageInstance), "Generate"),
                 prefix: new HarmonyMethod(typeof(ArmorCrafting), "GeneratePage"));
-            new Harmony("armorrestored.crafting-bench-guard").Patch(AccessTools.Method(typeof(GenericCraftingStation), "TryAddPiece"),
+            new HarmonyLib.Harmony("armorrestored.crafting-bench-guard").Patch(AccessTools.Method(typeof(GenericCraftingStation), "TryAddPiece"),
                 prefix: new HarmonyMethod(typeof(ArmorCrafting), "AllowPiece"));
             hooks = true;
         }
