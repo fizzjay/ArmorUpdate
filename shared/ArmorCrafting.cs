@@ -99,9 +99,18 @@ namespace ArmorRestored
                 for (int i = 0; i < 16; i++)
                 {
                     if (armor[i] == null || items[i] == null) throw new InvalidOperationException("Missing armor result " + i);
-                    if (PrefabManager.GetPrefab(PageStart + (uint)i) != null || HashedGeneralValue<Item>.Get(PageStart + (uint)i) != null ||
-                        HashedGeneralValue<GenericCraftingRecipe>.Get(RecipeStart + (uint)i) != null || HashedGeneralValue<Glyph>.Get(PageStart + 32U + (uint)i) != null)
-                        throw new InvalidOperationException("Crafting ID collision at slot " + i);
+                    uint pageHash = PageStart + (uint)i, recipeHash = RecipeStart + (uint)i, glyphHash = PageStart + 32U + (uint)i;
+                    var conflicts = new List<string>();
+                    var existingPage = PrefabManager.GetPrefab(pageHash);
+                    var existingItem = HashedGeneralValue<Item>.Get(pageHash);
+                    var existingRecipe = HashedGeneralValue<GenericCraftingRecipe>.Get(recipeHash);
+                    var existingGlyph = HashedGeneralValue<Glyph>.Get(glyphHash);
+                    if (existingPage != null) conflicts.Add("page prefab " + pageHash + " (" + existingPage.name + ")");
+                    if (existingItem != null) conflicts.Add("page item " + pageHash + " (" + existingItem.name + ")");
+                    if (existingRecipe != null) conflicts.Add("recipe " + recipeHash + " (" + existingRecipe.name + ")");
+                    if (existingGlyph != null) conflicts.Add("glyph " + glyphHash + " (" + existingGlyph.name + ")");
+                    if (conflicts.Count != 0)
+                        throw new InvalidOperationException("Crafting ID collision at slot " + i + ": " + string.Join(", ", conflicts.ToArray()));
                     Plans[i] = data.Find(Catalog.Id(i));
                     if (Plans[i] == null) throw new InvalidDataException("Missing eight-slot construction plan " + Catalog.Id(i));
                 }
