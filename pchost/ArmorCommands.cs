@@ -22,7 +22,7 @@ namespace ArmorRestored
 		public static string List()
 		{
 			StringBuilder stringBuilder = new StringBuilder();
-			stringBuilder.Append("ArmorRestored ").Append("0.2.1").Append(", registered via ").Append(Prefabs.Seam ?? "nothing yet").Append('\n');
+			stringBuilder.Append("ArmorRestored ").Append("0.4.0").Append(", registered via ").Append(Prefabs.Seam ?? "nothing yet").Append('\n');
 			for (int i = 0; i < Catalog.Count; i++)
 			{
 				stringBuilder.Append(Catalog.Number(i)).Append("  ").Append(Catalog.Id(i)).Append("  ").Append(Catalog.Title(i));
@@ -36,11 +36,84 @@ namespace ArmorRestored
 				}
 				stringBuilder.Append('\n');
 			}
+			stringBuilder.Append(ArmorStand.Number).Append("  ").Append(ArmorStand.Name).Append("  ").Append(ArmorStand.Status).Append('\n');
 			stringBuilder.Append("loot: ").Append(Loot.Report);
 			return stringBuilder.ToString();
 		}
 
 		// Token: 0x0600003A RID: 58 RVA: 0x000047D0 File Offset: 0x000029D0
+        [Command("stand", "Spawn a fixed eight-slot armor stand on the ground in front of a player: armor stand <player>")]
+        public static string Stand(string player)
+        {
+            return ArmorCommands.Run(delegate
+            {
+                if (ArmorStand.Prefab == null) return "Armor stand unavailable: " + ArmorStand.Status;
+                string problem;
+                Player target = Players.Find(player, out problem);
+                if (target == null) return problem;
+                Vector3 front = ServerArmor.Front(target);
+                front.y = 0f;
+                if (front.sqrMagnitude < 0.001f) front = Vector3.forward;
+                front.Normalize();
+                Vector3 at = ServerArmor.Head(target) + front * 1.5f;
+                // Terrain and built floors need not use the layer named Ground.
+                // Ignore triggers and the target avatar; use the nearest solid surface.
+                RaycastHit[] hits = Physics.RaycastAll(at + Vector3.up, Vector3.down, 12f,
+                    Physics.DefaultRaycastLayers, QueryTriggerInteraction.Ignore);
+                Array.Sort(hits, delegate(RaycastHit a, RaycastHit b) { return a.distance.CompareTo(b.distance); });
+                RaycastHit hit = new RaycastHit();
+                bool found = false;
+                foreach (RaycastHit candidate in hits)
+                {
+                    if (candidate.collider == null) continue;
+                    if (target.PlayerCharacter != null && candidate.collider.transform.IsChildOf(target.PlayerCharacter.transform)) continue;
+                    if (target.PlayerController != null && candidate.collider.transform.IsChildOf(target.PlayerController.transform)) continue;
+                    hit = candidate;
+                    found = true;
+                    break;
+                }
+                if (!found)
+                    return "No solid surface within 12 m below placement point " + at.ToString("F2") + "; check server terrain collision/player position";
+                if (hit.normal.y < 0.9f) return "Surface is too steep for a fixed armor stand: " + hit.collider.name;
+                NetworkEntity stand = SpawnHelper.Spawn(ArmorStand.Prefab, SpawnData.Default, null,
+                    hit.point, Quaternion.LookRotation(-front, Vector3.up), null);
+                return stand == null ? "Could not spawn armor stand" : "Spawned " + ArmorStand.Name + " as " + stand.Identifier + " at " + hit.point.ToString("F2") + " on " + hit.collider.name;
+            });
+        }
+
+        [Command("standinfo", "Inspect a spawned stand: armor standinfo <entityId>")]
+        public static string StandInfo(uint entityId)
+        {
+            return ArmorCommands.Run(delegate
+            {
+                NetworkEntity entity = NetworkSceneManager.Current == null ? null : NetworkSceneManager.Current.GetEntity(entityId);
+                if (entity == null) return "No server entity " + entityId;
+                GameObject root = entity.gameObject;
+                NetworkPrefab attached = root.GetComponent<NetworkPrefab>();
+                NetworkPrefab linked = entity.Prefab;
+                string identity = "Entity " + entityId + " name=" + root.name
+                    + " linkedPrefab=" + (linked == null ? "null" : linked.name + "/" + linked.Hash)
+                    + " attachedPrefab=" + (attached == null ? "null" : attached.name + "/" + attached.Hash);
+                // Keep reporting even when the native prefab link is broken.
+                StringBuilder fields = new StringBuilder();
+                for (Type type = entity.GetType(); type != null && type != typeof(MonoBehaviour); type = type.BaseType)
+                {
+                    foreach (FieldInfo field in type.GetFields(BindingFlags.Instance | BindingFlags.Public | BindingFlags.NonPublic | BindingFlags.DeclaredOnly))
+                    {
+                        if (field.Name.IndexOf("prefab", StringComparison.OrdinalIgnoreCase) < 0
+                            && field.Name.IndexOf("hash", StringComparison.OrdinalIgnoreCase) < 0) continue;
+                        object value = field.GetValue(entity);
+                        fields.Append(" ").Append(field.Name).Append("=").Append(value == null ? "null" : value.ToString());
+                    }
+                }
+                return identity + fields.ToString() + " at " + root.transform.position.ToString("F2")
+                    + " active=" + root.activeSelf + "/" + root.activeInHierarchy
+                    + " scale=" + root.transform.lossyScale.ToString("F2")
+                    + " parent=" + (root.transform.parent == null ? "none" : root.transform.parent.name)
+                    + " embedded=" + (attached == null ? "none" : attached.Embedded.Count.ToString());
+            });
+        }
+
 		[Command("give", "Spawn armor in front of a player: armor give <player> <leather|metal|wyrm> <slot|all> (slots: helmet chest shoulder_l shoulder_r gauntlet_l gauntlet_r tasset_l tasset_r)")]
 		public static string Give(string player, string set, string slot)
 		{

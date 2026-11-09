@@ -6,10 +6,9 @@ using Il2CppAlta.Inventory;
 using Il2CppAlta.Networking;
 using Il2CppInterop.Runtime;
 using Il2CppInterop.Runtime.InteropTypes.Arrays;
-using Il2CppSystem;
-using Il2CppSystem.Collections.Generic;
 using MelonLoader;
 using UnityEngine;
+using Object = UnityEngine.Object;
 
 namespace ArmorRestoredQuest
 {
@@ -39,9 +38,9 @@ namespace ArmorRestoredQuest
 				Crumb.At("register: CheckItems");
 				HashedGeneralValue<Item>.CheckItems();
 				Crumb.At("register: prefabMap");
-				Dictionary<uint, NetworkPrefab> prefabMap = PrefabManager.prefabMap;
+				Il2CppSystem.Collections.Generic.Dictionary<uint, NetworkPrefab> prefabMap = PrefabManager.prefabMap;
 				Crumb.At("register: items");
-				Dictionary<uint, Item> items = HashedGeneralValue<Item>.items;
+				Il2CppSystem.Collections.Generic.Dictionary<uint, Item> items = HashedGeneralValue<Item>.items;
 				Registry.Done = true;
 				if (prefabMap == null || items == null || items.Count == 0)
 				{
@@ -122,7 +121,9 @@ namespace ArmorRestoredQuest
 								Mod.Log.Error(Catalog.Id(i) + " refused: " + text2);
 							}
 						}
-						Crumb.At("register: itemsByName reset");
+						ArmorStand.Register(Registry._holder, Registry.Prefabs, Registry.Items);
+                        if (ArmorStand.Prefab == null) list.Add("armorstand");
+                        Crumb.At("register: itemsByName reset");
 						HashedGeneralValue<Item>.itemsByName = null;
 						Registry._refused = string.Join(",", list.ToArray());
 						Mod.Log.Msg(string.Concat(new string[]
@@ -163,7 +164,7 @@ namespace ArmorRestoredQuest
 		}
 
 		// Token: 0x06000067 RID: 103 RVA: 0x00006AEC File Offset: 0x00004CEC
-		private static string Build(int piece, NetworkPrefab source, Item sourceItem, Dictionary<uint, NetworkPrefab> map, Dictionary<uint, Item> items, bool packOk)
+		private static string Build(int piece, NetworkPrefab source, Item sourceItem, Il2CppSystem.Collections.Generic.Dictionary<uint, NetworkPrefab> map, Il2CppSystem.Collections.Generic.Dictionary<uint, Item> items, bool packOk)
 		{
 			uint num = Catalog.Number(piece);
 			if (map.ContainsKey(num))
@@ -255,6 +256,7 @@ namespace ArmorRestoredQuest
 					Mod.Log.Error(Catalog.Id(piece) + " keeps the spoon look: " + text);
 				}
 			}
+			ArmorMaterials.Configure(piece, gameObject);
 			Crumb.First("prefabMap.Add");
 			map.Add(num, networkPrefab);
 			NetworkPrefab prefab = PrefabManager.GetPrefab(num);
@@ -332,7 +334,7 @@ namespace ArmorRestoredQuest
 					}
 				}
 				Crumb.First("look: childrenColliders");
-				Il2CppReferenceArray<Collider> il2CppReferenceArray = new Il2CppReferenceArray<Collider>(Array.CreateInstance(Il2CppType.Of<Collider>(), list4.Count).Pointer);
+				Il2CppReferenceArray<Collider> il2CppReferenceArray = new Il2CppReferenceArray<Collider>(Il2CppSystem.Array.CreateInstance(Il2CppType.Of<Collider>(), list4.Count).Pointer);
 				for (int j = 0; j < list4.Count; j++)
 				{
 					il2CppReferenceArray[j] = list4[j];
@@ -341,7 +343,7 @@ namespace ArmorRestoredQuest
 				root.childrenColliders = il2CppReferenceArray;
 				flag = true;
 				Crumb.First("look: Colliders set");
-				HashSet<Collider> colliders = root.Colliders;
+				var colliders = root.Colliders;
 				if (colliders != null)
 				{
 					colliders.Clear();
@@ -478,14 +480,15 @@ namespace ArmorRestoredQuest
 			}
 			from = "a new array";
 			Crumb.At("register: new grab point list");
-			return new Il2CppReferenceArray<GrabPoint>(Array.CreateInstance(Il2CppType.Of<GrabPoint>(), 0).Pointer);
+			return new Il2CppReferenceArray<GrabPoint>(Il2CppSystem.Array.CreateInstance(Il2CppType.Of<GrabPoint>(), 0).Pointer);
 		}
 
 		// Token: 0x0600006D RID: 109 RVA: 0x0000768C File Offset: 0x0000588C
 		internal static string Unregister()
 		{
-			Dictionary<uint, NetworkPrefab> prefabMap = PrefabManager.prefabMap;
-			Dictionary<uint, Item> items = HashedGeneralValue<Item>.items;
+            ArmorStand.Unregister();
+			Il2CppSystem.Collections.Generic.Dictionary<uint, NetworkPrefab> prefabMap = PrefabManager.prefabMap;
+			Il2CppSystem.Collections.Generic.Dictionary<uint, Item> items = HashedGeneralValue<Item>.items;
 			int num = 0;
 			int num2 = 0;
 			for (int i = 0; i < 24; i++)

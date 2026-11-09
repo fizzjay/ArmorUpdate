@@ -13,25 +13,15 @@ namespace ArmorRestoredQuest
 		// Token: 0x06000070 RID: 112 RVA: 0x00007974 File Offset: 0x00005B74
 		internal static void Prepare()
 		{
-			Action<Connection, Stream> action;
-			if ((action = Wire.<>O.<0>__Receive) == null)
-			{
-				action = (Wire.<>O.<0>__Receive = new Action<Connection, Stream>(Wire.Receive));
-			}
-			Wire._handler = action;
-			Action<Connection> action2;
-			if ((action2 = Wire.<>O.<1>__Disconnected) == null)
-			{
-				action2 = (Wire.<>O.<1>__Disconnected = new Action<Connection>(Gate.Disconnected));
-			}
-			Wire._onDisconnected = action2;
+			Wire._handler = new Action<Connection, Stream>(Wire.Receive);
+			Wire._onDisconnected = new Action<Connection>(Gate.Disconnected);
 		}
 
 		// Token: 0x06000071 RID: 113 RVA: 0x000079CB File Offset: 0x00005BCB
 		internal static void Listen(Connection c)
 		{
 			Crumb.At("SetHandler 137");
-			c.SetHandler(137, Wire._handler);
+			c.SetHandler((MessageType)137, Wire._handler);
 			Crumb.At("add_Disconnected");
 			c.Disconnected += Wire._onDisconnected;
 		}
@@ -53,11 +43,11 @@ namespace ArmorRestoredQuest
 				{
 					string version = null;
 					int wire = 0;
-					s.SerializeString(ref version, 1);
+					s.SerializeString(ref version, (Stream.StringEncoding)1);
 					s.SerializeInteger(ref wire);
 					Gate.Heard(c, version, wire);
 				}
-				else if (num2 == 10U)
+				else if (num2 == 13U && Gate.IsOpen)
 				{
 					int num3 = 0;
 					s.SerializeInteger(ref num3);
@@ -67,12 +57,15 @@ namespace ArmorRestoredQuest
 					{
 						int key = 0;
 						s.SerializeInteger(ref key);
-						int[] array = new int[8];
-						for (int i = 0; i < array.Length; i++)
+						int[] array = new int[16];
+						for (int i = 0; i < 8; i++)
 						{
 							uint num5 = 0U;
 							s.SerializeBits(ref num5, 8);
 							array[i] = (int)((num5 == 0U || num5 > 24U) ? uint.MaxValue : (num5 - 1U));
+							uint material = 0U;
+							s.SerializeBits(ref material, 32);
+							array[8 + i] = unchecked((int)material);
 						}
 						dictionary[key] = array;
 						num4++;
@@ -90,7 +83,7 @@ namespace ArmorRestoredQuest
 				else if (num2 == 12U)
 				{
 					string str2 = null;
-					s.SerializeString(ref str2, 1);
+					s.SerializeString(ref str2, (Stream.StringEncoding)1);
 					Mod.Log.Msg("server: " + str2);
 				}
 				else
@@ -121,12 +114,12 @@ namespace ArmorRestoredQuest
 			{
 				uint num = 5U;
 				s.SerializeBits(ref num, 8);
-				int num2 = 1;
+				int num2 = 3;
 				s.SerializeInteger(ref num2);
 				string version2 = version;
 				string refused2 = refused;
-				s.SerializeString(ref version2, 1);
-				s.SerializeString(ref refused2, 1);
+				s.SerializeString(ref version2, (Stream.StringEncoding)1);
+				s.SerializeString(ref refused2, (Stream.StringEncoding)1);
 			});
 		}
 
@@ -165,11 +158,9 @@ namespace ArmorRestoredQuest
 			}
 			Wire.ResolveChannel();
 			Crumb.First("send " + what);
-			Wire._last = delegate(Connection conn, Stream s)
-			{
-				body(s);
-			};
-			bool flag = c.Send(Wire._channel, 137, Wire._last);
+			// IL2CPP delegates are wrapper classes: convert a managed Action explicitly.
+			Wire._last = new Action<Connection, Stream>((conn, s) => body(s));
+			bool flag = c.Send(Wire._channel, (MessageType)137, Wire._last);
 			if (!flag)
 			{
 				Crumb.At("send " + what + " returned false");
@@ -211,7 +202,7 @@ namespace ArmorRestoredQuest
 		internal const int Type = 137;
 
 		// Token: 0x04000093 RID: 147
-		internal const int Number = 1;
+		internal const int Number = 3;
 
 		// Token: 0x04000094 RID: 148
 		private const uint Equip = 2U;
@@ -226,7 +217,7 @@ namespace ArmorRestoredQuest
 		private const uint Hello = 5U;
 
 		// Token: 0x04000098 RID: 152
-		private const uint Table = 10U;
+		private const uint Table = 13U;
 
 		// Token: 0x04000099 RID: 153
 		private const uint Took = 11U;
@@ -255,15 +246,5 @@ namespace ArmorRestoredQuest
 		// Token: 0x040000A1 RID: 161
 		private static int _reads;
 
-		// Token: 0x02000018 RID: 24
-		[CompilerGenerated]
-		private static class <>O
-		{
-			// Token: 0x040000A6 RID: 166
-			public static Action<Connection, Stream> <0>__Receive;
-
-			// Token: 0x040000A7 RID: 167
-			public static Action<Connection> <1>__Disconnected;
-		}
 	}
 }

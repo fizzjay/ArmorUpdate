@@ -71,8 +71,8 @@ namespace ArmorRestoredQuest
 			{
 				for (int i = 0; i < 3; i++)
 				{
-					c[8 + i] = (2 * c[i] + c[4 + i]) / 3;
-					c[12 + i] = (c[i] + 2 * c[4 + i]) / 3;
+					c[8 + i] = (byte)((2 * c[i] + c[4 + i]) / 3);
+					c[12 + i] = (byte)((c[i] + 2 * c[4 + i]) / 3);
 				}
 				c[11] = byte.MaxValue;
 				c[15] = byte.MaxValue;
@@ -80,7 +80,7 @@ namespace ArmorRestoredQuest
 			}
 			for (int j = 0; j < 3; j++)
 			{
-				c[8 + j] = (c[j] + c[4 + j]) / 2;
+				c[8 + j] = (byte)((c[j] + c[4 + j]) / 2);
 				c[12 + j] = 0;
 			}
 			c[11] = byte.MaxValue;

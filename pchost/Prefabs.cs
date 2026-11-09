@@ -5,6 +5,7 @@ using Alta;
 using Alta.Inventory;
 using Alta.Networking;
 using UnityEngine;
+using Object = UnityEngine.Object;
 
 namespace ArmorRestored
 {
@@ -33,6 +34,7 @@ namespace ArmorRestored
 					list.Add(Catalog.Id(i));
 				}
 			}
+			if (ArmorStand.Prefab == null) list.Add("armorstand");
 			return string.Join(",", list.ToArray());
 		}
 
@@ -43,6 +45,17 @@ namespace ArmorRestored
 			{
 				return;
 			}
+            // Harmony seams may still run after initialization has failed.
+            // Never index an empty/partial pack or publish invalid armor prefabs.
+            if (!Pack.Loaded)
+            {
+                if (!Prefabs._packWaitLogged)
+                {
+                    Prefabs._packWaitLogged = true;
+                    Mod.Log.Error("armor registration skipped: armor.pack is not fully loaded; fix the earlier pack error and restart");
+                }
+                return;
+            }
 			Prefabs._busy = true;
 			try
 			{
@@ -116,6 +129,7 @@ namespace ArmorRestored
 									Mod.Log.Error(Catalog.Id(j) + ": " + ex);
 								}
 							}
+							ArmorStand.Register(Prefabs._holder, Prefabs.ByPiece, Prefabs.Items);
 							FieldInfo field4 = typeof(HashedGeneralValue<Item>).GetField("itemsByName", BindingFlags.Static | BindingFlags.Public | BindingFlags.NonPublic);
 							if (field4 != null)
 							{
@@ -156,6 +170,7 @@ namespace ArmorRestored
 		// Token: 0x06000087 RID: 135 RVA: 0x00008354 File Offset: 0x00006554
 		internal static string Unregister()
 		{
+            ArmorStand.Unregister();
 			FieldInfo field = typeof(PrefabManager).GetField("prefabMap", BindingFlags.Static | BindingFlags.Public | BindingFlags.NonPublic);
 			FieldInfo field2 = typeof(HashedGeneralValue<Item>).GetField("items", BindingFlags.Static | BindingFlags.Public | BindingFlags.NonPublic);
 			Dictionary<uint, NetworkPrefab> dictionary = (field != null) ? ((Dictionary<uint, NetworkPrefab>)field.GetValue(null)) : null;
@@ -308,6 +323,7 @@ namespace ArmorRestored
 					pickup.Item = item3;
 				}
 			}
+			ArmorMaterials.Configure(piece, gameObject);
 			addToMap.Invoke(null, new object[]
 			{
 				new NetworkPrefab[]
@@ -422,6 +438,8 @@ namespace ArmorRestored
 
 		// Token: 0x040000A2 RID: 162
 		private static bool _busy;
+
+        private static bool _packWaitLogged;
 
 		// Token: 0x040000A3 RID: 163
 		private static bool _waitLogged;

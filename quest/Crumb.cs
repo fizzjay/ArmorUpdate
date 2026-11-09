@@ -1,6 +1,5 @@
 ﻿using System;
 using System.Collections.Generic;
-using System.Runtime.CompilerServices;
 using System.Runtime.InteropServices;
 using System.Text;
 using System.Threading;
@@ -16,7 +15,14 @@ namespace ArmorRestoredQuest
 
 		// Token: 0x06000009 RID: 9
 		[DllImport("libc.so", EntryPoint = "__cxa_atexit")]
-		private static extern int AtExitRegister(method fn, void arg, void dso);
+		private static extern int AtExitRegister(IntPtr fn, IntPtr arg, IntPtr dso);
+
+		[UnmanagedFunctionPointer(CallingConvention.Cdecl)]
+		private delegate void ExitCallback(IntPtr arg);
+
+		// libc retains this callback: keep the delegate alive for the process lifetime.
+		private static readonly ExitCallback NativeExitCallback = AtExit;
+		private static bool watchingExit;
 
 		// Token: 0x0600000A RID: 10 RVA: 0x0000223F File Offset: 0x0000043F
 		internal static void At(string what)
@@ -36,14 +42,16 @@ namespace ArmorRestoredQuest
 		// Token: 0x0600000C RID: 12 RVA: 0x00002268 File Offset: 0x00000468
 		internal static void WatchExit()
 		{
+			if (watchingExit) return;
+			watchingExit = true;
 			try
 			{
-				AppDomain.CurrentDomain.ProcessExit += delegate([Nullable(2)] object <p0>, EventArgs <p1>)
+				AppDomain.CurrentDomain.ProcessExit += delegate(object sender, EventArgs args)
 				{
 					Crumb.exiting = true;
 					Crumb.Write("managed ProcessExit");
 				};
-				int num = Crumb.AtExitRegister(ldftn(AtExit), IntPtr.Zero, IntPtr.Zero);
+				int num = Crumb.AtExitRegister(Marshal.GetFunctionPointerForDelegate(NativeExitCallback), IntPtr.Zero, IntPtr.Zero);
 				Crumb.Write("exit watch in (atexit " + ((num == 0) ? "registered" : ("failed " + num.ToString())) + ")");
 			}
 			catch (Exception ex)
@@ -53,7 +61,6 @@ namespace ArmorRestoredQuest
 		}
 
 		// Token: 0x0600000D RID: 13 RVA: 0x00002320 File Offset: 0x00000520
-		[UnmanagedCallersOnly]
 		private static void AtExit(IntPtr arg)
 		{
 			if (Crumb.exiting)

@@ -18,6 +18,7 @@ namespace ArmorRestoredQuest
 
 		// Token: 0x04000011 RID: 17
 		public Transform Rig;
+        public bool Dummy;
 
 		// Token: 0x04000012 RID: 18
 		public Dictionary<string, Transform> Bones;
@@ -27,6 +28,8 @@ namespace ArmorRestoredQuest
 
 		// Token: 0x04000014 RID: 20
 		public int[] Shown = Catalog.Empty();
+		public uint[] ShownMaterials = new uint[8];
+        public CosmeticCoverage Coverage = new CosmeticCoverage();
 
 		// Token: 0x04000015 RID: 21
 		public List<GameObject>[] Slots = new List<GameObject>[8];

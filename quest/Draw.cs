@@ -4,8 +4,8 @@ using Il2Cpp;
 using Il2CppAlta.Customization;
 using Il2CppInterop.Runtime;
 using Il2CppInterop.Runtime.InteropTypes.Arrays;
-using Il2CppSystem;
 using UnityEngine;
+using Object = UnityEngine.Object;
 
 namespace ArmorRestoredQuest
 {
@@ -21,7 +21,7 @@ namespace ArmorRestoredQuest
 			{
 				Draw.Table[keyValuePair.Key] = keyValuePair.Value;
 				int[] value = keyValuePair.Value;
-				for (int i = 0; i < value.Length; i++)
+				for (int i = 0; i < 8; i++)
 				{
 					if (value[i] >= 0)
 					{
@@ -59,12 +59,14 @@ namespace ArmorRestoredQuest
 		{
 			foreach (Dressed dressed in Draw.Bodies.Values)
 			{
+                dressed.Coverage.Clear();
 				for (int i = 0; i < dressed.Slots.Length; i++)
 				{
 					Draw.Remove(dressed, i);
 				}
 			}
 			Draw.Bodies.Clear();
+			WornMaterials.Clear();
 			Draw.Table.Clear();
 			Draw.Local = null;
 			Draw._dirty = false;
@@ -78,6 +80,7 @@ namespace ArmorRestoredQuest
 			{
 				return;
 			}
+            WornMaterials.Tick();
 			float unscaledTime = Time.unscaledTime;
 			if (Settings.Debug && unscaledTime >= Draw._nextCensus)
 			{
@@ -105,7 +108,8 @@ namespace ArmorRestoredQuest
 			}
 			foreach (IntPtr key in list)
 			{
-				Draw.Bodies.Remove(key);
+				Draw.Bodies[key].Coverage.Clear();
+                Draw.Bodies.Remove(key);
 			}
 			if (Draw.Local != null && Draw.Local.Root == null)
 			{
@@ -117,7 +121,8 @@ namespace ArmorRestoredQuest
 			foreach (Object @object in Object.FindObjectsOfType(Il2CppType.Of<Player>()))
 			{
 				Player player2 = (@object == null) ? null : @object.TryCast<Player>();
-				if (!(player2 == null) && player2.UserInfo != null && !(player2.PlayerCharacter == null))
+                PlayerCharacter character = Draw.CharacterOf(player2);
+				if (!(player2 == null) && player2.UserInfo != null && character != null)
 				{
 					int identifier = player2.UserInfo.Identifier;
 					int[] array;
@@ -125,13 +130,28 @@ namespace ArmorRestoredQuest
 					{
 						array = Catalog.Empty();
 					}
-					Transform transform = Draw.RigOf(player2);
+					bool isLocal = player2.Pointer == intPtr;
+                    bool dummy = false;
+                    Transform transform = Draw.RigOf(character);
+                    if (isLocal) transform = EquipmentMode.Resolve(transform, out dummy);
+                    if (isLocal && transform == null)
+                    {
+                        Dressed stale;
+                        if (Draw.Bodies.TryGetValue(character.transform.Pointer, out stale))
+                        {
+                            stale.Coverage.Clear();
+                            for (int slot = 0; slot < 8; slot++) Draw.Remove(stale, slot);
+                            Draw.Bodies.Remove(character.transform.Pointer);
+                            if (Draw.Local == stale) Draw.Local = null;
+                        }
+                    }
 					if (!(transform == null))
 					{
-						Transform transform2 = player2.PlayerCharacter.transform;
+						Transform transform2 = character.transform;
 						Dressed dressed;
 						if (Draw.Bodies.TryGetValue(transform2.Pointer, out dressed) && (dressed.Rig == null || dressed.Rig.Pointer != transform.Pointer))
 						{
+                            dressed.Coverage.Clear();
 							for (int i = 0; i < 8; i++)
 							{
 								Draw.Remove(dressed, i);
@@ -148,7 +168,8 @@ namespace ArmorRestoredQuest
 							{
 								Name = player2.UserInfo.Username,
 								User = identifier,
-								Root = transform2,
+								Root = dummy ? transform : transform2,
+                                Dummy = dummy,
 								Rig = transform
 							};
 							Draw.Wire(dressed);
@@ -163,22 +184,25 @@ namespace ArmorRestoredQuest
 						for (int j = 0; j < 8; j++)
 						{
 							int num = array[j];
-							if (flag && j == 0 && !Settings.OwnHelmet)
+							if (flag && !dressed.Dummy && j == 0 && !Settings.OwnHelmet)
 							{
 								num = -1;
 							}
-							if (dressed.Shown[j] != num || (num >= 0 && !Draw.HolderLive(dressed, j)))
+							uint material = array.Length >= 16 ? unchecked((uint)array[8 + j]) : 0U;
+							if (dressed.Shown[j] != num || dressed.ShownMaterials[j] != material || (num >= 0 && !Draw.HolderLive(dressed, j)))
 							{
 								Draw.Remove(dressed, j);
 								dressed.Shown[j] = -1;
 								if (num >= 0)
 								{
-									Draw.Build(dressed, j, num, flag);
+									Draw.Build(dressed, j, num, flag && !dressed.Dummy, material);
 								}
 								dressed.Shown[j] = num;
+								dressed.ShownMaterials[j] = material;
 								flag2 = true;
 							}
 						}
+                        dressed.Coverage.Update(dressed.Root, dressed.Shown);
 						if (flag2)
 						{
 							Draw.Cost(dressed, flag);
@@ -189,12 +213,31 @@ namespace ArmorRestoredQuest
 		}
 
 		// Token: 0x06000016 RID: 22 RVA: 0x00002954 File Offset: 0x00000B54
-		private static Transform RigOf(Player p)
+        private static PlayerCharacter CharacterOf(Player player)
+        {
+            if (player == null) return null;
+            try
+            {
+                return player.PlayerCharacter;
+            }
+            catch (Il2CppInterop.Runtime.Il2CppException)
+            {
+                // Customization previews are Players too, but their controller is
+                // not a PlayerCharacter. Skip this entry, not the entire census.
+                return null;
+            }
+            catch (InvalidCastException)
+            {
+                return null;
+            }
+        }
+
+		private static Transform RigOf(PlayerCharacter character)
 		{
 			Transform result;
 			try
 			{
-				PlayerCustomizationHandler customizationHandler = p.PlayerCharacter.CustomizationHandler;
+				PlayerCustomizationHandler customizationHandler = character.CustomizationHandler;
 				result = ((customizationHandler == null || customizationHandler.IsDestroyed || customizationHandler.CharacterDummy == null) ? null : customizationHandler.RootBone);
 			}
 			catch (Exception)
@@ -264,6 +307,22 @@ namespace ArmorRestoredQuest
 					}
 				}
 			}
+            // The baked body's renderer owns the skeleton actually used to draw
+            // this avatar. RootBone's descendants can also contain dummy/reference
+            // joints with the same names; those must not win name lookup.
+            int bound = 0;
+            foreach (Component component in d.Root.GetComponentsInChildren(Il2CppType.Of<SkinnedMeshRenderer>(), true))
+            {
+                SkinnedMeshRenderer body = component == null ? null : component.TryCast<SkinnedMeshRenderer>();
+                if (body == null || body.transform.parent == null || body.transform.parent.name != "Baked" || body.bones == null) continue;
+                foreach (Transform bone in body.bones)
+                {
+                    if (bone == null) continue;
+                    d.Bones[bone.name] = bone;
+                    bound++;
+                }
+            }
+            Mod.Log.Msg("armor rig on " + d.Name + ": " + bound + " bone bindings from baked avatar renderers");
 			foreach (Component component2 in d.Root.GetComponentsInChildren(Il2CppType.Of<SkinnedMeshRenderer>(), true))
 			{
 				if (!(component2 == null) && !(component2.transform.parent == null) && !(component2.transform.parent.name != "Baked"))
@@ -330,7 +389,7 @@ namespace ArmorRestoredQuest
 		}
 
 		// Token: 0x0600001C RID: 28 RVA: 0x00002D28 File Offset: 0x00000F28
-		private static void Build(Dressed d, int s, int piece, bool isLocal)
+		private static void Build(Dressed d, int s, int piece, bool isLocal, uint material)
 		{
 			DateTime utcNow = DateTime.UtcNow;
 			List<GameObject> list = new List<GameObject>();
@@ -349,7 +408,7 @@ namespace ArmorRestoredQuest
 			foreach (PartDef partDef in Pack.Pieces[piece].Worn)
 			{
 				Mesh sharedMesh = Pack.MeshOf(partDef.Mesh);
-				Material sharedMaterial = Pack.MaterialOf(partDef.Mat);
+				Material sharedMaterial = WornMaterials.Apply(piece, material, Pack.MaterialOf(partDef.Mat), Pack.Meshes[partDef.Mesh].Name);
 				GameObject gameObject2 = new GameObject(Pack.Meshes[partDef.Mesh].Name);
 				gameObject2.layer = d.Layer;
 				if (!partDef.Skinned)
@@ -376,7 +435,7 @@ namespace ArmorRestoredQuest
 					gameObject2.transform.SetParent(gameObject.transform, false);
 					Transform transform2 = Draw.Bone(d, partDef.Root);
 					Crumb.First("skinned part: bones array");
-					Il2CppReferenceArray<Transform> il2CppReferenceArray = new Il2CppReferenceArray<Transform>(Array.CreateInstance(Il2CppType.Of<Transform>(), partDef.Bones.Length).Pointer);
+					Il2CppReferenceArray<Transform> il2CppReferenceArray = new Il2CppReferenceArray<Transform>(Il2CppSystem.Array.CreateInstance(Il2CppType.Of<Transform>(), partDef.Bones.Length).Pointer);
 					for (int i = 0; i < partDef.Bones.Length; i++)
 					{
 						Transform transform3 = Draw.Bone(d, partDef.Bones[i]);

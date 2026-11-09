@@ -1,0 +1,5 @@
+# Local Quest build dependencies, machine-specific paths and build output.
+/refs/quest/
+/quest/Quest.Local.props
+/quest/bin/
+/quest/obj/

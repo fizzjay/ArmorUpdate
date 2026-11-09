@@ -6,12 +6,15 @@ using Alta.Networking;
 using Alta.Networking.Scripts.Player;
 using Alta.Utilities;
 using UnityEngine;
+using Object = UnityEngine.Object;
 
 namespace ArmorRestored
 {
 	// Token: 0x02000007 RID: 7
 	internal static class ClientArmor
 	{
+        private static readonly EquipmentReleases Releases = new EquipmentReleases();
+        private static Transform interactionRig;
 		// Token: 0x0600001C RID: 28 RVA: 0x00002F50 File Offset: 0x00001150
 		internal static void OnTable(Dictionary<int, int[]> rows)
 		{
@@ -37,7 +40,8 @@ namespace ArmorRestored
 		{
 			foreach (ClientArmor.Dressed dressed in ClientArmor.Bodies.Values)
 			{
-				foreach (GameObject gameObject in dressed.Slots)
+				dressed.Coverage.Clear();
+                foreach (GameObject gameObject in dressed.Slots)
 				{
 					if (gameObject != null)
 					{
@@ -46,7 +50,10 @@ namespace ArmorRestored
 				}
 			}
 			ClientArmor.Bodies.Clear();
+			WornMaterials.Clear();
 			ClientArmor.Table.Clear();
+            Releases.Clear();
+            interactionRig = null;
 			ClientArmor.Held[0] = (ClientArmor.Held[1] = null);
 			ClientArmor.Closed[0] = (ClientArmor.Closed[1] = false);
 			ClientArmor.PendingSlot[0] = (ClientArmor.PendingSlot[1] = -1);
@@ -63,6 +70,7 @@ namespace ArmorRestored
 			{
 				return;
 			}
+            WornMaterials.Tick();
 			if (Settings.Debug && Time.unscaledTime >= ClientArmor._nextCensus)
 			{
 				ClientArmor.Census();
@@ -145,7 +153,8 @@ namespace ArmorRestored
 			}
 			foreach (int key in list)
 			{
-				ClientArmor.Bodies.Remove(key);
+				ClientArmor.Bodies[key].Coverage.Clear();
+                ClientArmor.Bodies.Remove(key);
 			}
 			Player objB = (PlayerController.Current != null) ? PlayerController.Current.NetworkPlayer : null;
 			foreach (IPlayer player in Player.AllPlayers)
@@ -158,13 +167,29 @@ namespace ArmorRestored
 					{
 						array = ServerArmor.Empty();
 					}
-					Transform transform = ClientArmor.RigOf(player2);
+					bool isLocal = object.ReferenceEquals(player2, objB);
+                    bool dummy = false;
+                    Transform transform = ClientArmor.RigOf(player2);
+                    if (isLocal) transform = EquipmentMode.Resolve(transform, out dummy);
+                    if (isLocal && transform == null)
+                    {
+                        ClientArmor.Dressed stale;
+                        int key = player2.PlayerCharacter.GetInstanceID();
+                        if (ClientArmor.Bodies.TryGetValue(key, out stale))
+                        {
+                            stale.Coverage.Clear();
+                            foreach (GameObject holder in stale.Slots)
+                                if (holder != null) Object.Destroy(holder);
+                            ClientArmor.Bodies.Remove(key);
+                        }
+                    }
 					if (!(transform == null))
 					{
 						int instanceID = player2.PlayerCharacter.GetInstanceID();
 						ClientArmor.Dressed dressed;
 						if (ClientArmor.Bodies.TryGetValue(instanceID, out dressed) && dressed.Rig != transform)
 						{
+                            dressed.Coverage.Clear();
 							foreach (GameObject gameObject in dressed.Slots)
 							{
 								if (gameObject != null)
@@ -179,35 +204,53 @@ namespace ArmorRestored
 							dressed = new ClientArmor.Dressed
 							{
 								Player = player2,
-								Root = player2.PlayerCharacter.transform,
+								Root = dummy ? transform : player2.PlayerCharacter.transform,
+                                Dummy = dummy,
 								Rig = transform,
 								Shown = ServerArmor.Empty()
 							};
 							dressed.Bones = Body.Wire(transform, false);
+                            // Prefer the visible avatar's renderer bindings over
+                            // similarly named dummy/reference joints.
+                            int bound = 0;
+                            foreach (SkinnedMeshRenderer body in dressed.Root.GetComponentsInChildren<SkinnedMeshRenderer>(true))
+                            {
+                                if (body.transform.parent == null || body.transform.parent.name != "Baked" || body.bones == null) continue;
+                                foreach (Transform bone in body.bones)
+                                {
+                                    if (bone == null) continue;
+                                    dressed.Bones.Bones[bone.name] = bone;
+                                    bound++;
+                                }
+                            }
+                            Mod.Log.Msg("armor rig on " + Players.Name(player2) + ": " + bound + " bone bindings from baked avatar renderers");
 							ClientArmor.Bodies[instanceID] = dressed;
 						}
 						bool flag = object.ReferenceEquals(player2, objB);
 						for (int j = 0; j < 8; j++)
 						{
 							int num = array[j];
-							if (flag && j == 0 && !Settings.OwnHelmet)
+							if (flag && !dressed.Dummy && j == 0 && !Settings.OwnHelmet)
 							{
 								num = -1;
 							}
-							if (dressed.Shown[j] != num || (num >= 0 && !(dressed.Slots[j] != null)))
+							uint material = array.Length >= 16 ? unchecked((uint)array[8 + j]) : 0U;
+							if (dressed.Shown[j] != num || dressed.ShownMaterials[j] != material || (num >= 0 && !(dressed.Slots[j] != null)))
 							{
 								if (dressed.Slots[j] != null)
 								{
 									Object.Destroy(dressed.Slots[j]);
 								}
-								dressed.Slots[j] = ((num >= 0) ? ClientArmor.Build(dressed, num) : null);
+								dressed.Slots[j] = ((num >= 0) ? ClientArmor.Build(dressed, num, material) : null);
 								dressed.Shown[j] = num;
+								dressed.ShownMaterials[j] = material;
 								if (Settings.Debug && flag && num >= 0)
 								{
 									Mod.Log.Msg(Catalog.Title(num) + " sits at " + ClientArmor.FromHead(ClientArmor.SlotPoint(dressed, j)).ToString("F2") + " from the head (right, up, forward)");
 								}
 							}
 						}
+                        dressed.Coverage.Update(dressed.Root, dressed.Shown);
 					}
 				}
 			}
@@ -230,7 +273,7 @@ namespace ArmorRestored
 		}
 
 		// Token: 0x06000023 RID: 35 RVA: 0x000036AC File Offset: 0x000018AC
-		private static GameObject Build(ClientArmor.Dressed d, int piece)
+		private static GameObject Build(ClientArmor.Dressed d, int piece, uint material)
 		{
 			PieceDef pieceDef = Pack.Pieces[piece];
 			GameObject gameObject = new GameObject("ArmorRestored " + Catalog.Id(piece));
@@ -255,7 +298,7 @@ namespace ArmorRestored
 						gameObject2.transform.SetParent(transform, false);
 						Prefabs.Place(gameObject2.transform, wornPart.Local);
 						gameObject2.AddComponent<MeshFilter>().sharedMesh = meshDef.Get();
-						gameObject2.AddComponent<MeshRenderer>().sharedMaterials = Pack.Mats(wornPart.Mats);
+						gameObject2.AddComponent<MeshRenderer>().sharedMaterials = WornMaterials.Apply(piece, material, Pack.Mats(wornPart.Mats), meshDef.Name);
 						gameObject2.AddComponent<ClientArmor.Owner>().Holder = gameObject;
 					}
 				}
@@ -277,7 +320,7 @@ namespace ArmorRestored
 					skinnedMeshRenderer.bones = array;
 					skinnedMeshRenderer.rootBone = transform2;
 					skinnedMeshRenderer.sharedMesh = meshDef.Get();
-					skinnedMeshRenderer.sharedMaterials = Pack.Mats(wornPart.Mats);
+					skinnedMeshRenderer.sharedMaterials = WornMaterials.Apply(piece, material, Pack.Mats(wornPart.Mats), meshDef.Name);
 					skinnedMeshRenderer.updateWhenOffscreen = true;
 				}
 			}
@@ -392,6 +435,24 @@ namespace ArmorRestored
 		private static void Hands()
 		{
 			ClientArmor.Dressed dressed = ClientArmor.LocalBody();
+            Transform nextRig = dressed == null ? null : dressed.Rig;
+            if (!EquipmentMode.Same(interactionRig, nextRig))
+            {
+                Releases.Clear();
+                ClientArmor.Held[0] = ClientArmor.Held[1] = null;
+                ClientArmor.PendingSlot[0] = ClientArmor.PendingSlot[1] = -1;
+                interactionRig = nextRig;
+            }
+            bool modeDummy;
+            Transform modeRig = EquipmentMode.Resolve(dressed == null ? null : dressed.Rig, out modeDummy);
+            if (dressed == null || !EquipmentMode.Same(modeRig, dressed.Rig) || modeDummy != dressed.Dummy
+                || !dressed.Rig.gameObject.activeInHierarchy)
+            {
+                Releases.Clear();
+                ClientArmor.Held[0] = ClientArmor.Held[1] = null;
+                ClientArmor.PendingSlot[0] = ClientArmor.PendingSlot[1] = -1;
+                return;
+            }
 			int[] array = null;
 			if (dressed != null && dressed.Player.UserInfo != null)
 			{
@@ -433,9 +494,10 @@ namespace ArmorRestored
 					ClientArmor.Debugged[i] = (interactor.IsInteracting ? interactor.InteractingWith : null);
 					if (pickup2 != null && !object.ReferenceEquals(pickup2, pickup) && dressed != null)
 					{
-						ClientArmor.LetGo(dressed, pickup2);
+						Releases.Released(pickup2, dressed.Rig);
 					}
 					ClientArmor.Held[i] = pickup;
+                    Releases.Holding(pickup);
 					bool flag = false;
 					try
 					{
@@ -452,7 +514,7 @@ namespace ArmorRestored
 					}
 					else if (array != null && dressed != null && Time.unscaledTime >= ClientArmor._cooldown)
 					{
-						if (flag2)
+						if (flag2 || ClientArmor.PendingSlot[i] < 0)
 						{
 							ClientArmor.PendingSlot[i] = ClientArmor.TouchedSlot(dressed, array, interactor.transform.position, i);
 							ClientArmor.PendingAt[i] = Time.unscaledTime;
@@ -493,6 +555,11 @@ namespace ArmorRestored
 					}
 				}
 			}
+            Transform target = dressed == null ? null : dressed.Rig;
+            bool dummy;
+            Transform live = EquipmentMode.Resolve(target, out dummy);
+            Releases.Tick(EquipmentMode.Same(target, live) ? target : null,
+                delegate(Pickup item) { if (dressed != null) ClientArmor.LetGo(dressed, item); });
 		}
 
 		// Token: 0x0600002A RID: 42 RVA: 0x00003EE4 File Offset: 0x000020E4
@@ -538,10 +605,7 @@ namespace ArmorRestored
 		// Token: 0x0600002D RID: 45 RVA: 0x00003FE0 File Offset: 0x000021E0
 		private static Vector3 SlotPoint(ClientArmor.Dressed me, int s)
 		{
-			if (s != 0 && !(me.Slots[s] == null) && !ClientArmor.NoRenderers(me.Slots[s]))
-			{
-				return ClientArmor.Center(me.Slots[s].transform);
-			}
+            // Grab the anatomical slot, not a potentially offset renderer bound.
 			return Body.Anchor(me.Bones, s);
 		}
 
@@ -563,6 +627,8 @@ namespace ArmorRestored
 		// Token: 0x0600002F RID: 47 RVA: 0x0000408C File Offset: 0x0000228C
 		private static void LetGo(ClientArmor.Dressed me, Pickup was)
 		{
+            if (ArmorStand.NearSocket(was)) return;
+            if (was == null || was.Dock != null || was.IsInteractedWith || was.Interactors.Count != 0) return;
 			if (was == null || was.Entity == null)
 			{
 				return;
@@ -573,8 +639,10 @@ namespace ArmorRestored
 				return;
 			}
 			int slot = num % 8;
-			float num2 = Vector3.Distance(ClientArmor.Center(was.transform), Body.Anchor(me.Bones, slot));
-			if (num2 > ClientArmor.Reach(slot))
+			int[] worn;
+            if (me.Dummy && (!ClientArmor.Table.TryGetValue(me.Player.UserInfo.Identifier, out worn) || worn[slot] >= 0)) return;
+            float num2 = Vector3.Distance(me.Dummy ? was.transform.position : ClientArmor.Center(was.transform), Body.Anchor(me.Bones, slot));
+			if (num2 > (me.Dummy ? 0.24f : ClientArmor.Reach(slot)))
 			{
 				if (Settings.Debug)
 				{
@@ -788,12 +856,15 @@ namespace ArmorRestored
 
 			// Token: 0x04000035 RID: 53
 			public Transform Rig;
+            public bool Dummy;
 
 			// Token: 0x04000036 RID: 54
 			public Wiring Bones;
 
 			// Token: 0x04000037 RID: 55
 			public int[] Shown;
+			public uint[] ShownMaterials = new uint[8];
+            public CosmeticCoverage Coverage = new CosmeticCoverage();
 
 			// Token: 0x04000038 RID: 56
 			public GameObject[] Slots = new GameObject[8];

@@ -18,7 +18,7 @@ namespace ArmorRestored
 			}
 			try
 			{
-				connection.SetHandler(137, new SerializeConnectionMethod(Net.ServerRead));
+				connection.SetHandler(Net.Message, new SerializeConnectionMethod(Net.ServerRead));
 			}
 			catch (Exception ex)
 			{

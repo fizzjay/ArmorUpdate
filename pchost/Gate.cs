@@ -17,7 +17,7 @@ namespace ArmorRestored
 			Gate.Unregister();
 			Gate._listening = connection;
 			Net.ToServer = connection;
-			connection.SetHandler(137, new SerializeConnectionMethod(Net.ClientRead));
+			connection.SetHandler(Net.Message, new SerializeConnectionMethod(Net.ClientRead));
 			connection.Disconnected += new ConnectionEventHandler(Gate.Disconnected);
 		}
 
@@ -38,9 +38,9 @@ namespace ArmorRestored
 				return;
 			}
 			Gate.ServerVersion = (version ?? "");
-			if (wire != 1)
+			if (wire != 3)
 			{
-				Mod.Log.Warning("this server runs ArmorRestored " + Gate.ServerVersion + ", which does not play with 0.2.1; the server decides and armor stays off.");
+				Mod.Log.Warning("this server runs ArmorRestored " + Gate.ServerVersion + ", which does not play with 0.4.0; the server decides and armor stays off.");
 				Net.SendHello(connection);
 				return;
 			}

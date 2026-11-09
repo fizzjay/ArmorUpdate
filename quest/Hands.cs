@@ -6,14 +6,16 @@ using Il2CppAlta.Networking;
 using Il2CppAlta.Utilities;
 using Il2CppInterop.Runtime;
 using Il2CppInterop.Runtime.InteropTypes.Arrays;
-using Il2CppSystem;
 using UnityEngine;
+using Object = UnityEngine.Object;
 
 namespace ArmorRestoredQuest
 {
 	// Token: 0x02000008 RID: 8
 	internal static class Hands
 	{
+        private static readonly EquipmentReleases Releases = new EquipmentReleases();
+        private static Transform interactionRig;
 		// Token: 0x06000030 RID: 48 RVA: 0x00003BB4 File Offset: 0x00001DB4
 		internal static void OnTook(uint id, int hand)
 		{
@@ -30,6 +32,8 @@ namespace ArmorRestoredQuest
 			Hands.PendingSlot[0] = (Hands.PendingSlot[1] = -1);
 			Hands._tookId = 0U;
 			Hands._heardPending = false;
+            Releases.Clear();
+            interactionRig = null;
 			Hands._gripFailed = false;
 		}
 
@@ -53,12 +57,35 @@ namespace ArmorRestoredQuest
 			{
 				dressed = null;
 			}
+            Transform nextRig = dressed == null ? null : dressed.Rig;
+            if (!EquipmentMode.Same(interactionRig, nextRig))
+            {
+                Releases.Clear();
+                Hands.Held[0] = Hands.Held[1] = null;
+                Hands.PendingSlot[0] = Hands.PendingSlot[1] = -1;
+                interactionRig = nextRig;
+            }
+            bool modeDummy;
+            Transform modeRig = EquipmentMode.Resolve(dressed == null ? null : dressed.Rig, out modeDummy);
+            if (dressed == null || !EquipmentMode.Same(modeRig, dressed.Rig) || modeDummy != dressed.Dummy
+                || !dressed.Rig.gameObject.activeInHierarchy)
+            {
+                Releases.Clear();
+                Hands.Held[0] = Hands.Held[1] = null;
+                Hands.PendingSlot[0] = Hands.PendingSlot[1] = -1;
+                return;
+            }
 			int[] worn = Draw.WornBy(dressed);
 			for (int i = 0; i < 2; i++)
 			{
 				Hands.Hand(i, dressed, worn);
 			}
-			if (Hands._tookId != 0U)
+			Transform target = dressed == null ? null : dressed.Rig;
+            bool dummy;
+            Transform live = EquipmentMode.Resolve(target, out dummy);
+            Releases.Tick(EquipmentMode.Same(target, live) ? target : null,
+                delegate(Pickup item) { if (dressed != null) Hands.LetGo(dressed, item); });
+            if (Hands._tookId != 0U)
 			{
 				Hands.GrabTaken();
 			}
@@ -94,9 +121,10 @@ namespace ArmorRestoredQuest
 			}
 			if (pickup2 != null && !flag && me != null)
 			{
-				Hands.LetGo(me, pickup2);
+				Releases.Released(pickup2, me.Rig);
 			}
 			Hands.Held[hand] = pickup;
+            Releases.Holding(pickup);
 			bool flag2 = Hands.Grip(interactor);
 			bool flag3 = flag2 && !Hands.Closed[hand];
 			Hands.Closed[hand] = flag2;
@@ -110,7 +138,7 @@ namespace ArmorRestoredQuest
 				return;
 			}
 			Vector3 position = interactor.transform.position;
-			if (flag3)
+			if (flag3 || Hands.PendingSlot[hand] < 0)
 			{
 				Hands.PendingSlot[hand] = Hands.TouchedSlot(me, worn, position, hand);
 				Hands.PendingAt[hand] = Time.unscaledTime;
@@ -223,6 +251,8 @@ namespace ArmorRestoredQuest
 		// Token: 0x06000038 RID: 56 RVA: 0x00004078 File Offset: 0x00002278
 		private static void LetGo(Dressed me, Pickup was)
 		{
+            if (ArmorStand.NearSocket(was)) return;
+            if (was == null || was.Dock != null || was.IsInteractedWith || was.Interactors.Count != 0) return;
 			int num = Hands.PieceOf(was);
 			if (num < 0)
 			{
@@ -234,8 +264,10 @@ namespace ArmorRestoredQuest
 				return;
 			}
 			int slot = num % 8;
-			float num2 = Hands.Distance(Hands.Center(was.transform), Hands.Anchor(me, slot));
-			if (num2 > Catalog.Reach(slot))
+			int[] worn = Draw.WornBy(me);
+            if (me.Dummy && (worn == null || worn[slot] >= 0)) return;
+            float num2 = Hands.Distance(me.Dummy ? was.transform.position : Hands.Center(was.transform), Hands.Anchor(me, slot));
+			if (num2 > (me.Dummy ? 0.24f : Catalog.Reach(slot)))
 			{
 				if (Settings.Debug)
 				{
@@ -309,13 +341,8 @@ namespace ArmorRestoredQuest
 		// Token: 0x0600003B RID: 59 RVA: 0x00004264 File Offset: 0x00002464
 		private static Vector3 SlotPoint(Dressed me, int s)
 		{
-			List<Renderer> list = me.Skinned[s];
-			Vector3 result;
-			if (s == 0 || list == null || !Hands.Center(list, out result))
-			{
-				return Hands.Anchor(me, s);
-			}
-			return result;
+            // Keep removal reachable even when the visual mesh bounds are offset.
+            return Hands.Anchor(me, s);
 		}
 
 		// Token: 0x0600003C RID: 60 RVA: 0x00004294 File Offset: 0x00002494
@@ -477,7 +504,7 @@ namespace ArmorRestoredQuest
 							}
 						}
 					}
-					Hands._noProperties = new Il2CppReferenceArray<ISoundProperty>(Array.CreateInstance(Il2CppType.Of<ISoundProperty>(), 0).Pointer);
+					Hands._noProperties = new Il2CppReferenceArray<ISoundProperty>(Il2CppSystem.Array.CreateInstance(Il2CppType.Of<ISoundProperty>(), 0).Pointer);
 					Mod.Log.Msg("equipment sounds: " + ((Hands._soundOn != null) ? "on" : "-") + "/" + ((Hands._soundOff != null) ? "off" : "-"));
 				}
 				SoundEffectSet soundEffectSet2 = on ? Hands._soundOn : Hands._soundOff;

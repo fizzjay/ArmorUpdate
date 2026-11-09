@@ -6,6 +6,7 @@ using System.Text;
 using Il2CppInterop.Runtime;
 using Il2CppInterop.Runtime.InteropTypes.Arrays;
 using UnityEngine;
+using Object = UnityEngine.Object;
 
 namespace ArmorRestoredQuest
 {
@@ -39,7 +40,10 @@ namespace ArmorRestoredQuest
 			{
 				if (manifestResourceStream == null)
 				{
-					throw new FileNotFoundException("the DLL carries no armor.pack");
+					throw new FileNotFoundException("Missing embedded resource ArmorRestored.armor.pack in "
+                        + typeof(Pack).Assembly.FullName + ". Embedded resources: ["
+                        + string.Join(", ", typeof(Pack).Assembly.GetManifestResourceNames())
+                        + "]. Set the pack Build Action to Embedded Resource and LogicalName to ArmorRestored.armor.pack, then rebuild.");
 				}
 				BinaryReader binaryReader = new BinaryReader(manifestResourceStream);
 				if (new string(binaryReader.ReadChars(4)) != "ARMR" || binaryReader.ReadInt32() != 1)
@@ -396,7 +400,7 @@ namespace ArmorRestoredQuest
 			}
 			mesh.RecalculateBounds();
 			mesh.UploadMeshData(true);
-			mesh.hideFlags = 32;
+			mesh.hideFlags = HideFlags.DontUnloadUnusedAsset;
 			meshDef.Made = mesh;
 			meshDef.V = (meshDef.N = (meshDef.T = (meshDef.UV = (meshDef.Weights = (meshDef.Bind = null)))));
 			meshDef.Indices = null;
@@ -483,12 +487,12 @@ namespace ArmorRestoredQuest
 			}
 			byte[] array2 = Dxt.MipChain(array, num3, num4);
 			Crumb.First("new Texture2D");
-			Texture2D texture2D = new Texture2D(num3, num4, 4, true, kind != 0);
+			Texture2D texture2D = new Texture2D(num3, num4, TextureFormat.RGBA32, true, kind != 0);
 			texture2D.name = "ArmorRestored " + texDef.Name;
 			Crumb.First("Texture2D.LoadRawTextureData");
 			texture2D.LoadRawTextureData(new Il2CppStructArray<byte>(array2));
 			texture2D.Apply(false, true);
-			texture2D.hideFlags = 32;
+			texture2D.hideFlags = HideFlags.DontUnloadUnusedAsset;
 			texDef.Made = texture2D;
 			texDef.Data = null;
 			if (Settings.Debug)
@@ -531,7 +535,7 @@ namespace ArmorRestoredQuest
 			Texture2D texture2D = Pack.TextureOf(matDef.Main, 0);
 			Texture2D texture2D2 = flag ? null : Pack.TextureOf(matDef.Metal, 1);
 			Texture2D texture2D3 = Pack.TextureOf(matDef.Normal, 2);
-			Material material = Pack.Templates[(((texture2D2 != null) > false) ? 1 : 0) + ((texture2D3 != null) ? 2 : 0)];
+			Material material = Pack.Templates[((texture2D2 != null) ? 1 : 0) + ((texture2D3 != null) ? 2 : 0)];
 			Material material2 = null;
 			if (material != null)
 			{
@@ -549,7 +553,7 @@ namespace ArmorRestoredQuest
 				return null;
 			}
 			material2.name = "ArmorRestored " + matDef.Name;
-			material2.hideFlags = 32;
+			material2.hideFlags = HideFlags.DontUnloadUnusedAsset;
 			Color c = default(Color);
 			c.r = matDef.R;
 			c.g = matDef.G;
@@ -714,7 +718,7 @@ namespace ArmorRestoredQuest
 							int num2 = material.IsKeywordEnabled("_UseMetallicMap") ? 1 : 0;
 							bool flag = material.IsKeywordEnabled("_UseNormal");
 							int num3 = ((num2 != 0) ? 1 : 0) + (flag ? 2 : 0);
-							int num4 = (material.IsKeywordEnabled("_EMISSION") ? 2 : 0) + ((material.IsKeywordEnabled("_UseScaledNormal") > false) ? 1 : 0) + (material.IsKeywordEnabled("_UseAlphaEmission") ? 2 : 0);
+							int num4 = (material.IsKeywordEnabled("_EMISSION") ? 2 : 0) + ((material.IsKeywordEnabled("_UseScaledNormal")) ? 1 : 0) + (material.IsKeywordEnabled("_UseAlphaEmission") ? 2 : 0);
 							if (num4 < array[num3])
 							{
 								array[num3] = num4;

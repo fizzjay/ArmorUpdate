@@ -14,13 +14,13 @@ namespace ArmorRestored
 		// Token: 0x06000057 RID: 87 RVA: 0x0000618D File Offset: 0x0000438D
 		internal static void SendHere(Connection c)
 		{
-			c.Send(null, 137, delegate(Connection conn, Stream s)
+			c.Send(null, Net.Message, delegate(Connection conn, Stream s)
 			{
 				byte b = 20;
 				s.SerializeByte(ref b);
-				string text = "0.2.1";
-				s.SerializeString(ref text, 1);
-				int num = 1;
+				string text = "0.4.0";
+				s.SerializeString(ref text, (Stream.StringEncoding)1);
+				int num = 3;
 				s.SerializeInteger(ref num);
 			});
 		}
@@ -28,23 +28,23 @@ namespace ArmorRestored
 		// Token: 0x06000058 RID: 88 RVA: 0x000061FB File Offset: 0x000043FB
 		internal static void SendHello(Connection c)
 		{
-			c.Send(null, 137, delegate(Connection conn, Stream s)
+			c.Send(null, Net.Message, delegate(Connection conn, Stream s)
 			{
 				byte b = 5;
 				s.SerializeByte(ref b);
-				int num = 1;
+				int num = 3;
 				s.SerializeInteger(ref num);
-				string text = "0.2.1";
+				string text = "0.4.0";
 				string text2 = Prefabs.RefusedLine();
-				s.SerializeString(ref text, 1);
-				s.SerializeString(ref text2, 1);
+				s.SerializeString(ref text, (Stream.StringEncoding)1);
+				s.SerializeString(ref text2, (Stream.StringEncoding)1);
 			});
 		}
 
 		// Token: 0x06000059 RID: 89 RVA: 0x0000623F File Offset: 0x0000443F
 		internal static void SendAck(Connection c)
 		{
-			c.Send(null, 137, delegate(Connection conn, Stream s)
+			c.Send(null, Net.Message, delegate(Connection conn, Stream s)
 			{
 				byte b = 4;
 				s.SerializeByte(ref b);
@@ -59,7 +59,7 @@ namespace ArmorRestored
 			{
 				return;
 			}
-			toServer.Send(null, 137, delegate(Connection conn, Stream s)
+			toServer.Send(null, Net.Message, delegate(Connection conn, Stream s)
 			{
 				byte b = 2;
 				s.SerializeByte(ref b);
@@ -76,7 +76,7 @@ namespace ArmorRestored
 			{
 				return;
 			}
-			toServer.Send(null, 137, delegate(Connection conn, Stream s)
+			toServer.Send(null, Net.Message, delegate(Connection conn, Stream s)
 			{
 				byte b = 3;
 				byte b2 = (byte)slot;
@@ -101,8 +101,8 @@ namespace ArmorRestored
 				}
 				string text = null;
 				string text2 = null;
-				s.SerializeString(ref text, 1);
-				s.SerializeString(ref text2, 1);
+				s.SerializeString(ref text, (Stream.StringEncoding)1);
+				s.SerializeString(ref text2, (Stream.StringEncoding)1);
 				lock (Net.Hellos)
 				{
 					Net.Hellos[connection.Identifier] = new Net.Greeting
@@ -153,9 +153,9 @@ namespace ArmorRestored
 			{
 				return;
 			}
-			to.ConnectionToRemotePlayer.Send(null, 137, delegate(Connection conn, Stream s)
+			to.ConnectionToRemotePlayer.Send(null, Net.Message, delegate(Connection conn, Stream s)
 			{
-				byte b = 10;
+				byte b = 13;
 				s.SerializeByte(ref b);
 				int count = rows.Count;
 				s.SerializeInteger(ref count);
@@ -167,6 +167,8 @@ namespace ArmorRestored
 					{
 						byte b2 = (byte)(keyValuePair.Value[i] + 1);
 						s.SerializeByte(ref b2);
+						uint material = unchecked((uint)keyValuePair.Value[8 + i]);
+						s.SerializeBits(ref material, 32);
 					}
 				}
 			});
@@ -179,7 +181,7 @@ namespace ArmorRestored
 			{
 				return;
 			}
-			to.ConnectionToRemotePlayer.Send(null, 137, delegate(Connection conn, Stream s)
+			to.ConnectionToRemotePlayer.Send(null, Net.Message, delegate(Connection conn, Stream s)
 			{
 				byte b = 11;
 				byte b2 = (byte)hand;
@@ -197,12 +199,12 @@ namespace ArmorRestored
 			{
 				return;
 			}
-			to.ConnectionToRemotePlayer.Send(null, 137, delegate(Connection conn, Stream s)
+			to.ConnectionToRemotePlayer.Send(null, Net.Message, delegate(Connection conn, Stream s)
 			{
 				byte b = 12;
 				s.SerializeByte(ref b);
 				string text2 = text;
-				s.SerializeString(ref text2, 1);
+				s.SerializeString(ref text2, (Stream.StringEncoding)1);
 			});
 		}
 
@@ -215,7 +217,7 @@ namespace ArmorRestored
 			{
 				string version = null;
 				int wire = 0;
-				s.SerializeString(ref version, 1);
+				s.SerializeString(ref version, (Stream.StringEncoding)1);
 				s.SerializeInteger(ref wire);
 				Gate.Open(connection, version, wire);
 				return;
@@ -224,7 +226,7 @@ namespace ArmorRestored
 			{
 				return;
 			}
-			if (b == 10)
+			if (b == 13)
 			{
 				int num = 0;
 				s.SerializeInteger(ref num);
@@ -234,12 +236,15 @@ namespace ArmorRestored
 				{
 					int key = 0;
 					s.SerializeInteger(ref key);
-					int[] array = new int[8];
+					int[] array = new int[16];
 					for (int i = 0; i < 8; i++)
 					{
 						byte b2 = 0;
 						s.SerializeByte(ref b2);
 						array[i] = ((b2 == 0 || (int)b2 > Catalog.Count) ? -1 : ((int)(b2 - 1)));
+						uint material = 0U;
+						s.SerializeBits(ref material, 32);
+						array[8 + i] = unchecked((int)material);
 					}
 					dictionary[key] = array;
 					num2++;
@@ -259,7 +264,7 @@ namespace ArmorRestored
 			if (b == 12)
 			{
 				string str = null;
-				s.SerializeString(ref str, 1);
+				s.SerializeString(ref str, (Stream.StringEncoding)1);
 				Mod.Log.Msg("server: " + str);
 			}
 		}
@@ -323,15 +328,15 @@ namespace ArmorRestored
 				}
 				else if (hello == null)
 				{
-					problem = "This server needs the ArmorRestored mod 0.2.1. Install it, then join again.";
+					problem = "This server needs the ArmorRestored mod 0.4.0. Install it, then join again.";
 				}
-				else if (hello.Wire < 1)
+				else if (hello.Wire < 3)
 				{
-					problem = "Your ArmorRestored " + hello.Version + " is too old for this server's 0.2.1. Update it, then join again.";
+					problem = "Your ArmorRestored " + hello.Version + " is too old for this server's 0.4.0. Update it, then join again.";
 				}
-				else if (hello.Wire > 1)
+				else if (hello.Wire > 3)
 				{
-					problem = "Your ArmorRestored " + hello.Version + " is newer than this server's 0.2.1. The server needs an update first.";
+					problem = "Your ArmorRestored " + hello.Version + " is newer than this server's 0.4.0. The server needs an update first.";
 				}
 				else if (hello.Refused != Prefabs.RefusedLine())
 				{
@@ -380,7 +385,7 @@ namespace ArmorRestored
 					{
 						progress(Net.Ascii(problem));
 						await Task.Delay(1500);
-						connection.Send(null, 10, delegate(Connection c, Stream s)
+						connection.Send(null, (MessageType)10, delegate(Connection c, Stream s)
 						{
 							bool flag3 = false;
 							bool flag4 = false;
@@ -389,7 +394,7 @@ namespace ArmorRestored
 							s.SerializeBool(ref flag3);
 							s.SerializeBool(ref flag4);
 							s.SerializeInteger(ref num);
-							s.SerializeString(ref text, 0);
+							s.SerializeString(ref text, (Stream.StringEncoding)0);
 						});
 						await Task.Delay(500);
 						throw new InvalidOperationException("ArmorRestored refused the join: " + problem);
@@ -420,7 +425,7 @@ namespace ArmorRestored
 		}
 
 		// Token: 0x0400004B RID: 75
-		internal const MessageType Message = 137;
+		internal const MessageType Message = (MessageType)137;
 
 		// Token: 0x0400004C RID: 76
 		internal const byte OldHello = 1;
@@ -438,7 +443,7 @@ namespace ArmorRestored
 		internal const byte Hello = 5;
 
 		// Token: 0x04000051 RID: 81
-		internal const byte Table = 10;
+		internal const byte Table = 13;
 
 		// Token: 0x04000052 RID: 82
 		internal const byte Took = 11;
@@ -450,7 +455,7 @@ namespace ArmorRestored
 		internal const byte Here = 20;
 
 		// Token: 0x04000055 RID: 85
-		internal const int Wire = 1;
+		internal const int Wire = 3;
 
 		// Token: 0x04000056 RID: 86
 		private const int AnswerWait = 5000;
