@@ -184,7 +184,8 @@ namespace ArmorRestored
 					{
 						Wiring w = Body.Wire(player2.PlayerCharacter.transform, true);
 						ServerArmor.Wired[instanceID] = w;
-						Body.Apply(w, ServerArmor.WornBy(player2));
+						Body.Apply(w, ServerArmor.WornBy(player2), MaterialsFor(Players.Name(player2)));
+                            ArmorStats.RefreshWearer(player2);
 						HealthObject healthObject = Body.Health(w);
 						if (healthObject != null)
 						{
@@ -275,7 +276,8 @@ namespace ArmorRestored
 		private static void Changed(Player p)
 		{
 			ServerArmor.Save();
-			Body.Apply(ServerArmor.WiringOf(p), ServerArmor.WornBy(p));
+			Body.Apply(ServerArmor.WiringOf(p), ServerArmor.WornBy(p), MaterialsFor(Players.Name(p)));
+            ArmorStats.RefreshWearer(p);
 			ServerArmor._dirty = true;
 		}
 
@@ -499,7 +501,7 @@ namespace ArmorRestored
 		// Token: 0x040000A7 RID: 167
 		private static readonly Dictionary<string, uint[]> Materials = new Dictionary<string, uint[]>(StringComparer.OrdinalIgnoreCase);
 
-		private static uint[] MaterialsFor(string player)
+		internal static uint[] MaterialsFor(string player)
 		{
 			uint[] values;
 			if (!Materials.TryGetValue(player, out values))

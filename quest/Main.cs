@@ -22,6 +22,8 @@ namespace ArmorRestoredQuest
 				Mod.DataDir = Path.Combine(MelonEnvironment.UserDataDirectory, "ArmorRestored");
 				Directory.CreateDirectory(Mod.DataDir);
 				Settings.Load();
+                try { ArmorStats.Install(); }
+                catch (Exception statsError) { Mod.Log.Warning("armor material stats disabled: " + statsError.Message); }
                 EquipmentMenu.Install();
 				Wire.Prepare();
 				MethodInfo methodInfo = AccessTools.Method(typeof(JoinServerPipeline), "ConnectionApprovedByServer", null, null);
@@ -99,7 +101,8 @@ namespace ArmorRestoredQuest
 			}
 			try
 			{
-				Hands.Tick();
+				ArmorStats.Tick();
+                Hands.Tick();
 				ArmorStand.TickDiagnostics();
 			}
 			catch (Exception e3)

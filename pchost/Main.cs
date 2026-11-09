@@ -19,6 +19,8 @@ namespace ArmorRestored
 			{
 				Directory.CreateDirectory(Mod.DataDir);
 				Settings.Load();
+                try { ArmorStats.Install(); }
+                catch (Exception statsError) { Mod.Log.Warning("armor material stats disabled: " + statsError.Message); }
 				if (Mod.IsServer)
 				{
 					Pack.Load(false);
@@ -59,7 +61,8 @@ namespace ArmorRestored
 			}
 			try
 			{
-				if (Mod.IsServer)
+				ArmorStats.Tick();
+                if (Mod.IsServer)
 				{
 					ServerArmor.Tick();
 				}

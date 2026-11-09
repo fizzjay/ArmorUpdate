@@ -67,6 +67,9 @@
     </Reference>
   </ItemGroup>
   <ItemGroup>
+    <Compile Include="..\shared\ArmorStats.cs">
+      <Link>ArmorStats.cs</Link>
+    </Compile>
     <Compile Include="..\shared\ArmorVisibility.cs">
       <Link>ArmorVisibility.cs</Link>
     </Compile>

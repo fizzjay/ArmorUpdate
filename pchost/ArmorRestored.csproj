@@ -52,6 +52,9 @@
     <Compile Include="ArmorCommands.cs" />
     <Compile Include="ArmorSet.cs" />
     <Compile Include="Body.cs" />
+    <Compile Include="..\shared\ArmorStats.cs">
+      <Link>ArmorStats.cs</Link>
+    </Compile>
     <Compile Include="..\shared\ArmorVisibility.cs">
       <Link>ArmorVisibility.cs</Link>
     </Compile>

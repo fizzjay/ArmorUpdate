@@ -81,6 +81,34 @@ namespace ArmorRestored
             });
         }
 
+        [Command("stats", "Inspect worn armor weights and material protection: armor stats <player>")]
+        public static string Stats(string player)
+        {
+            return ArmorCommands.Run(delegate
+            {
+                string error;
+                Player target = Players.Find(player, out error);
+                if (target == null) return error;
+                int[] worn = ServerArmor.WornBy(target);
+                uint[] materials = ServerArmor.MaterialsFor(Players.Name(target));
+                StringBuilder result = new StringBuilder("Armor material stats " + (ArmorStats.Enabled ? "enabled" : "DISABLED") + " for " + Players.Name(target));
+                float total = 0f;
+                for (int slot = 0; slot < 8; slot++)
+                {
+                    if (worn[slot] < 0) continue;
+                    float weight = ArmorStats.Weight(worn[slot], materials[slot]);
+                    total += weight;
+                    ArmorDefinition definition = Catalog.MaterialDefinition(worn[slot], materials[slot]);
+                    result.Append("\n").Append(Catalog.Title(worn[slot])).Append(" material=").Append(materials[slot])
+                        .Append(" weight=").Append(weight.ToString("F2"))
+                        .Append(" physical damage multipliers=").Append(definition.GetMultiplier((ImpactType)0).ToString("F3"))
+                        .Append("/").Append(definition.GetMultiplier((ImpactType)1).ToString("F3"))
+                        .Append("/").Append(definition.GetMultiplier((ImpactType)2).ToString("F3"));
+                }
+                return result.Append("\nTotal worn weight=").Append(total.ToString("F2")).ToString();
+            });
+        }
+
         [Command("standinfo", "Inspect a spawned stand: armor standinfo <entityId>")]
         public static string StandInfo(uint entityId)
         {
