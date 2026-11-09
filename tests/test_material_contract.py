@@ -131,7 +131,7 @@ class QuestBuildContract(unittest.TestCase):
         for platform in ('pchost', 'quest'):
             tree = ET.parse(ROOT / platform / 'ArmorRestored.csproj')
             resources = tree.findall('.//ms:EmbeddedResource', ns)
-            self.assertEqual({'ArmorRestored.armor.pack', 'ArmorRestored.stand'},
+            self.assertEqual({'ArmorRestored.armor.pack', 'ArmorRestored.stand', 'ArmorRestored.construction.bin'},
                              {r.find('ms:LogicalName', ns).text for r in resources})
 
     def test_no_decompiler_delegate_syntax(self):

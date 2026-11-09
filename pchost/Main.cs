@@ -19,6 +19,11 @@ namespace ArmorRestored
 			{
 				Directory.CreateDirectory(Mod.DataDir);
 				Settings.Load();
+                if (Mod.IsServer)
+                {
+                    try { WyrmArmorLoot.Install(); }
+                    catch (Exception lootError) { Mod.Log.Warning("Wyrm kill loot unavailable: " + lootError.Message); }
+                }
                 try { ArmorStats.Install(); }
                 catch (Exception statsError) { Mod.Log.Warning("armor material stats disabled: " + statsError.Message); }
 				if (Mod.IsServer)

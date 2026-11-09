@@ -3,3 +3,7 @@
 /quest/Quest.Local.props
 /quest/bin/
 /quest/obj/
+
+# Local reference inspection tooling (not runtime mod dependencies).
+/.venv/
+__pycache__/
