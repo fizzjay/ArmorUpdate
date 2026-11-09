@@ -152,7 +152,7 @@ class NativeIntegrationContracts(unittest.TestCase):
 
 class QuestCraftingBuildRegressionTests(unittest.TestCase):
     def test_harmony_type_is_qualified(self):
-        for path in ('shared/ArmorCrafting.cs', 'pchost/ArmorCraftingServer.cs'):
+        for path in ('shared/ArmorCrafting.cs', 'pchost/ArmorCraftingServer.cs', 'pchost/WyrmArmorLoot.cs'):
             text = source(path)
             self.assertNotIn('new Harmony(', text)
             self.assertIn('new HarmonyLib.Harmony(', text)

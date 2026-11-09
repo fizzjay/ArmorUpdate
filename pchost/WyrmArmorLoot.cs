@@ -37,7 +37,7 @@ namespace ArmorRestored
             entity = AccessTools.Property(wyrm, "Entity");
             if (death == null || alive == null || alive.PropertyType != typeof(bool) || entity == null)
                 throw new MissingMemberException("Wyrm.Killed, IsAlive or Entity changed");
-            var harmony = new Harmony("armorrestored.wyrm-kill-loot");
+            var harmony = new HarmonyLib.Harmony("armorrestored.wyrm-kill-loot");
             harmony.Patch(death,
                 prefix: new HarmonyMethod(typeof(WyrmArmorLoot), "BeforeDeath"),
                 postfix: new HarmonyMethod(typeof(WyrmArmorLoot), "AfterDeath"));
