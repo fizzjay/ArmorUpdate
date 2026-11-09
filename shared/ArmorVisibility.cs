@@ -162,7 +162,7 @@ namespace ArmorRestored
             pressed[hand] = down;
             if (holder == null || !free) return false;
             int nearest = -1;
-            float distance = 0.075f;
+            float distance = 0.11f;
             for (int slot = 0; slot < 8; slot++)
             {
                 if (buttons[slot] == null) continue;
@@ -225,7 +225,8 @@ namespace ArmorRestored
                     shell.transform.localScale = Vector3.one * scale;
                     shell.transform.localPosition = -bubbleMesh.bounds.center * scale;
                     // Copy mesh/material only: no pooled bubble callbacks with null content.
-                    Stroke(button.transform, "dark outer ring", Ring(0.047f, 64), true, rim, 0.006f);
+                    // Rim shares the shell silhouette plane and overlaps its edge; no floating front halo.
+                    Stroke(button.transform, "dark outer ring", Ring(0.045f, 64, 0f), true, rim, 0.008f);
                     Vector3[] eye = new Vector3[49];
                     for (int i = 0; i < eye.Length; i++)
                     {
@@ -260,13 +261,13 @@ namespace ArmorRestored
                 slashes[slot].SetActive(Hidden(slot));
             }
         }
-        private static Vector3[] Ring(float radius, int count)
+        private static Vector3[] Ring(float radius, int count, float depth = -0.053f)
         {
             Vector3[] points = new Vector3[count];
             for (int i = 0; i < count; i++)
             {
                 float t = i * Mathf.PI * 2f / count;
-                points[i] = new Vector3(Mathf.Cos(t) * radius, Mathf.Sin(t) * radius, -0.053f);
+                points[i] = new Vector3(Mathf.Cos(t) * radius, Mathf.Sin(t) * radius, depth);
             }
             return points;
         }

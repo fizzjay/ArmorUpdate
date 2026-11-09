@@ -195,3 +195,13 @@ ArmorCraftingMesh.BuildSurfaceQuery, ArmorNative, ArmorHarness, ArmorPickup and
 original seven-slot instance registration that this implementation does not have.
 This update changes removal timing, not native pickup surface snap or triangle
 selection. Existing native free-grab behavior for loose armor stays unchanged.
+
+### Eye-button interaction polish
+
+The visibility hit radius is now 11 cm (previously 7.5 cm), measured from the
+native hand InteractionPoint with a controller-origin fallback. Nearest-button
+selection, free-hand requirement and one toggle per fresh grip press remain.
+The charcoal ring is now centered on the shell's silhouette plane, radius 4.5 cm
+and width 8 mm, overlapping the 9 cm shell edge instead of floating 5.3 cm in
+front of it. Eye icon depth and the accepted slot-relative positions are unchanged.
+Update shared/ArmorVisibility.cs plus the respective PC/Quest hand-control files.

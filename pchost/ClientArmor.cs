@@ -513,7 +513,7 @@ namespace ArmorRestored
 					catch (Exception)
 					{
 					}
-					if (ArmorVisibility.Hand(i, interactor.transform.position, flag, !interactor.IsInteracting))
+					if (ArmorVisibility.Hand(i, interactor.InteractionPoint == null ? interactor.transform.position : interactor.InteractionPoint.position, flag, !interactor.IsInteracting))
                     {
                         ClientArmor.PendingSlot[i] = -1;
                         ClientArmor.Closed[i] = flag;

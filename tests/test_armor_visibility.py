@@ -82,3 +82,12 @@ class ArmorVisibilityContracts(unittest.TestCase):
         for token in ('"dark outer ring"', '"iris"', '"eye glint"', 'Object.Destroy(rim)',
                       'new Vector3[49]', 'rim.color = new Color(0.035f'):
             self.assertIn(token, code)
+
+    def test_forgiving_hit_area_and_flush_rim(self):
+        code = read('shared/ArmorVisibility.cs')
+        self.assertIn('float distance = 0.11f', code)
+        self.assertIn('Ring(0.045f, 64, 0f), true, rim, 0.008f', code)
+        self.assertIn('float depth = -0.053f', code)
+        for path in ('quest/Hands.cs', 'pchost/ClientArmor.cs'):
+            code = read(path)
+            self.assertIn('interactor.InteractionPoint == null ? interactor.transform.position : interactor.InteractionPoint.position', code)

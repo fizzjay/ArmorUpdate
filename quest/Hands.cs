@@ -132,7 +132,7 @@ namespace ArmorRestoredQuest
 			Hands.Held[hand] = pickup;
             Releases.Holding(pickup);
 			bool flag2 = Hands.Grip(interactor);
-            if (ArmorVisibility.Hand(hand, interactor.transform.position, flag2, !isInteracting))
+            if (ArmorVisibility.Hand(hand, interactor.InteractionPoint == null ? interactor.transform.position : interactor.InteractionPoint.position, flag2, !isInteracting))
             {
                 Hands.PendingSlot[hand] = -1;
                 Hands.Closed[hand] = flag2;
