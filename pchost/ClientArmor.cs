@@ -441,16 +441,19 @@ namespace ArmorRestored
                 Releases.Clear();
                 ClientArmor.Held[0] = ClientArmor.Held[1] = null;
                 ClientArmor.PendingSlot[0] = ClientArmor.PendingSlot[1] = -1;
+                ClientArmor.Closed[0] = ClientArmor.Closed[1] = false;
                 interactionRig = nextRig;
             }
             bool modeDummy;
             Transform modeRig = EquipmentMode.Resolve(dressed == null ? null : dressed.Rig, out modeDummy);
-            if (dressed == null || !EquipmentMode.Same(modeRig, dressed.Rig) || modeDummy != dressed.Dummy
+            // Armor changes are only available through the native equipment dummy.
+            if (dressed == null || !modeDummy || !dressed.Dummy || !EquipmentMode.Same(modeRig, dressed.Rig) || modeDummy != dressed.Dummy
                 || !dressed.Rig.gameObject.activeInHierarchy)
             {
                 Releases.Clear();
                 ClientArmor.Held[0] = ClientArmor.Held[1] = null;
                 ClientArmor.PendingSlot[0] = ClientArmor.PendingSlot[1] = -1;
+                ClientArmor.Closed[0] = ClientArmor.Closed[1] = false;
                 return;
             }
 			int[] array = null;
@@ -627,6 +630,9 @@ namespace ArmorRestored
 		// Token: 0x0600002F RID: 47 RVA: 0x0000408C File Offset: 0x0000228C
 		private static void LetGo(ClientArmor.Dressed me, Pickup was)
 		{
+            bool dummy;
+            Transform live = EquipmentMode.Resolve(me == null ? null : me.Rig, out dummy);
+            if (me == null || !me.Dummy || !dummy || !EquipmentMode.Same(live, me.Rig)) return;
             if (ArmorStand.NearSocket(was)) return;
             if (was == null || was.Dock != null || was.IsInteractedWith || was.Interactors.Count != 0) return;
 			if (was == null || was.Entity == null)

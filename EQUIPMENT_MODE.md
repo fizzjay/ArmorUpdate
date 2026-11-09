@@ -96,3 +96,18 @@ preview and all eight slots. Verify a downed player cannot activate it, other
 wheel actions are unchanged, reconnect does not duplicate entries, and no injected
 equipment toggle remains on an unrelated server. Existing QuestMods patches may
 independently reveal actions; this helper does not undo another mod's changes.
+
+## Equipment-mode-only controls
+
+Normal PC/Quest client hand controls now refuse all armor equip/remove gestures
+outside the active owned equipment dummy. Worn rendering remains enabled on the
+real body. Leaving the room clears pending release, held-item and removal-grip
+state, and the release callback independently checks the current native dummy
+before sending. Rebuild both clients: update ClientArmor.cs on PC and Hands.cs on
+Quest. EquipmentMenu.cs also includes the qualified HarmonyLib.Harmony compiler fix.
+
+This is a client interaction restriction, not a new server security protocol:
+admin wear/strip commands and the existing server message handlers are unchanged.
+An old or modified client is not prevented from sending the legacy requests.
+Verify body-release and body-grip do nothing, dummy equip/remove still work, and
+closing the room during a release cannot equip an item afterward.

@@ -63,16 +63,19 @@ namespace ArmorRestoredQuest
                 Releases.Clear();
                 Hands.Held[0] = Hands.Held[1] = null;
                 Hands.PendingSlot[0] = Hands.PendingSlot[1] = -1;
+                Hands.Closed[0] = Hands.Closed[1] = false;
                 interactionRig = nextRig;
             }
             bool modeDummy;
             Transform modeRig = EquipmentMode.Resolve(dressed == null ? null : dressed.Rig, out modeDummy);
-            if (dressed == null || !EquipmentMode.Same(modeRig, dressed.Rig) || modeDummy != dressed.Dummy
+            // Armor changes are only available through the native equipment dummy.
+            if (dressed == null || !modeDummy || !dressed.Dummy || !EquipmentMode.Same(modeRig, dressed.Rig) || modeDummy != dressed.Dummy
                 || !dressed.Rig.gameObject.activeInHierarchy)
             {
                 Releases.Clear();
                 Hands.Held[0] = Hands.Held[1] = null;
                 Hands.PendingSlot[0] = Hands.PendingSlot[1] = -1;
+                Hands.Closed[0] = Hands.Closed[1] = false;
                 return;
             }
 			int[] worn = Draw.WornBy(dressed);
@@ -251,6 +254,9 @@ namespace ArmorRestoredQuest
 		// Token: 0x06000038 RID: 56 RVA: 0x00004078 File Offset: 0x00002278
 		private static void LetGo(Dressed me, Pickup was)
 		{
+            bool dummy;
+            Transform live = EquipmentMode.Resolve(me == null ? null : me.Rig, out dummy);
+            if (me == null || !me.Dummy || !dummy || !EquipmentMode.Same(live, me.Rig)) return;
             if (ArmorStand.NearSocket(was)) return;
             if (was == null || was.Dock != null || was.IsInteractedWith || was.Interactors.Count != 0) return;
 			int num = Hands.PieceOf(was);

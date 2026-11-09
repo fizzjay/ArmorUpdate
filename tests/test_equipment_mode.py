@@ -59,3 +59,13 @@ class EquipmentModeContracts(unittest.TestCase):
         self.assertIn('EquipmentMenu.Install();', source('quest/Main.cs'))
         self.assertIn('EquipmentMenu.Tick();', source('quest/Main.cs'))
         self.assertIn('Compile Include="EquipmentMenu.cs"', source('quest/ArmorRestored.csproj'))
+
+    def test_direct_body_equipment_controls_are_disabled_on_both_clients(self):
+        for path in ('quest/Hands.cs', 'pchost/ClientArmor.cs'):
+            code = source(path)
+            self.assertIn('!modeDummy || !dressed.Dummy', code)
+            self.assertIn('if (me == null || !me.Dummy || !dummy || !EquipmentMode.Same(live, me.Rig)) return;', code)
+            self.assertIn('Closed[0] = ', code)
+
+    def test_quest_menu_uses_unambiguous_harmony_type(self):
+        self.assertIn('new HarmonyLib.Harmony(', source('quest/EquipmentMenu.cs'))
