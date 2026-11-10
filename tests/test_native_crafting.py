@@ -249,3 +249,12 @@ class QuestPrefabValueCollectionBuildTests(unittest.TestCase):
         self.assertNotIn('NativeEnumerable.Items<NetworkPrefab>(PrefabManager.prefabMap.Values)',text)
         self.assertIn('new Il2CppReferenceArray<NetworkPrefab>(prefabValues.Count)',text)
         self.assertIn('prefabValues.CopyTo(nativePrefabs,0)',text)
+
+
+class BookPaperReferenceRegressionTests(unittest.TestCase):
+    def test_authored_book_reference_used_when_paper_map_entry_absent(self):
+        text=source('shared/ArmorCrafting.cs')
+        self.assertIn('Resources.FindObjectsOfTypeAll(Il2CppType.Of<Book>())',text)
+        self.assertIn('Get(book,"paperPrefab") as NetworkPrefab',text)
+        self.assertIn('if (!IsPaper(paper)) continue;',text)
+        self.assertNotIn('new GameObject("Paper',text)

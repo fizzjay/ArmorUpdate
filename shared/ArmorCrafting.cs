@@ -343,6 +343,25 @@ namespace ArmorRestored
                     (namedPaper == selectedNamedPaper && prefab.Hash < selected.Hash))
                 { selected = prefab; selectedNamedPaper = namedPaper; }
             }
+            // Books hold the native paper asset directly. On Quest that asset
+            // can be absent from prefabMap even though books already reference it.
+            // Use this authored reference instead of fabricating a paper object.
+            if (selected == null)
+            {
+#if ARMOR_QUEST
+                var books = Resources.FindObjectsOfTypeAll(Il2CppType.Of<Book>());
+#else
+                var books = Resources.FindObjectsOfTypeAll<Book>();
+#endif
+                foreach (Object value in books)
+                {
+                    var book = Cast<Book>(value);
+                    if (book == null) continue;
+                    var paper = Get(book,"paperPrefab") as NetworkPrefab;
+                    if (!IsPaper(paper)) continue;
+                    if (selected == null || paper.Hash < selected.Hash) selected = paper;
+                }
+            }
             if (selected == null)
                 throw new InvalidOperationException("No native paper template with Pickup, Item and PageInstance; #37066=" +
                     (original == null ? "absent" : original.name + ", pickup=" + (ChildComponent<Pickup>(original.gameObject)!=null) +

@@ -161,3 +161,13 @@ late server provenance-component attachment, and publication identity checks
 are also performed. These changes have source/syntax/API-name checks, but still
 require a PC/Quest restart and runtime crafting test; native loader behavior is
 not simulated by the Python suite.
+
+### Quest paper assets outside the prefab map
+
+Runtime logs confirm that Quest has no #37066 map entry and no mapped physical
+page passing validation at this join stage. The next fallback reads the native
+`Book.paperPrefab` reference from loaded books, verified as a NetworkPrefab in
+both supplied Root assemblies. This does not read `Item.Prefab` or register an
+arbitrary original hash. The chosen native asset is cloned under the existing
+fixed armor-page IDs. If no loaded book supplies a valid paper asset, registration
+still stops safely; this fallback has not yet been confirmed in-game.

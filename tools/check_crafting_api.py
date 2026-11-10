@@ -103,6 +103,7 @@ SHARED={
  'Alta.Pages.PageCollection':('pageBases','get_PageBases get_Size get_PreferredProvider'),
  'Alta.Pages.PageInstance':('','Generate get_Data Set'),
  'Alta.Pages.Glyph+Positioning':('',''),
+ 'Alta.Pages.Book':('paperPrefab',''),
 }
 SERVER={
  'Alta.Crafting.GenericCraftingStation':('currentProject recipeDock trackedPickups isSyncingAllowed syncFull','SpawnResult ComponentReleased ClearProject SetupProjectFromPage SetupLOD ClearLOD ChangedPieces'),
