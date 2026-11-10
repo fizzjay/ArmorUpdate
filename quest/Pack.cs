@@ -96,7 +96,7 @@ namespace ArmorRestoredQuest
 				}
 				if (list.Count != Catalog.Count)
 				{
-					throw new InvalidDataException("armor.pack has " + list.Count.ToString() + " pieces, expected " + Catalog.Count.ToString());
+					throw new InvalidDataException("armor.pack has " + list.Count.ToString() + " pieces, expected " + Catalog.Count.ToString() + ". Stale embedded pack: replace the local ArmorRestored.armor.pack with the current quest/ArmorRestored.armor.pack, then delete bin/obj and rebuild the DLL. Changing Build Action alone does not update old pack contents.");
 				}
 				Pack.Pieces.AddRange(list);
 			}

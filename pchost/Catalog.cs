@@ -24,7 +24,7 @@ namespace ArmorRestored
 		// Token: 0x06000010 RID: 16 RVA: 0x0000283C File Offset: 0x00000A3C
 		internal static int Number(int piece)
 		{
-			return 52830 + piece + (piece >= 24 ? 1 : 0);
+			return piece == 45 ? 62076 : 52830 + piece + (piece >= 24 ? 1 : 0);
 		}
 
 		// Token: 0x06000011 RID: 17 RVA: 0x00002845 File Offset: 0x00000A45
@@ -36,6 +36,8 @@ namespace ArmorRestored
 		// Token: 0x06000012 RID: 18 RVA: 0x0000284C File Offset: 0x00000A4C
 		internal static int PieceOf(uint number)
 		{
+			if (number == 62076U) return 45;
+            if (number == 52876U) return -1; // Native Garlic Full Burnt, never armor.
 			int num = (int)(number - 52830U - (number > 52854U ? 1U : 0U));
 			if (number == 52854U || num < 0 || num >= Catalog.Count)
 			{

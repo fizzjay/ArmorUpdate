@@ -8,12 +8,14 @@ namespace ArmorRestoredQuest
 		// Token: 0x06000001 RID: 1 RVA: 0x00002050 File Offset: 0x00000250
 		internal static uint Number(int piece)
 		{
-			return (uint)(52830 + piece + (piece >= 24 ? 1 : 0));
+			return piece == 45 ? 62076U : (uint)(52830 + piece + (piece >= 24 ? 1 : 0));
 		}
 
 		// Token: 0x06000002 RID: 2 RVA: 0x0000205C File Offset: 0x0000025C
 		internal static int PieceOf(uint number)
 		{
+			if (number == 62076U) return 45;
+            if (number == 52876U) return -1; // Native Garlic Full Burnt, never armor.
 			int num = (int)(number - 52830U - (number > 52854U ? 1U : 0U));
 			if (number == 52854U || num < 0 || num >= Catalog.Count)
 			{

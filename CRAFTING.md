@@ -32,7 +32,7 @@ before deploying to a live server.
   page generation; it does not force every existing book to unlock all pages.
 - For immediate testing, run **`armor recipes <player>`** on the server. It spawns
   all 24 physical pages near that player. Pages are 60032–60047 (Leather/Metal)
-  and 60064–60071 (Wood); Wyrm, Hebios and Mushroom page indices remain unused.
+  and 62032–62039 (Wood); Wyrm, Hebios and Mushroom page indices remain unused.
 - Put a recipe page on the workbench, add the displayed ingredients, hammer the
   native nails, then grab the completed armor. Primary ingredients may use different physical materials. Every input retains
   its own material provenance.
@@ -413,8 +413,8 @@ stand, save and packet paths use the expanded catalog; no new runtime `.cs` file
 or `.csproj` entry is required. Updates are consolidated into existing importer,
 material, crafting and catalog files instead of introducing a file per feature.
 
-- Wood result IDs: **52863–52870**, recipes **60032–60039**, pages **60064–60071**.
-- Mushroom result IDs: **52871–52878**. The stand remains **52854**.
+- Wood result IDs: **52863–52870**, recipes **60032–60039**, pages **62032–62039**.
+- Mushroom result IDs: **52871–52875, 62076, 52877–52878**. The stand remains **52854**.
 - `armor recipes <player>` creates all 24 Leather/Metal/Wood pages. All 24
   recipes are published and appended to native collection **57634**, provider 2.
   This registers them for the book; it does not force-unlock every saved book.
@@ -452,3 +452,24 @@ completion/dismantling, mixed wood species on worn pieces, dummy fitting, stand
 slots, loot generation and save/rejoin on both platforms before live deployment.
 Update server and both clients together; the shared signature now identifies
 Wood recipes and loot-only Hebios/Mushroom.
+
+### Deployment correction: stale packs and native garlic collisions
+
+A Quest log reporting `armor.pack has 32 pieces, expected 48` means an old
+binary was embedded in the rebuilt DLL. Replace the local pack from
+`quest/ArmorRestored.armor.pack` (PC: `pchost/armor.pack`), not just its build action.
+Both current files are 44,493,907 bytes and have SHA256
+`cccdcf42bc28fe9067aeaac5073e803ee750510e0ce69a6f9e0702bc7a5f6f1f`.
+Use logical name `ArmorRestored.armor.pack`, remove local bin/obj build outputs,
+and rebuild/redeploy. External file replacement alone cannot update an embedded
+resource in an already-built DLL.
+
+Native registry collisions observed in game: 52876 is Garlic Full Burnt and
+60064 is Garlic Half Ripe. Mushroom right gauntlet now uses **62076**, and Wood
+page items use **62032–62039**. Leather/Metal IDs and pages are unchanged. Old
+52876 must not be interpreted as armor by either catalog. All page publication,
+lookup and cleanup paths share the new mapping. These replacement IDs avoid the
+reported collisions but are not certified free on every game/mod combination;
+native collision checks remain enabled. Deploy updated PC/server and Quest
+code together, then check `armor list` for refusals before use. Do not overwrite
+native garlic entries or migrate garlic saves into armor.

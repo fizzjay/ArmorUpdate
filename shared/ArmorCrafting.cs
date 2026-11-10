@@ -38,7 +38,7 @@ namespace ArmorRestored
         internal static byte[] Fingerprint;
         internal static string Status = "not registered";
         internal static bool Ready;
-        internal static string Signature { get { return Ready && Fingerprint != null ? BitConverter.ToString(Fingerprint).Replace("-", "") + ":glyphs-52830-v1-worn-sections1-benchup2-hebios1-surfaces2-wood1-loot-hebios-mushroom" : ""; } }
+        internal static string Signature { get { return Ready && Fingerprint != null ? BitConverter.ToString(Fingerprint).Replace("-", "") + ":glyphs-52830-v1-worn-sections1-benchup2-hebios1-surfaces2-wood1-loot-hebios-mushroom-ids2" : ""; } }
         private static bool hooks;
         private static PageCollection collection;
         private static readonly Glyph[] recipeGlyphs = new Glyph[48];
@@ -47,6 +47,14 @@ namespace ArmorRestored
         private static readonly Item[] pageItems = new Item[48];
         private static readonly List<Object> owned = new List<Object>();
         private static readonly Dictionary<string, Sprite> glyphs = new Dictionary<string, Sprite>();
+        // Preserve existing Leather/Metal page saves; Wood must not use native garlic IDs.
+        internal static uint PageHash(int index) { return index>=32 && index<40 ? 62032U+(uint)(index-32) : PageStart+(uint)index; }
+        private static int PageIndex(uint hash)
+        {
+            if(hash>=62032U && hash<62040U) return 32+(int)(hash-62032U);
+            if(hash>=PageStart && hash<PageStart+16U) return (int)(hash-PageStart);
+            return -1;
+        }
         internal static bool Craftable(int piece) { return piece>=0 && (piece<16 || piece>=32 && piece<40); }
         internal static int Index(GenericCraftingRecipe recipe)
         {
@@ -133,7 +141,7 @@ namespace ArmorRestored
                     if (!Craftable(i)) continue;
                     if (armor[i] == null || items[i] == null) throw new InvalidOperationException("Missing armor result " + i);
                     stage = "checking IDs for slot " + i;
-                    uint pageHash = PageStart + (uint)i, recipeHash = RecipeStart + (uint)i, glyphHash = (uint)Catalog.Number(i);
+                    uint pageHash = PageHash(i), recipeHash = RecipeStart + (uint)i, glyphHash = (uint)Catalog.Number(i);
                     var conflicts = new List<string>();
                     var existingPage = FindPrefab(pageHash);
                     var existingItem = FindItem(pageHash);
@@ -649,8 +657,8 @@ namespace ArmorRestored
         {
             if (__instance.Entity == null || __instance.Entity.Prefab == null) return true;
             uint hash = __instance.Entity.Prefab.Hash;
-            if (hash < PageStart || hash >= PageStart + 48) return true;
-            int index = (int)(hash - PageStart);
+            int index = PageIndex(hash);
+            if (index < 0) return true;
             if (Pages[index] == null || !Same(__instance.Entity.Prefab,Pages[index])) return true;
             if (!Ready || Recipes[index] == null) throw new InvalidOperationException("Armor recipe page is unavailable");
             if (__instance.Data == null) __instance.Set(Recipes[index].CreatePage(2));
@@ -687,7 +695,7 @@ namespace ArmorRestored
 #endif
             foreach (NetworkPrefab prefab in nativePrefabs)
             {
-                if (prefab == null || (prefab.Hash >= PageStart && prefab.Hash < PageStart+48) || !IsPaper(prefab)) continue;
+                if (prefab == null || (PageIndex(prefab.Hash) >= 0) || !IsPaper(prefab)) continue;
                 var item = PaperItem(prefab);
                 string name = (item.name ?? "") + " " + (prefab.name ?? "");
                 bool namedPaper = name.IndexOf("paper",StringComparison.OrdinalIgnoreCase) >= 0;
@@ -785,13 +793,13 @@ namespace ArmorRestored
             if (prefab == null || ChildComponent<PageInstance>(root) == null)
                 throw new InvalidOperationException("Cloned paper is missing native prefab/page component");
             Pages[index] = prefab;
-            Set(prefab, "hash", (int)(PageStart + (uint)index)); Set(prefab, "SaveMode", 0);
+            Set(prefab, "hash", (int)(PageHash(index))); Set(prefab, "SaveMode", 0);
             var item = Cast<Item>(Object.Instantiate(PaperItem(paper)));
             if (item == null) throw new InvalidOperationException("Could not clone recipe paper item");
-            owned.Add(item); pageItems[index] = item; item.name = root.name; Set(item, "hash", (int)(PageStart + (uint)index)); item.Prefab = prefab;
+            owned.Add(item); pageItems[index] = item; item.name = root.name; Set(item, "hash", (int)(PageHash(index))); item.Prefab = prefab;
             foreach (Pickup pickup in Pickups(root)) if (pickup != null) pickup.Item = item;
             PublishPage(prefab, item);
-            if (!Same(FindPrefab(PageStart + (uint)index),prefab) || !Same(FindItem(PageStart + (uint)index),item))
+            if (!Same(FindPrefab(PageHash(index)),prefab) || !Same(FindItem(PageHash(index)),item))
                 throw new InvalidOperationException("Native registry did not retain armor recipe page " + index);
             root.SetActive(true); // inactive staging prevents initialization until spawn
         }
@@ -873,7 +881,7 @@ namespace ArmorRestored
         private static void RemovePublished(int index)
         {
             Glyph glyph; GenericCraftingRecipe recipe; NetworkPrefab page; Item item;
-            uint glyphHash = (uint)Catalog.Number(index), pageHash = PageStart+(uint)index, recipeHash = RecipeStart+(uint)index;
+            uint glyphHash = (uint)Catalog.Number(index), pageHash = PageHash(index), recipeHash = RecipeStart+(uint)index;
             if (recipeGlyphs[index] != null && HashedGeneralValue<Glyph>.items.TryGetValue(glyphHash,out glyph) && Same(glyph,recipeGlyphs[index])) HashedGeneralValue<Glyph>.items.Remove(glyphHash);
             HashedGeneralValue<Glyph>.itemsByName = null;
             if (Recipes[index] != null && HashedGeneralValue<GenericCraftingRecipe>.items.TryGetValue(recipeHash,out recipe) && Same(recipe,Recipes[index])) HashedGeneralValue<GenericCraftingRecipe>.items.Remove(recipeHash);
@@ -914,7 +922,7 @@ namespace ArmorRestored
         private static void RemovePublished(int index)
         {
             Glyph glyph; GenericCraftingRecipe recipe; Item item;
-            uint glyphHash = (uint)Catalog.Number(index), recipeHash = RecipeStart+(uint)index, pageHash = PageStart+(uint)index;
+            uint glyphHash = (uint)Catalog.Number(index), recipeHash = RecipeStart+(uint)index, pageHash = PageHash(index);
             if (recipeGlyphs[index] != null && Values<Glyph>().TryGetValue(glyphHash,out glyph) && Same(glyph,recipeGlyphs[index])) Values<Glyph>().Remove(glyphHash);
             SetStatic(typeof(HashedGeneralValue<Glyph>),"itemsByName",null);
             if (Recipes[index] != null && Values<GenericCraftingRecipe>().TryGetValue(recipeHash,out recipe) && Same(recipe,Recipes[index])) Values<GenericCraftingRecipe>().Remove(recipeHash);
@@ -922,7 +930,7 @@ namespace ArmorRestored
             {
                 var map = (Dictionary<uint,NetworkPrefab>)AccessTools.Field(typeof(PrefabManager),"prefabMap").GetValue(null);
                 NetworkPrefab existing;
-                if (map.TryGetValue(PageStart+(uint)index,out existing) && existing == Pages[index]) map.Remove(PageStart+(uint)index);
+                if (map.TryGetValue(PageHash(index),out existing) && existing == Pages[index]) map.Remove(PageHash(index));
                 if (pageItems[index] != null && Values<Item>().TryGetValue(pageHash,out item) && Same(item,pageItems[index])) Values<Item>().Remove(pageHash);
             }
             SetStatic(typeof(HashedGeneralValue<GenericCraftingRecipe>),"itemsByName",null); SetStatic(typeof(HashedGeneralValue<Item>),"itemsByName",null);
