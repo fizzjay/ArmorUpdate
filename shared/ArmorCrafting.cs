@@ -56,6 +56,7 @@ namespace ArmorRestored
         internal static void Register(GameObject holder, NetworkPrefab[] armor, Item[] items)
         {
             if (Ready) return;
+            string stage = "initialization";
             try
             {
                 if (holder == null || holder.activeInHierarchy) throw new InvalidOperationException("Inactive crafting staging required");
@@ -64,7 +65,9 @@ namespace ArmorRestored
                 if (Mod.IsServer && !ArmorCraftingServer.Installed) throw new InvalidOperationException("Crafting save/transaction backend unavailable");
 #endif
                 resultItems = items;
+                stage = "installing crafting hooks";
                 InstallHooks();
+                stage = "reading native ingredient templates";
                 var templates = new Dictionary<uint, GenericCraftingPieceDefinition>();
 #if ARMOR_QUEST
                 foreach (GenericCraftingRecipe recipe in NativeEnumerable.Items<GenericCraftingRecipe>(HashedGeneralValue<GenericCraftingRecipe>.All))
@@ -94,11 +97,13 @@ namespace ArmorRestored
                         data = ArmorConstructionData.Read(new MemoryStream(bytes, false));
                     }
                 }
+                stage = "loading glyph textures";
                 LoadGlyphs();
                 // Preflight every namespace before mutating native registries.
                 for (int i = 0; i < 16; i++)
                 {
                     if (armor[i] == null || items[i] == null) throw new InvalidOperationException("Missing armor result " + i);
+                    stage = "checking IDs for slot " + i;
                     uint pageHash = PageStart + (uint)i, recipeHash = RecipeStart + (uint)i, glyphHash = GlyphStart + (uint)i;
                     var conflicts = new List<string>();
                     var existingPage = FindPrefab(pageHash);
@@ -116,13 +121,19 @@ namespace ArmorRestored
                 }
                 for (int i = 0; i < 16; i++)
                 {
+                    stage = "creating recipe for slot " + i;
                     var recipe = New<GenericCraftingRecipe>();
                     owned.Add(recipe); Recipes[i] = recipe;
                     recipe.name = "ArmorRestored fixed-v1 " + Catalog.Id(i);
                     Set(recipe, "hash", (int)(RecipeStart + (uint)i));
                     Set(recipe, "resultHash", armor[i].Hash);
                     var definitions = new GenericCraftingPieceDefinition[Plans[i].Ingredients.Length];
-                    for (int j = 0; j < definitions.Length; j++) definitions[j] = BuildPiece(j, Plans[i].Ingredients[j], templates);
+                    for (int j = 0; j < definitions.Length; j++)
+                    {
+                        stage = "building slot " + i + " ingredient " + j + " source " + Plans[i].Ingredients[j].Source;
+                        definitions[j] = BuildPiece(j, Plans[i].Ingredients[j], templates);
+                    }
+                    stage = "configuring recipe for slot " + i;
 #if ARMOR_QUEST
                     Set(recipe, "pieces", new Il2CppReferenceArray<GenericCraftingPieceDefinition>(definitions));
 #else
@@ -142,8 +153,10 @@ namespace ArmorRestored
                     PublishGlyph(glyph);
                     Set(items[i], "glyph", glyph);
                     PublishRecipe(recipe);
+                    stage = "building page for slot " + i;
                     BuildPage(i, holder, paper);
                 }
+                stage = "appending recipes to native book";
                 var bases = new List<Object>();
                 foreach (Object value in collection.PageBases) bases.Add(value);
                 foreach (var recipe in Recipes) bases.Add(recipe);
@@ -159,9 +172,10 @@ namespace ArmorRestored
             }
             catch (Exception error)
             {
-                Unregister();
-                Status = "disabled: " + error.GetBaseException().Message;
-                Mod.Log.Error("armor crafting " + Status);
+                Status = "disabled at " + stage + ": " + error.GetBaseException().Message;
+                Mod.Log.Error("armor crafting " + Status + "\n" + error);
+                try { Unregister(); }
+                catch (Exception cleanupError) { Mod.Log.Error("armor crafting rollback failed: " + cleanupError); }
             }
         }
         private static GenericCraftingPieceDefinition BuildPiece(int index, ArmorConstructionData.Ingredient part, Dictionary<uint, GenericCraftingPieceDefinition> templates)
@@ -192,8 +206,17 @@ namespace ArmorRestored
 #endif
             mesh.RecalculateBounds();
             var nails = new NailSettings();
+            // Root ingredients may be nail-free and have no NailSettings at all.
+            // Prefer this source's settings, otherwise use another native template.
+            var nativeNails = template.nailSettings;
+            if (nativeNails == null)
+                foreach (var candidate in templates.Values)
+                    if (candidate != null && candidate.nailSettings != null)
+                    { nativeNails = candidate.nailSettings; break; }
+            if (nativeNails == null)
+                throw new InvalidOperationException("No native nail settings template for source " + part.Source);
             foreach (string field in new[] { "devianceToDamage", "progressToDevianceMultiplier", "damageSplitPerDot", "damageOverflowMultiplier", "devianceMultiplier", "nailDefinition" })
-                Set(nails, field, Get(template.nailSettings, field));
+                Set(nails, field, Get(nativeNails, field));
             if (Get(nails, "nailDefinition") == null) Set(nails,"nailDefinition",GenericCraftingSettings.GenericNailDefaultDefinition);
             if (Get(nails,"nailDefinition") == null) throw new InvalidOperationException("Native nail definition unavailable");
             var pose = part.NailPose;
@@ -402,6 +425,7 @@ namespace ArmorRestored
         private static bool Same(Object a,Object b) { return a != null && b != null && a.GetInstanceID() == b.GetInstanceID(); }
         internal static object Get(object target, string name)
         {
+            if (target == null) throw new InvalidOperationException("Cannot read native member " + name + " on null target");
             for (Type t = target.GetType(); t != null; t = t.BaseType)
             {
                 const BindingFlags f = BindingFlags.Instance|BindingFlags.Public|BindingFlags.NonPublic|BindingFlags.DeclaredOnly;
@@ -412,6 +436,7 @@ namespace ArmorRestored
         }
         internal static void Set(object target, string name, object value)
         {
+            if (target == null) throw new InvalidOperationException("Cannot write native member " + name + " on null target");
             for (Type t = target.GetType(); t != null; t = t.BaseType)
             {
                 const BindingFlags f = BindingFlags.Instance|BindingFlags.Public|BindingFlags.NonPublic|BindingFlags.DeclaredOnly;

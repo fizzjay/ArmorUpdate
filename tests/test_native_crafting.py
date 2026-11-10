@@ -177,3 +177,17 @@ class CraftingCollisionRegressionTests(unittest.TestCase):
         self.assertIn('PrefabManager.prefabMap.TryGetValue(hash,out value)', text)
         for kind in ('Item','GenericCraftingRecipe','Glyph'):
             self.assertIn('HashedGeneralValue<'+kind+'>.items.TryGetValue(hash,out value)', text)
+
+
+class CraftingRegistrationDiagnosticsTests(unittest.TestCase):
+    def test_registration_preserves_stage_and_stack(self):
+        text=source('shared/ArmorCrafting.cs')
+        self.assertIn('"disabled at " + stage', text)
+        self.assertIn('Status + "\\n" + error', text)
+        self.assertIn('building slot ', text)
+
+    def test_missing_native_nails_are_checked(self):
+        text=source('shared/ArmorCrafting.cs')
+        self.assertNotIn('Get(template.nailSettings, field)', text)
+        self.assertIn('if (nativeNails == null)', text)
+        self.assertIn('Get(nativeNails, field)', text)
