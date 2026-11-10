@@ -22,7 +22,7 @@ namespace ArmorRestored
 		public static string List()
 		{
 			StringBuilder stringBuilder = new StringBuilder();
-			stringBuilder.Append("ArmorRestored ").Append("0.4.0").Append(", registered via ").Append(Prefabs.Seam ?? "nothing yet").Append('\n');
+			stringBuilder.Append("ArmorRestored ").Append("0.5.0").Append(", registered via ").Append(Prefabs.Seam ?? "nothing yet").Append('\n');
 			for (int i = 0; i < Catalog.Count; i++)
 			{
 				stringBuilder.Append(Catalog.Number(i)).Append("  ").Append(Catalog.Id(i)).Append("  ").Append(Catalog.Title(i));
@@ -37,7 +37,8 @@ namespace ArmorRestored
 				stringBuilder.Append('\n');
 			}
 			stringBuilder.Append(ArmorStand.Number).Append("  ").Append(ArmorStand.Name).Append("  ").Append(ArmorStand.Status).Append('\n');
-			stringBuilder.Append("loot: ").Append(Loot.Report);
+			stringBuilder.Append("crafting: ").Append(ArmorCrafting.Status).Append('\n');
+            stringBuilder.Append("loot: ").Append(Loot.Report);
 			return stringBuilder.ToString();
 		}
 
@@ -81,6 +82,56 @@ namespace ArmorRestored
             });
         }
 
+        [Command("recipes", "Spawn the 24 Leather/Metal/Wood recipe pages near a player: armor recipes <player>")]
+        public static string Recipes(string player)
+        {
+            return ArmorCommands.Run(delegate
+            {
+                if (!ArmorCrafting.Ready) return "Armor recipes unavailable: " + ArmorCrafting.Status;
+                string error;
+                Player target = Players.Find(player, out error);
+                if (target == null) return error;
+                Vector3 at = ServerArmor.Head(target) + ServerArmor.Front(target);
+                int count = 0;
+                for (int i=0;i<Catalog.Count;i++)
+                {
+                    if (ArmorCrafting.Pages[i] == null) continue;
+                    var page = SpawnHelper.Spawn(ArmorCrafting.Pages[i], SpawnData.DontGenerate, null,
+                        at + new Vector3((i%4)*.15f-.225f,(i/4)*.04f,0f), Quaternion.identity, null);
+                    if (page != null) count++;
+                }
+                return "Spawned " + count + "/24 armor recipe pages. Use a native crafting workbench; no Wyrm recipes.";
+            });
+        }
+
+        [Command("stats", "Inspect worn armor weights and material protection: armor stats <player>")]
+        public static string Stats(string player)
+        {
+            return ArmorCommands.Run(delegate
+            {
+                string error;
+                Player target = Players.Find(player, out error);
+                if (target == null) return error;
+                int[] worn = ServerArmor.WornBy(target);
+                uint[] materials = ServerArmor.MaterialsFor(Players.Name(target));
+                StringBuilder result = new StringBuilder("Armor material stats " + (ArmorStats.Enabled ? "enabled" : "DISABLED") + " for " + Players.Name(target));
+                float total = 0f;
+                for (int slot = 0; slot < 8; slot++)
+                {
+                    if (worn[slot] < 0) continue;
+                    float weight = ArmorStats.Weight(worn[slot], materials[slot]);
+                    total += weight;
+                    ArmorDefinition definition = Catalog.MaterialDefinition(worn[slot], materials[slot]);
+                    result.Append("\n").Append(Catalog.Title(worn[slot])).Append(" material=").Append(materials[slot])
+                        .Append(" weight=").Append(weight.ToString("F2"))
+                        .Append(" physical damage multipliers=").Append(definition.GetMultiplier((ImpactType)0).ToString("F3"))
+                        .Append("/").Append(definition.GetMultiplier((ImpactType)1).ToString("F3"))
+                        .Append("/").Append(definition.GetMultiplier((ImpactType)2).ToString("F3"));
+                }
+                return result.Append("\nTotal worn weight=").Append(total.ToString("F2")).ToString();
+            });
+        }
+
         [Command("standinfo", "Inspect a spawned stand: armor standinfo <entityId>")]
         public static string StandInfo(uint entityId)
         {
@@ -114,7 +165,7 @@ namespace ArmorRestored
             });
         }
 
-		[Command("give", "Spawn armor in front of a player: armor give <player> <leather|metal|wyrm> <slot|all> (slots: helmet chest shoulder_l shoulder_r gauntlet_l gauntlet_r tasset_l tasset_r)")]
+		[Command("give", "Spawn armor in front of a player: armor give <player> <leather|metal|wyrm|hebios|wood|mushroom> <slot|all> (slots: helmet chest shoulder_l shoulder_r gauntlet_l gauntlet_r tasset_l tasset_r)")]
 		public static string Give(string player, string set, string slot)
 		{
 			return ArmorCommands.Run(delegate
@@ -150,7 +201,7 @@ namespace ArmorRestored
 		}
 
 		// Token: 0x0600003B RID: 59 RVA: 0x0000489C File Offset: 0x00002A9C
-		[Command("wear", "Put armor straight on a player: armor wear <player> <leather|metal|wyrm> <slot|all>")]
+		[Command("wear", "Put armor straight on a player: armor wear <player> <leather|metal|wyrm|hebios|wood|mushroom> <slot|all>")]
 		public static string Wear(string player, string set, string slot)
 		{
 			return ArmorCommands.Run(delegate
@@ -374,7 +425,7 @@ namespace ArmorRestored
 			int num = Catalog.FindSet(set);
 			if (num < 0)
 			{
-				why = "no armor set '" + set + "' (leather, metal, wyrm)";
+				why = "no armor set '" + set + "' (leather, metal, wyrm, hebios, wood, mushroom)";
 				return false;
 			}
 			if (string.Equals(slot, "all", StringComparison.OrdinalIgnoreCase))

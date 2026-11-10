@@ -1,0 +1,236 @@
+[
+  {
+    "id": "hebios.helmet",
+    "meshes": 22,
+    "triangles": 2134,
+    "craftable": false,
+    "sources": [
+      50988,
+      50988,
+      50988,
+      63204
+    ]
+  },
+  {
+    "id": "hebios.chest",
+    "meshes": 64,
+    "triangles": 4888,
+    "craftable": false,
+    "sources": [
+      50988,
+      50988,
+      63204
+    ]
+  },
+  {
+    "id": "hebios.shoulder_l",
+    "meshes": 22,
+    "triangles": 1446,
+    "craftable": false,
+    "sources": [
+      50988,
+      50988,
+      63204
+    ]
+  },
+  {
+    "id": "hebios.shoulder_r",
+    "meshes": 22,
+    "triangles": 1446,
+    "craftable": false,
+    "sources": [
+      50988,
+      50988,
+      63204
+    ]
+  },
+  {
+    "id": "hebios.gauntlet_l",
+    "meshes": 32,
+    "triangles": 5416,
+    "craftable": false,
+    "sources": [
+      50988,
+      50988,
+      63204
+    ]
+  },
+  {
+    "id": "hebios.gauntlet_r",
+    "meshes": 32,
+    "triangles": 5416,
+    "craftable": false,
+    "sources": [
+      50988,
+      50988,
+      63204
+    ]
+  },
+  {
+    "id": "hebios.tasset_l",
+    "meshes": 21,
+    "triangles": 1656,
+    "craftable": false,
+    "sources": [
+      50988,
+      50988,
+      63204
+    ]
+  },
+  {
+    "id": "hebios.tasset_r",
+    "meshes": 23,
+    "triangles": 1752,
+    "craftable": false,
+    "sources": [
+      50988,
+      50988,
+      63204
+    ]
+  },
+  {
+    "id": "wood.helmet",
+    "meshes": 15,
+    "triangles": 1094,
+    "craftable": true,
+    "sources": [
+      43836,
+      47118,
+      47118,
+      47118
+    ]
+  },
+  {
+    "id": "wood.chest",
+    "meshes": 24,
+    "triangles": 2480,
+    "craftable": true,
+    "sources": [
+      43836,
+      47118,
+      47118
+    ]
+  },
+  {
+    "id": "wood.shoulder_l",
+    "meshes": 14,
+    "triangles": 1540,
+    "craftable": true,
+    "sources": [
+      43836,
+      47118,
+      47118
+    ]
+  },
+  {
+    "id": "wood.shoulder_r",
+    "meshes": 12,
+    "triangles": 1456,
+    "craftable": true,
+    "sources": [
+      43836,
+      47118,
+      47118
+    ]
+  },
+  {
+    "id": "wood.gauntlet_l",
+    "meshes": 12,
+    "triangles": 804,
+    "craftable": true,
+    "sources": [
+      43836,
+      47118,
+      47118
+    ]
+  },
+  {
+    "id": "wood.gauntlet_r",
+    "meshes": 12,
+    "triangles": 804,
+    "craftable": true,
+    "sources": [
+      43836,
+      47118,
+      47118
+    ]
+  },
+  {
+    "id": "wood.tasset_l",
+    "meshes": 17,
+    "triangles": 872,
+    "craftable": true,
+    "sources": [
+      43836,
+      47118,
+      47118
+    ]
+  },
+  {
+    "id": "wood.tasset_r",
+    "meshes": 16,
+    "triangles": 664,
+    "craftable": true,
+    "sources": [
+      43836,
+      47118,
+      47118
+    ]
+  },
+  {
+    "id": "mushroom.helmet",
+    "meshes": 8,
+    "triangles": 434,
+    "craftable": false,
+    "sources": []
+  },
+  {
+    "id": "mushroom.chest",
+    "meshes": 112,
+    "triangles": 13284,
+    "craftable": false,
+    "sources": []
+  },
+  {
+    "id": "mushroom.shoulder_l",
+    "meshes": 5,
+    "triangles": 434,
+    "craftable": false,
+    "sources": []
+  },
+  {
+    "id": "mushroom.shoulder_r",
+    "meshes": 5,
+    "triangles": 434,
+    "craftable": false,
+    "sources": []
+  },
+  {
+    "id": "mushroom.gauntlet_l",
+    "meshes": 20,
+    "triangles": 2476,
+    "craftable": false,
+    "sources": []
+  },
+  {
+    "id": "mushroom.gauntlet_r",
+    "meshes": 20,
+    "triangles": 2476,
+    "craftable": false,
+    "sources": []
+  },
+  {
+    "id": "mushroom.tasset_l",
+    "meshes": 40,
+    "triangles": 4301,
+    "craftable": false,
+    "sources": []
+  },
+  {
+    "id": "mushroom.tasset_r",
+    "meshes": 42,
+    "triangles": 4459,
+    "craftable": false,
+    "sources": []
+  }
+]

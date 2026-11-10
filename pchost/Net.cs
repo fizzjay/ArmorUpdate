@@ -18,9 +18,9 @@ namespace ArmorRestored
 			{
 				byte b = 20;
 				s.SerializeByte(ref b);
-				string text = "0.4.0";
+				string text = "0.5.0";
 				s.SerializeString(ref text, (Stream.StringEncoding)1);
-				int num = 3;
+				int num = 5;
 				s.SerializeInteger(ref num);
 			});
 		}
@@ -32,12 +32,14 @@ namespace ArmorRestored
 			{
 				byte b = 5;
 				s.SerializeByte(ref b);
-				int num = 3;
+				int num = 5;
 				s.SerializeInteger(ref num);
-				string text = "0.4.0";
+				string text = "0.5.0";
 				string text2 = Prefabs.RefusedLine();
 				s.SerializeString(ref text, (Stream.StringEncoding)1);
 				s.SerializeString(ref text2, (Stream.StringEncoding)1);
+                string signature = ArmorCrafting.Signature;
+                s.SerializeString(ref signature, (Stream.StringEncoding)1);
 			});
 		}
 
@@ -103,13 +105,16 @@ namespace ArmorRestored
 				string text2 = null;
 				s.SerializeString(ref text, (Stream.StringEncoding)1);
 				s.SerializeString(ref text2, (Stream.StringEncoding)1);
+                string signature = "";
+                if (wire >= 4) s.SerializeString(ref signature, (Stream.StringEncoding)1);
 				lock (Net.Hellos)
 				{
 					Net.Hellos[connection.Identifier] = new Net.Greeting
 					{
 						Wire = wire,
 						Version = (text ?? ""),
-						Refused = (text2 ?? "")
+						Refused = (text2 ?? ""),
+                        Signature = signature ?? ""
 					};
 				}
 				return;
@@ -169,6 +174,11 @@ namespace ArmorRestored
 						s.SerializeByte(ref b2);
 						uint material = unchecked((uint)keyValuePair.Value[8 + i]);
 						s.SerializeBits(ref material, 32);
+                        for(int group=0;group<32;group++)
+                        {
+                            uint input=unchecked((uint)keyValuePair.Value[16+i*32+group]);
+                            s.SerializeBits(ref input,32);
+                        }
 					}
 				}
 			});
@@ -236,7 +246,7 @@ namespace ArmorRestored
 				{
 					int key = 0;
 					s.SerializeInteger(ref key);
-					int[] array = new int[16];
+					int[] array = new int[272];
 					for (int i = 0; i < 8; i++)
 					{
 						byte b2 = 0;
@@ -245,6 +255,8 @@ namespace ArmorRestored
 						uint material = 0U;
 						s.SerializeBits(ref material, 32);
 						array[8 + i] = unchecked((int)material);
+                            for(int group=0;group<32;group++)
+                            { uint input=0; s.SerializeBits(ref input,32); array[16+i*32+group]=unchecked((int)input); }
 					}
 					dictionary[key] = array;
 					num2++;
@@ -297,7 +309,7 @@ namespace ArmorRestored
 		private static async Task Step(Connection connection, Action<string> progress)
 		{
 			Net.SendHere(connection);
-			if (!(Settings.Join == "off"))
+			if (!(Settings.Join == "off") || ArmorCrafting.Ready)
 			{
 				Net.Greeting hello = null;
 				bool acked = false;
@@ -328,16 +340,24 @@ namespace ArmorRestored
 				}
 				else if (hello == null)
 				{
-					problem = "This server needs the ArmorRestored mod 0.4.0. Install it, then join again.";
+					problem = "This server needs the ArmorRestored mod 0.5.0. Install it, then join again.";
 				}
-				else if (hello.Wire < 3)
+				else if (hello.Wire < 5)
 				{
-					problem = "Your ArmorRestored " + hello.Version + " is too old for this server's 0.4.0. Update it, then join again.";
+					problem = "Your ArmorRestored " + hello.Version + " is too old for this server's 0.5.0. Update it, then join again.";
 				}
-				else if (hello.Wire > 3)
+				else if (hello.Wire > 5)
 				{
-					problem = "Your ArmorRestored " + hello.Version + " is newer than this server's 0.4.0. The server needs an update first.";
+					problem = "Your ArmorRestored " + hello.Version + " is newer than this server's 0.5.0. The server needs an update first.";
 				}
+                else if (ArmorCrafting.Ready && string.IsNullOrEmpty(hello.Signature))
+                {
+                    problem = "Client armor crafting registration failed. Check the client log for armor crafting disabled at; join is blocked to protect native recipes.";
+                }
+				else if (hello.Signature != ArmorCrafting.Signature)
+                {
+                    problem = "Armor construction data differs between server and client. Install the same ArmorRestored build.";
+                }
 				else if (hello.Refused != Prefabs.RefusedLine())
 				{
 					problem = string.Concat(new string[]
@@ -381,7 +401,7 @@ namespace ArmorRestored
 						problem,
 						(Settings.Join == "refuse") ? " -> refused" : " (log only)"
 					}));
-					if (!(Settings.Join != "refuse"))
+					if (!(Settings.Join != "refuse") || ArmorCrafting.Ready)
 					{
 						progress(Net.Ascii(problem));
 						await Task.Delay(1500);
@@ -455,7 +475,7 @@ namespace ArmorRestored
 		internal const byte Here = 20;
 
 		// Token: 0x04000055 RID: 85
-		internal const int Wire = 3;
+		internal const int Wire = 5;
 
 		// Token: 0x04000056 RID: 86
 		private const int AnswerWait = 5000;
@@ -486,6 +506,7 @@ namespace ArmorRestored
 
 			// Token: 0x04000061 RID: 97
 			public string Refused;
+            public string Signature;
 		}
 	}
 }

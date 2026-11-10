@@ -1,0 +1,49 @@
+[
+  {
+    "assembly": "Root.Township.dll",
+    "sha256": "06e1fc38f1b1a592d30dcce34fe26b608d5c56761e7a23b8e165c32c8063d735",
+    "checked_types": [
+      ".NewSaveData`2",
+      ".SaveStructureAttribute",
+      "Alta.Chunks.SavingInfoAttribute",
+      "Alta.Crafting.GenericCraftingComponent",
+      "Alta.Crafting.GenericCraftingPiece",
+      "Alta.Crafting.GenericCraftingPieceDefinition",
+      "Alta.Crafting.GenericCraftingRecipe",
+      "Alta.Crafting.GenericCraftingSettings",
+      "Alta.Crafting.GenericCraftingStation",
+      "Alta.Crafting.IProject",
+      "Alta.Crafting.NailSettings",
+      "Alta.Crafting.PieceSaveData",
+      "Alta.Crafting.SerializedTransform",
+      "Alta.Pages.Book",
+      "Alta.Pages.Glyph",
+      "Alta.Pages.Glyph+Positioning",
+      "Alta.Pages.PageCollection",
+      "Alta.Pages.PageInstance",
+      "Alta.Saving.ISavableSaveBase",
+      "Alta.Saving.SavingSystem",
+      "Alta.Saving.SavingSystem+SavingSetup"
+    ],
+    "missing": []
+  },
+  {
+    "assembly": "Il2CppRoot.Township.dll",
+    "sha256": "4ebf165dd4f46ad07cf8d820ad79d152385a98ad78d6ce25904e92500410937f",
+    "checked_types": [
+      "Il2CppAlta.Crafting.GenericCraftingPieceDefinition",
+      "Il2CppAlta.Crafting.GenericCraftingRecipe",
+      "Il2CppAlta.Crafting.GenericCraftingSettings",
+      "Il2CppAlta.Crafting.GenericCraftingStation",
+      "Il2CppAlta.Crafting.IProject",
+      "Il2CppAlta.Crafting.NailSettings",
+      "Il2CppAlta.Crafting.SerializedTransform",
+      "Il2CppAlta.Pages.Book",
+      "Il2CppAlta.Pages.Glyph",
+      "Il2CppAlta.Pages.Glyph+Positioning",
+      "Il2CppAlta.Pages.PageCollection",
+      "Il2CppAlta.Pages.PageInstance"
+    ],
+    "missing": []
+  }
+]

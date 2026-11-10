@@ -35,6 +35,7 @@ namespace ArmorRestored
 				}
 			}
 			if (ArmorStand.Prefab == null) list.Add("armorstand");
+            if (!ArmorCrafting.Ready) list.Add("crafting");
 			return string.Join(",", list.ToArray());
 		}
 
@@ -130,6 +131,7 @@ namespace ArmorRestored
 								}
 							}
 							ArmorStand.Register(Prefabs._holder, Prefabs.ByPiece, Prefabs.Items);
+                            ArmorCrafting.Register(Prefabs._holder, Prefabs.ByPiece, Prefabs.Items);
 							FieldInfo field4 = typeof(HashedGeneralValue<Item>).GetField("itemsByName", BindingFlags.Static | BindingFlags.Public | BindingFlags.NonPublic);
 							if (field4 != null)
 							{
@@ -145,7 +147,7 @@ namespace ArmorRestored
 								" (numbers ",
 								52830,
 								"-",
-								52830 + Catalog.Count - 1,
+								Catalog.Number(Catalog.Count - 1),
 								")."
 							}));
 							if (Mod.IsServer && Settings.Loot)
@@ -170,6 +172,7 @@ namespace ArmorRestored
 		// Token: 0x06000087 RID: 135 RVA: 0x00008354 File Offset: 0x00006554
 		internal static string Unregister()
 		{
+            ArmorCrafting.Unregister();
             ArmorStand.Unregister();
 			FieldInfo field = typeof(PrefabManager).GetField("prefabMap", BindingFlags.Static | BindingFlags.Public | BindingFlags.NonPublic);
 			FieldInfo field2 = typeof(HashedGeneralValue<Item>).GetField("items", BindingFlags.Static | BindingFlags.Public | BindingFlags.NonPublic);
@@ -324,6 +327,7 @@ namespace ArmorRestored
 				}
 			}
 			ArmorMaterials.Configure(piece, gameObject);
+            ArmorCraftingServer.AddRecord(gameObject);
 			addToMap.Invoke(null, new object[]
 			{
 				new NetworkPrefab[]

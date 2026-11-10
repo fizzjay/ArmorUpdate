@@ -57,15 +57,17 @@ namespace ArmorRestoredQuest
 					{
 						int key = 0;
 						s.SerializeInteger(ref key);
-						int[] array = new int[16];
+						int[] array = new int[272];
 						for (int i = 0; i < 8; i++)
 						{
 							uint num5 = 0U;
 							s.SerializeBits(ref num5, 8);
-							array[i] = (int)((num5 == 0U || num5 > 24U) ? uint.MaxValue : (num5 - 1U));
+							array[i] = (int)((num5 == 0U || num5 > (uint)Catalog.Count) ? uint.MaxValue : (num5 - 1U));
 							uint material = 0U;
 							s.SerializeBits(ref material, 32);
 							array[8 + i] = unchecked((int)material);
+                            for(int group=0;group<32;group++)
+                            { uint input=0; s.SerializeBits(ref input,32); array[16+i*32+group]=unchecked((int)input); }
 						}
 						dictionary[key] = array;
 						num4++;
@@ -114,12 +116,14 @@ namespace ArmorRestoredQuest
 			{
 				uint num = 5U;
 				s.SerializeBits(ref num, 8);
-				int num2 = 3;
+				int num2 = 5;
 				s.SerializeInteger(ref num2);
 				string version2 = version;
 				string refused2 = refused;
 				s.SerializeString(ref version2, (Stream.StringEncoding)1);
 				s.SerializeString(ref refused2, (Stream.StringEncoding)1);
+                string signature = ArmorCrafting.Signature;
+                s.SerializeString(ref signature, (Stream.StringEncoding)1);
 			});
 		}
 
@@ -202,7 +206,7 @@ namespace ArmorRestoredQuest
 		internal const int Type = 137;
 
 		// Token: 0x04000093 RID: 147
-		internal const int Number = 3;
+		internal const int Number = 5;
 
 		// Token: 0x04000094 RID: 148
 		private const uint Equip = 2U;

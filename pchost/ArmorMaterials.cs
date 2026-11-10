@@ -14,7 +14,7 @@ namespace ArmorRestored
     {
         internal static void Configure(int piece, GameObject armor)
         {
-            if (Catalog.SetOf(piece).Id != "metal") return;
+            if (Catalog.SetOf(piece).Id != "metal" && Catalog.SetOf(piece).Id != "hebios" && piece / 8 != 4) return;
             NetworkEntity entity = armor.GetComponent<NetworkEntity>();
             if (entity == null) throw new InvalidOperationException("armor has no NetworkEntity");
             Distribution distribution = Resources.Load<Distribution>("distributions/Metal Material Distribution");
@@ -26,9 +26,9 @@ namespace ArmorRestored
             Set(part, "impactors", new ImpactGenerator[0]);
             Set(part, "listenToPhysicalMaterial", new MonoBehaviour[0]);
             Set(part, "durabilityModule", armor.GetComponent<DurabilityModule>());
-            Set(part, "renderers", armor.GetComponentsInChildren<Renderer>(true));
+            Set(part, "renderers", piece / 8 >= 3 ? new Renderer[0] : armor.GetComponentsInChildren<Renderer>(true));
             Set(part, "entity", entity);
-            Set(part, "materialDistribution", distribution);
+            Set(part, "materialDistribution", piece / 8 == 4 ? null : distribution);
             object registered = Get(entity, "networkEntityBehaviours");
             MonoBehaviour[] existing = registered as MonoBehaviour[];
             if (registered != null && existing == null)

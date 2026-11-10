@@ -47,8 +47,9 @@ and Quest runtime validation.** Source-contract tests are not that validation.
 This replaces the earlier speculative field/property visual lookup, which failed
 for hash 31468 in the user's logs.
 
-Material-specific protection is not implemented. Protection continues to use
-the existing armor-set settings. Material changes do not add crafting recipes.
+Material-specific physical protection and weight now have an initial implementation;
+see MATERIAL_STATS.md for configuration, limitations and the still-unwired loot
+policy. Material changes do not add crafting recipes.
 
 The changed table uses message kind 13 rather than the old kind 10, preventing
 old clients from accidentally parsing material bits as piece IDs. Both sides

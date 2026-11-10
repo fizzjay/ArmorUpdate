@@ -96,3 +96,112 @@ preview and all eight slots. Verify a downed player cannot activate it, other
 wheel actions are unchanged, reconnect does not duplicate entries, and no injected
 equipment toggle remains on an unrelated server. Existing QuestMods patches may
 independently reveal actions; this helper does not undo another mod's changes.
+
+## Equipment-mode-only controls
+
+Normal PC/Quest client hand controls now refuse all armor equip/remove gestures
+outside the active owned equipment dummy. Worn rendering remains enabled on the
+real body. Leaving the room clears pending release, held-item and removal-grip
+state, and the release callback independently checks the current native dummy
+before sending. Rebuild both clients: update ClientArmor.cs on PC and Hands.cs on
+Quest. EquipmentMenu.cs also includes the qualified HarmonyLib.Harmony compiler fix.
+
+This is a client interaction restriction, not a new server security protocol:
+admin wear/strip commands and the existing server message handlers are unchanged.
+An old or modified client is not prevented from sending the legacy requests.
+Verify body-release and body-grip do nothing, dummy equip/remove still work, and
+closing the room during a release cannot equip an item afterward.
+
+## Local saved eye controls
+
+Both clients now show eight small cyan outlined eye buttons beside the equipment
+room dummy, offset sideways 0.27 m and toward the viewer 0.16 m from the slot
+anchors. Move a **free hand** within 7.5 cm of an eye and press/release **grip** to
+toggle that slot. This is a lightweight world-space button styled like a wheel
+bubble, not an action inserted into the native quick-access wheel. A diagonal
+slash indicates hidden. Eye input takes priority over the armor-removal gesture.
+No physics colliders are added, so the buttons do not obstruct pickup docking.
+
+The controls appear only on the active owned dummy, including for empty/hidden
+slots so visibility can always be restored. Preferences apply only to your own
+armor on this client, both in the dummy preview and after leaving equipment mode.
+Other clients see normal armor. Equipping, removal, protection, saved equipment
+and the server protocol are unchanged. The separate first-person own_helmet
+setting still applies when outside equipment mode.
+
+The eight-bit visibility mask persists in `UserData/ArmorRestored/visibility.txt`
+on this client installation (not per-server or per-character); it is not cleared
+on disconnect. Removing that file and restarting restores default visibility.
+The original settings.txt and worn.txt are not modified by these controls.
+
+Build updates: add **shared/ArmorVisibility.cs** as compiled source in both local
+classic projects. Update **pchost/ClientArmor.cs** on PC, and **quest/Draw.cs** plus
+**quest/Hands.cs** on Quest. Repository project includes are already updated.
+No new image assets, resource pack changes or server update are required.
+
+Runtime validation remains required: check all eight eyes are outside the dummy,
+both hands toggle once per press without also removing armor, hidden slots stay
+selectable, closing the room destroys the controls, local body visibility follows
+the selection, other players still see the armor, and choices survive a restart.
+
+### Native bubble visuals follow-up
+
+The first eye implementation was reported invisible on Quest; the supplied log
+confirms dummy armor interactions but contains no eye creation evidence. The
+exact runtime cause is not established. The replacement now reads the real
+QuickAccessMenuBubble's bubbleRenderer mesh and active platform material (Android
+on Quest, PC otherwise), and copies those visuals into eight 9 cm shells with eye
+and crossed-eye icons. It deliberately does not instantiate an uninitialized
+pooled QuickAccessMenuBubble behaviour: those callbacks require content/controller
+and could run unrelated actions or dereference null. Selection remains the free
+hand/grip gesture, not wheel-button input.
+
+Placement now uses horizontal projected dummy/armor renderer bounds plus anchors:
+12 cm outside the side edges, at least 15 cm in front of the front bounds plane,
+with separation for nearby slot buttons. The world-space holder is not parented
+to the skeleton (no inherited scale); all visuals use the native bubble renderer's
+layer. The local player's Head replaces the Camera.main requirement. These changes
+supersede the original fixed 0.27 m/0.16 m placement described above.
+
+Update **shared/ArmorVisibility.cs** in both projects and rebuild; existing call
+sites and visibility.txt remain unchanged. If native bubble assets are not yet
+loaded, open the quick-access wheel once and retry equipment mode. Look for
+`visibility bubbles: created 8, mesh=... material=... layer=... rig=...`, the
+active status, or a waiting message. Appearance, clearance and Quest shader/API
+compatibility still require runtime verification; source tests cannot prove them.
+
+### Stable per-slot buttons and immediate grip follow-up
+
+Runtime now confirms eight bubble meshes render on Quest, but the prior global
+bounds/view-dependent placement was reported far from slots and moving away.
+It is replaced by small per-slot anchor offsets: 11 cm sideways (15 cm for
+head/chest), 20 cm forward. The horizontal orientation is captured once when
+creating controls and stored relative to the dummy rig; walking/leaning no longer
+translates buttons. Only icon orientation billboards toward the viewer. There is
+no whole-body bounds projection or displacement from other slots. Placement is
+still a runtime fit to verify, not a claim of perfect mesh clearance.
+
+The native shell is retained, with a charcoal outer ring, brighter almond eye,
+outlined iris, filled-looking pupil and glint. Crossed-eye state and saved local
+preferences are unchanged. Update shared/ArmorVisibility.cs in both builds.
+
+PC ClientArmor.cs and Quest Hands.cs now submit removal on the initial free-hand
+grip edge at a worn dummy slot; no 0.35-second hold. A held grip does not repeat
+or remove a slot merely by sliding onto it. The existing request cooldown and
+server roundtrip/returned-pickup handoff remain; this is not zero network latency.
+
+The supplied original ArmorSurfaceGrip has NOT been installed: it depends on
+ArmorCraftingMesh.BuildSurfaceQuery, ArmorNative, ArmorHarness, ArmorPickup and
+original seven-slot instance registration that this implementation does not have.
+This update changes removal timing, not native pickup surface snap or triangle
+selection. Existing native free-grab behavior for loose armor stays unchanged.
+
+### Eye-button interaction polish
+
+The visibility hit radius is now 11 cm (previously 7.5 cm), measured from the
+native hand InteractionPoint with a controller-origin fallback. Nearest-button
+selection, free-hand requirement and one toggle per fresh grip press remain.
+The charcoal ring is now centered on the shell's silhouette plane, radius 4.5 cm
+and width 8 mm, overlapping the 9 cm shell edge instead of floating 5.3 cm in
+front of it. Eye icon depth and the accepted slot-relative positions are unchanged.
+Update shared/ArmorVisibility.cs plus the respective PC/Quest hand-control files.

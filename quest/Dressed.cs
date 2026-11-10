@@ -29,6 +29,7 @@ namespace ArmorRestoredQuest
 		// Token: 0x04000014 RID: 20
 		public int[] Shown = Catalog.Empty();
 		public uint[] ShownMaterials = new uint[8];
+        public string[] ShownPalettes = new string[8];
         public CosmeticCoverage Coverage = new CosmeticCoverage();
 
 		// Token: 0x04000015 RID: 21

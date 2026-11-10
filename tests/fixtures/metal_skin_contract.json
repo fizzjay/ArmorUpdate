@@ -3140,5 +3140,7 @@
         }
       ]
     }
-  }
+  },
+  "original_texture_count": 8,
+  "original_material_count": 7
 }

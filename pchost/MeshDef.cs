@@ -51,7 +51,7 @@ namespace ArmorRestored
 				mesh.RecalculateNormals();
 			}
 			mesh.RecalculateBounds();
-			mesh.UploadMeshData(true);
+			mesh.UploadMeshData(false);
 			Object.DontDestroyOnLoad(mesh);
 			this._mesh = mesh;
 			this.V = (this.N = null);

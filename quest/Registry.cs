@@ -100,7 +100,7 @@ namespace ArmorRestoredQuest
 						Object.DontDestroyOnLoad(Registry._holder);
 						List<string> list = new List<string>();
 						int num = 0;
-						for (int i = 0; i < 24; i++)
+						for (int i = 0; i < Catalog.Count; i++)
 						{
 							string text2;
 							try
@@ -122,7 +122,9 @@ namespace ArmorRestoredQuest
 							}
 						}
 						ArmorStand.Register(Registry._holder, Registry.Prefabs, Registry.Items);
+                        ArmorCrafting.Register(Registry._holder, Registry.Prefabs, Registry.Items);
                         if (ArmorStand.Prefab == null) list.Add("armorstand");
+                        if (!ArmorCrafting.Ready) list.Add("crafting");
                         Crumb.At("register: itemsByName reset");
 						HashedGeneralValue<Item>.itemsByName = null;
 						Registry._refused = string.Join(",", list.ToArray());
@@ -130,11 +132,11 @@ namespace ArmorRestoredQuest
 						{
 							num.ToString(),
 							"/",
-							24.ToString(),
+							Catalog.Count.ToString(),
 							" armor pieces registered (numbers ",
 							52830.ToString(),
 							"-",
-							52853.ToString(),
+							Catalog.Number(Catalog.Count-1).ToString(),
 							") in ",
 							((int)(DateTime.UtcNow - utcNow).TotalMilliseconds).ToString(),
 							" ms: ",
@@ -486,12 +488,13 @@ namespace ArmorRestoredQuest
 		// Token: 0x0600006D RID: 109 RVA: 0x0000768C File Offset: 0x0000588C
 		internal static string Unregister()
 		{
+            ArmorCrafting.Unregister();
             ArmorStand.Unregister();
 			Il2CppSystem.Collections.Generic.Dictionary<uint, NetworkPrefab> prefabMap = PrefabManager.prefabMap;
 			Il2CppSystem.Collections.Generic.Dictionary<uint, Item> items = HashedGeneralValue<Item>.items;
 			int num = 0;
 			int num2 = 0;
-			for (int i = 0; i < 24; i++)
+			for (int i = 0; i < Catalog.Count; i++)
 			{
 				uint num3 = Catalog.Number(i);
 				if (prefabMap != null && Registry.Prefabs[i] != null && prefabMap.ContainsKey(num3) && prefabMap[num3].Pointer == Registry.Prefabs[i].Pointer && prefabMap.Remove(num3))
@@ -541,10 +544,10 @@ namespace ArmorRestoredQuest
 		internal static bool Done;
 
 		// Token: 0x04000089 RID: 137
-		private static readonly NetworkPrefab[] Prefabs = new NetworkPrefab[24];
+		private static readonly NetworkPrefab[] Prefabs = new NetworkPrefab[Catalog.Count];
 
 		// Token: 0x0400008A RID: 138
-		private static readonly Item[] Items = new Item[24];
+		private static readonly Item[] Items = new Item[Catalog.Count];
 
 		// Token: 0x0400008B RID: 139
 		private static GameObject _holder;

@@ -41,13 +41,10 @@ namespace ArmorRestored
 				return;
 			}
 			List<string> list2 = new List<string>();
+			// Wyrm is kill-only. Never insert its items into the global chest/loot table.
 			for (int j = 0; j < Catalog.Sets.Length; j++)
 			{
 				string text = Catalog.Sets[j].LootRarity;
-				if (text == null && j == 2 && Settings.WyrmLoot)
-				{
-					text = "4. Epic";
-				}
 				if (text != null)
 				{
 					LootTable.RarityList rarityList = null;

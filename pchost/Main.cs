@@ -19,6 +19,15 @@ namespace ArmorRestored
 			{
 				Directory.CreateDirectory(Mod.DataDir);
 				Settings.Load();
+                if (Mod.IsServer)
+                {
+                    try { ArmorCraftingServer.Install(); }
+                    catch (Exception craftError) { Mod.Log.Error("Armor crafting backend unavailable: " + craftError.Message); }
+                    try { WyrmArmorLoot.Install(); }
+                    catch (Exception lootError) { Mod.Log.Warning("Wyrm kill loot unavailable: " + lootError.Message); }
+                }
+                try { ArmorStats.Install(); }
+                catch (Exception statsError) { Mod.Log.Warning("armor material stats disabled: " + statsError.Message); }
 				if (Mod.IsServer)
 				{
 					Pack.Load(false);
@@ -30,7 +39,7 @@ namespace ArmorRestored
 				{
 					Mod.Log.Msg(string.Concat(new object[]
 					{
-						"0.4.0 started on the server: ",
+						"0.5.0 started on the server: ",
 						Pack.Pieces.Count,
 						" pieces, join check ",
 						Settings.Join,
@@ -41,7 +50,7 @@ namespace ArmorRestored
 				}
 				else
 				{
-					Mod.Log.Msg("0.4.0 started on the game client: idle until a server says it runs ArmorRestored.");
+					Mod.Log.Msg("0.5.0 started on the game client: idle until a server says it runs ArmorRestored.");
 				}
 			}
 			catch (Exception arg)
@@ -59,9 +68,11 @@ namespace ArmorRestored
 			}
 			try
 			{
-				if (Mod.IsServer)
+				ArmorStats.Tick();
+                if (Mod.IsServer)
 				{
 					ServerArmor.Tick();
+                    ArmorCraftingServer.Tick();
 				}
 				else
 				{

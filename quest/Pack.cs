@@ -19,7 +19,7 @@ namespace ArmorRestoredQuest
 		{
 			get
 			{
-				return Pack.Pieces.Count == 24;
+				return Pack.Pieces.Count == Catalog.Count;
 			}
 		}
 
@@ -94,9 +94,9 @@ namespace ArmorRestoredQuest
 				{
 					list.Add(Pack.ReadPiece(binaryReader));
 				}
-				if (list.Count != 24)
+				if (list.Count != Catalog.Count)
 				{
-					throw new InvalidDataException("armor.pack has " + list.Count.ToString() + " pieces, expected " + 24.ToString());
+					throw new InvalidDataException("armor.pack has " + list.Count.ToString() + " pieces, expected " + Catalog.Count.ToString());
 				}
 				Pack.Pieces.AddRange(list);
 			}
@@ -399,7 +399,7 @@ namespace ArmorRestoredQuest
 				mesh.RecalculateNormals();
 			}
 			mesh.RecalculateBounds();
-			mesh.UploadMeshData(true);
+			mesh.UploadMeshData(false);
 			mesh.hideFlags = HideFlags.DontUnloadUnusedAsset;
 			meshDef.Made = mesh;
 			meshDef.V = (meshDef.N = (meshDef.T = (meshDef.UV = (meshDef.Weights = (meshDef.Bind = null)))));
@@ -456,7 +456,7 @@ namespace ArmorRestoredQuest
 			{
 				return texDef.Made;
 			}
-			if (texDef.Format != 10 && texDef.Format != 12)
+			if (texDef.Format != 4 && texDef.Format != 10 && texDef.Format != 12)
 			{
 				texDef.Failed = true;
 				Mod.Log.Warning(string.Concat(new string[]
@@ -480,7 +480,7 @@ namespace ArmorRestoredQuest
 				num3 = Math.Max(1, num3 / 2);
 				num4 = Math.Max(1, num4 / 2);
 			}
-			byte[] array = Dxt.Decode(texDef.Data, num2, num3, num4, texDef.Format);
+			byte[] array = texDef.Format == 4 ? texDef.Data : Dxt.Decode(texDef.Data, num2, num3, num4, texDef.Format);
 			if (kind == 2)
 			{
 				Dxt.NormalFromAG(array);

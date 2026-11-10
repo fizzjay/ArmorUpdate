@@ -8,14 +8,14 @@ namespace ArmorRestoredQuest
 		// Token: 0x06000001 RID: 1 RVA: 0x00002050 File Offset: 0x00000250
 		internal static uint Number(int piece)
 		{
-			return (uint)(52830 + piece);
+			return (uint)(52830 + piece + (piece >= 24 ? 1 : 0));
 		}
 
 		// Token: 0x06000002 RID: 2 RVA: 0x0000205C File Offset: 0x0000025C
 		internal static int PieceOf(uint number)
 		{
-			int num = (int)(number - 52830U);
-			if (num < 0 || num >= 24)
+			int num = (int)(number - 52830U - (number > 52854U ? 1U : 0U));
+			if (number == 52854U || num < 0 || num >= Catalog.Count)
 			{
 				return -1;
 			}
@@ -72,14 +72,14 @@ namespace ArmorRestoredQuest
 		internal const int SlotCount = 8;
 
 		// Token: 0x04000003 RID: 3
-		internal const int Count = 24;
+		internal const int Count = 48;
 
 		// Token: 0x04000004 RID: 4
 		private static readonly string[] SetIds = new string[]
 		{
 			"leather",
 			"metal",
-			"wyrm"
+			"wyrm", "hebios", "wood", "mushroom"
 		};
 
 		// Token: 0x04000005 RID: 5
@@ -87,7 +87,7 @@ namespace ArmorRestoredQuest
 		{
 			"Leather",
 			"Metal",
-			"Wyrm"
+			"Wyrm", "Hebios", "Wood", "Mushroom"
 		};
 
 		// Token: 0x04000006 RID: 6

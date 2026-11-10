@@ -49,9 +49,9 @@ namespace ArmorRestored
             int settingsStart = settings.Count;
             try
             {
-                if (!Pack.Loaded || staging == null || staging.activeInHierarchy || pieces.Length != 24 || items.Length != 24)
-                    throw new InvalidOperationException("Stand requires inactive staging and all 24 armor templates");
-                for (int i = 0; i < 24; i++)
+                if (!Pack.Loaded || staging == null || staging.activeInHierarchy || pieces.Length != Catalog.Count || items.Length != Catalog.Count)
+                    throw new InvalidOperationException("Stand requires inactive staging and all registered armor templates");
+                for (int i = 0; i < Catalog.Count; i++)
                     if (pieces[i] == null || items[i] == null)
                         throw new InvalidOperationException("Stand requires armor template " + i);
                 if (FindPrefab() != null || ItemNumberOccupied())
@@ -133,7 +133,7 @@ namespace ArmorRestored
             // Use the same trigger/snap geometry on PC and Quest, derived from the
             // existing pickup colliders, not renderer.bounds (empty on a server).
             Bounds bounds = PickupBounds(pieces[slot]);
-            for (int style = 1; style < 3; style++) bounds.Encapsulate(PickupBounds(pieces[style * 8 + slot]));
+            for (int style = 1; style < Catalog.Count / 8; style++) bounds.Encapsulate(PickupBounds(pieces[style * 8 + slot]));
             int layer = -1;
             foreach (Collider collider in Colliders(pieces[slot].gameObject))
                 if (collider != null && !collider.isTrigger) { layer = collider.gameObject.layer; break; }
@@ -148,7 +148,7 @@ namespace ArmorRestored
             Set(config, "allowPhysicalJoints", false);
             Set(config, "hoverOn", AnimationCurve.Linear(0f, 1f, 0.1f, 1f));
             Set(config, "hoverOff", AnimationCurve.Linear(0f, 1f, 0.1f, 1f));
-            for (int style = 0; style < 3; style++) config.IncludedItems.Add(items[style * 8 + slot]);
+            for (int style = 0; style < Catalog.Count / 8; style++) config.IncludedItems.Add(items[style * 8 + slot]);
             BoxCollider range = Add<BoxCollider>(frame);
             bounds.Expand(0.08f);
             range.center = bounds.center;

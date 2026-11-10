@@ -1,0 +1,4 @@
+# Development-only asset inspection/export; not game runtime dependencies.
+dnfile==0.18.0
+UnityPy==1.25.4
+Pillow==13.0.0

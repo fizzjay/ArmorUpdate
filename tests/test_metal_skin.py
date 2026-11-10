@@ -27,12 +27,20 @@ class MetalSkinTests(unittest.TestCase):
         self.assertEqual(self.data, (ROOT / 'quest/ArmorRestored.armor.pack').read_bytes())
 
     def test_original_meshes_textures_and_materials_untouched(self):
-        self.assertEqual(digest(self.prefix), self.contract['prefix'])
+        r=skin.Reader(self.prefix); magic=r.take(8);textures=[]
+        for _ in range(r.number()):
+            start=r.pos;r.text();r.take(16);r.take(r.number());textures.append(self.prefix[start:r.pos])
+        materials=[]
+        for _ in range(r.number()):
+            start=r.pos;r.text();r.take(40);materials.append(self.prefix[start:r.pos])
+        nt=self.contract['original_texture_count'];nm=self.contract['original_material_count']
+        original=magic+skin.integer(nt)+b''.join(textures[:nt])+skin.integer(nm)+b''.join(materials[:nm])
+        self.assertEqual(digest(original), self.contract['prefix'])
         for mesh, expected in zip(self.meshes, self.contract['meshes']):
             self.assertEqual(digest(mesh['raw']), expected)
 
     def test_leather_wyrm_helmet_and_all_pickups_untouched(self):
-        for piece in self.pieces:
+        for piece in self.pieces[:24]:
             old = self.contract['pieces'][piece['id']]
             self.assertEqual(digest(piece['prefix']), old['prefix'])
             self.assertEqual(digest(piece['suffix']), old['suffix'])

@@ -184,21 +184,23 @@ namespace ArmorRestoredQuest
 						for (int j = 0; j < 8; j++)
 						{
 							int num = array[j];
+                            if (flag && ArmorVisibility.Hidden(j)) num = -1;
 							if (flag && !dressed.Dummy && j == 0 && !Settings.OwnHelmet)
 							{
 								num = -1;
 							}
 							uint material = array.Length >= 16 ? unchecked((uint)array[8 + j]) : 0U;
-							if (dressed.Shown[j] != num || dressed.ShownMaterials[j] != material || (num >= 0 && !Draw.HolderLive(dressed, j)))
+							if (dressed.Shown[j] != num || dressed.ShownMaterials[j] != material || dressed.ShownPalettes[j] != WornIngredientGroups.Key(array,j) || (num >= 0 && !Draw.HolderLive(dressed, j)))
 							{
 								Draw.Remove(dressed, j);
 								dressed.Shown[j] = -1;
 								if (num >= 0)
 								{
-									Draw.Build(dressed, j, num, flag && !dressed.Dummy, material);
+									Draw.Build(dressed, j, num, flag && !dressed.Dummy, material, array, j);
 								}
 								dressed.Shown[j] = num;
 								dressed.ShownMaterials[j] = material;
+                            dressed.ShownPalettes[j] = WornIngredientGroups.Key(array,j);
 								flag2 = true;
 							}
 						}
@@ -389,7 +391,7 @@ namespace ArmorRestoredQuest
 		}
 
 		// Token: 0x0600001C RID: 28 RVA: 0x00002D28 File Offset: 0x00000F28
-		private static void Build(Dressed d, int s, int piece, bool isLocal, uint material)
+		private static void Build(Dressed d, int s, int piece, bool isLocal, uint material, int[] palette, int slot)
 		{
 			DateTime utcNow = DateTime.UtcNow;
 			List<GameObject> list = new List<GameObject>();
@@ -408,7 +410,9 @@ namespace ArmorRestoredQuest
 			foreach (PartDef partDef in Pack.Pieces[piece].Worn)
 			{
 				Mesh sharedMesh = Pack.MeshOf(partDef.Mesh);
-				Material sharedMaterial = WornMaterials.Apply(piece, material, Pack.MaterialOf(partDef.Mat), Pack.Meshes[partDef.Mesh].Name);
+				Material[] sectionMaterials;
+                sharedMesh=ArmorCrafting.SplitWorn(sharedMesh,Pack.Meshes[partDef.Mesh].Name,piece,material,
+                    new[] {Pack.MaterialOf(partDef.Mat)},palette,slot,out sectionMaterials);
 				GameObject gameObject2 = new GameObject(Pack.Meshes[partDef.Mesh].Name);
 				gameObject2.layer = d.Layer;
 				if (!partDef.Skinned)
@@ -425,7 +429,7 @@ namespace ArmorRestoredQuest
 					Crumb.First("rigid part");
 					gameObject2.AddComponent(Il2CppType.Of<MeshFilter>()).TryCast<MeshFilter>().sharedMesh = sharedMesh;
 					MeshRenderer meshRenderer = gameObject2.AddComponent(Il2CppType.Of<MeshRenderer>()).TryCast<MeshRenderer>();
-					meshRenderer.sharedMaterial = sharedMaterial;
+					meshRenderer.sharedMaterials = new Il2CppReferenceArray<Material>(sectionMaterials);
 					list.Add(gameObject2);
 					list2.Add(meshRenderer);
 					num++;
@@ -451,7 +455,7 @@ namespace ArmorRestoredQuest
 					skinnedMeshRenderer.bones = il2CppReferenceArray;
 					skinnedMeshRenderer.rootBone = transform2;
 					skinnedMeshRenderer.sharedMesh = sharedMesh;
-					skinnedMeshRenderer.sharedMaterial = sharedMaterial;
+					skinnedMeshRenderer.sharedMaterials = new Il2CppReferenceArray<Material>(sectionMaterials);
 					skinnedMeshRenderer.updateWhenOffscreen = true;
 					list2.Add(skinnedMeshRenderer);
 					list3.Add(skinnedMeshRenderer);
