@@ -94,26 +94,22 @@ namespace ArmorRestored
             GenericCraftingPiece piece;
             if (key <= 0 || !project.MappedPieces.TryGetValue(key,out piece) || piece == null || !piece.AcceptsComponent(__instance))
             { ArmorCrafting.CraftLog(diagnosticKey,"auto-place waiting: no valid native target; cachedKey="+key); return; }
-            // Native Track picks a generous preview radius. Only take the item
-            // when its center is actually at the target, not on a distant ghost.
             float distance=Vector3.Distance((Vector3)ArmorCrafting.Get(__instance,"ObjectCentrePoint"),piece.CenterPosition);
-            if (distance > .08f)
-            { ArmorCrafting.CraftLog(diagnosticKey,"auto-place waiting: target="+key+" distance="+distance.ToString("F3")+" threshold=0.080m"); return; }
+            // Native Track already enforces its own preview distance. A valid
+            // green target must not be blocked by a second, smaller radius.
             ArmorCrafting.CraftLog(diagnosticKey+"-attempt","auto-place attempting target="+key+" distance="+distance.ToString("F3"),0f);
             inserting.Add(__instance);
             try
             {
-                // Finish native interactions before the native insertion callback
-                // destroys the pickup. The normal delayed release coroutine may
-                // also run, but native TryAddPiece refuses an already-filled slot.
+                // Use the native release event/coroutine exclusively. Mixing
+                // synchronous insertion with delayed native insertion races sync.
                 var hands = new List<Interactor>(pickup.Interactors);
                 foreach (var hand in hands) if (hand != null) pickup.FinishInteraction(hand);
-                if (pickup == null || pickup.Entity == null || pickup.Entity.IsBeingDestroyed || pickup.IsInteractedWith ||
-                    Project(__0) != project || !piece.AcceptsComponent(__instance))
-                { ArmorCrafting.CraftLog(diagnosticKey+"-abort","auto-place aborted after native hand release: pickup/held/project/acceptance changed",0f); return; }
-                ((IGenericCraftingComponent)__instance).Track(__0);
-                ((IGenericCraftingComponent)__instance).Released(__0);
-                ArmorCrafting.CraftLog(diagnosticKey+"-result","auto-place native Released returned; originalTarget="+key+" filled="+piece.IsFilled,0f);
+                // ComponentReleased schedules the native insertion at end of
+                // frame. Do NOT insert/destroy here during hand-release events:
+                // the pickup and interaction state must finish syncing first.
+                ArmorCrafting.CraftLog(diagnosticKey+"-result","auto-place native hand release queued; target="+key+
+                    " remainingHeld="+(pickup!=null && pickup.IsInteractedWith),0f);
             }
             catch (Exception error) { Mod.Log.Warning("Armor ingredient auto-place: " + error.GetBaseException().Message); }
             finally { inserting.Remove(__instance); }
@@ -132,8 +128,10 @@ namespace ArmorRestored
                 materials[i] = MaterialHash(piece.Material);
                 Resolve(materials[i]);
                 if (!Primary(sources[i])) continue;
-                if (found && primaryMaterial != materials[i]) throw new InvalidOperationException("Armor primary ingredients must use one material");
-                primaryMaterial = materials[i]; found = true;
+                // One native result channel: first primary input sets the result
+                // substrate/stats; all mixed input identities remain in origin.
+                if (!found) primaryMaterial = materials[i];
+                found = true;
             }
             if (!found || (index >= 8 && primaryMaterial == 0)) throw new InvalidOperationException("Missing armor material");
             if (project.Recipe.ResultHash != 52830U+(uint)index) throw new InvalidOperationException("Armor result identity mismatch");
@@ -311,6 +309,7 @@ namespace ArmorRestored
             if (__state == null || ArmorCrafting.Index(__state.Recipe)<0) { __state=null; return true; }
             Claim consumed;
             if (claimed.TryGetValue(__state,out consumed)) { __state=null; return false; }
+            ArmorCrafting.CraftLog("pop-"+__instance.GetInstanceID(),"native Pop recipe="+__state.Recipe.Hash+" filled="+__instance.IsFilled+" complete="+__instance.IsComplete,0f);
             return true;
         }
         private static void AfterPop(IProject __state)

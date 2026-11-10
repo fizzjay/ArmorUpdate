@@ -280,15 +280,16 @@ class HeldIngredientRegressionTests(unittest.TestCase):
         content = source('pchost/ArmorCraftingServer.cs')
         self.assertIn('!Mod.IsServer', content)
         self.assertIn('pickup.FinishInteraction(hand)', content)
-        self.assertIn('((IGenericCraftingComponent)__instance).Track(__0)', content)
-        self.assertIn('((IGenericCraftingComponent)__instance).Released(__0)', content)
+        self.assertNotIn('((IGenericCraftingComponent)__instance).Track(__0)', content)
+        self.assertNotIn('((IGenericCraftingComponent)__instance).Released(__0)', content)
         self.assertIn('inserting.Contains(__instance)', content)
 
-    def test_preview_matches_server_material_rule(self):
+    def test_mixed_materials_are_allowed(self):
         content = source('shared/ArmorCrafting.cs')
         self.assertIn('crafting-material-preview', content)
         self.assertIn('private static void AcceptMaterial', content)
-        self.assertIn('other.Material.Hash) != incoming', content)
+        self.assertNotIn('other.Material.Hash) != incoming', content)
+        self.assertNotIn('Armor primary ingredients must use one material', source('pchost/ArmorCraftingServer.cs'))
 
     def test_nails_check_complete_assembly_and_hammer_width(self):
         content = source('shared/ArmorCrafting.cs')
@@ -300,14 +301,14 @@ class HeldIngredientRegressionTests(unittest.TestCase):
 class CraftingDiagnosticTests(unittest.TestCase):
     def test_patch_identity_and_bounded_throttling(self):
         code = source('shared/ArmorCrafting.cs')
-        self.assertIn('interaction2-diag1', code)
+        self.assertIn('creative3-diag1', code)
         self.assertIn('diagnosticTimes.Count>=256', code)
         self.assertIn('now-previous<interval', code)
         self.assertIn('registered signature=', code)
 
     def test_rejection_and_nail_evidence(self):
         code = source('shared/ArmorCrafting.cs')
-        for marker in ('native reject ', 'existingMaterial=', 'incomingMaterial=',
+        for marker in ('native reject ', 'incomingMaterial=',
                        'enabled=', 'filled=', 'original=', 'selected=', 'outward=',
                        'tracked=', 'TrackDiagnostic'):
             self.assertIn(marker, code)
@@ -315,8 +316,8 @@ class CraftingDiagnosticTests(unittest.TestCase):
     def test_auto_take_path_evidence(self):
         code = source('pchost/ArmorCraftingServer.cs')
         for marker in ('server auto-place Track hook', 'held Track callback',
-                       'cachedKey=', 'threshold=0.080m', 'auto-place attempting',
-                       'auto-place aborted', 'auto-place native Released returned',
+                       'cachedKey=', 'auto-place attempting',
+                       'auto-place native hand release queued',
                        'native ComponentReleased'):
             self.assertIn(marker, code)
 
@@ -332,3 +333,33 @@ class QuestDiagnosticCompilationTests(unittest.TestCase):
         self.assertNotIn('Mod.IsServer', quest)
         self.assertIn('Mod.IsServer', pc)
         self.assertIn('quest-client', quest)
+
+
+class CreativeCraftingFixTests(unittest.TestCase):
+    def test_native_head_extends_outward_not_into_armor(self):
+        code=source('shared/ArmorCrafting.cs')
+        self.assertIn('FromToRotation(Vector3.forward,-candidate.Normal)',code)
+        self.assertIn('*Vector3.back).ToString',code)
+
+    def test_green_target_is_not_blocked_by_extra_radius(self):
+        code=source('pchost/ArmorCraftingServer.cs')
+        self.assertNotIn('if (distance > .08f)',code)
+        self.assertIn('pickup.FinishInteraction(hand)',code)
+        self.assertNotIn('((IGenericCraftingComponent)__instance).Released',code)
+
+    def test_darksteel_channels_and_recipe_without_loot_distribution(self):
+        code=source('shared/ArmorCrafting.cs')
+        start=code.index('private static void RepairDarksteel()')
+        repair=code[start:code.index('internal const string CraftingPatch',start)]
+        for token in ('55232U','60118U','5674U','androidMaterialChannels',
+                      'Darksteel Alloy NonForging','canBeSpawnedThroughCommand',
+                      'existing.Hash==recipe.Hash','isShowingInList'):
+            self.assertIn(token,repair)
+        self.assertNotIn('Distribution',repair)
+        self.assertNotIn('MateriaLib',repair)
+
+    def test_mixed_material_origin_records_each_input(self):
+        code=source('pchost/ArmorCraftingServer.cs')
+        self.assertIn('materials[i] = MaterialHash(piece.Material)',code)
+        self.assertIn('if (!found) primaryMaterial = materials[i]',code)
+        self.assertNotIn('primaryMaterial != materials[i]',code)

@@ -11,6 +11,7 @@ using Il2CppAlta;
 using Il2CppAlta.Inventory;
 using Il2CppAlta.Networking;
 using Il2CppAlta.Crafting;
+using Il2CppAlta.Blacksmithing;
 using Il2CppAlta.Pages;
 using Il2CppInterop.Runtime;
 using Il2CppInterop.Runtime.InteropTypes;
@@ -21,6 +22,7 @@ using Alta;
 using Alta.Inventory;
 using Alta.Networking;
 using Alta.Crafting;
+using Alta.Blacksmithing;
 using Alta.Pages;
 namespace ArmorRestored
 #endif
@@ -36,7 +38,7 @@ namespace ArmorRestored
         internal static byte[] Fingerprint;
         internal static string Status = "not registered";
         internal static bool Ready;
-        internal static string Signature { get { return Ready && Fingerprint != null ? BitConverter.ToString(Fingerprint).Replace("-", "") + ":glyphs-52830-v1-interaction2" : ""; } }
+        internal static string Signature { get { return Ready && Fingerprint != null ? BitConverter.ToString(Fingerprint).Replace("-", "") + ":glyphs-52830-v1-creative3" : ""; } }
         private static bool hooks;
         private static PageCollection collection;
         private static readonly Glyph[] recipeGlyphs = new Glyph[16];
@@ -102,6 +104,9 @@ namespace ArmorRestored
                     if (!templates.ContainsKey(source)) throw new InvalidOperationException("Missing native ingredient template " + source);
                 stage = "resolving native recipe paper";
                 var paper = ResolvePaper();
+                // ResolvePaper loads the native prefab resources on Quest;
+                // repair only after their Darksteel render assets can be loaded.
+                RepairDarksteel();
                 collection = HashedGeneralValue<PageCollection>.Get(57634U);
                 if (collection == null || collection.PreferredProvider != 2 || collection.Size + 16 > 255)
                     throw new InvalidOperationException("Native crafting book collection unavailable/full");
@@ -259,7 +264,7 @@ namespace ArmorRestored
                 CraftLog("nail-"+plan.Id+"-"+index,"nail recipe="+plan.Id+" piece="+(index+1)+" source="+part.Source+
                     " level="+part.Level+" original="+new Vector3(part.NailPose[0],part.NailPose[1],part.NailPose[2]).ToString("F4")+
                     " selected="+new Vector3(pose[0],pose[1],pose[2]).ToString("F4")+
-                    " outward="+(new Quaternion(pose[3],pose[4],pose[5],pose[6])*Vector3.forward).ToString("F4"),0f);
+                    " outward="+(new Quaternion(pose[3],pose[4],pose[5],pose[6])*Vector3.back).ToString("F4"),0f);
             var positions = part.RequiresNail ? new[] { new SerializedTransform { position = new Vector3(pose[0],pose[1],pose[2]),
                 rotation = new Quaternion(pose[3],pose[4],pose[5],pose[6]), scale = Vector3.one } } : new SerializedTransform[0];
 #if ARMOR_QUEST
@@ -334,13 +339,97 @@ namespace ArmorRestored
                     if (blocked) break;
                 }
                 if (blocked) continue;
-                Quaternion rotation=Quaternion.FromToRotation(Vector3.forward,candidate.Normal);
+                Quaternion rotation=Quaternion.FromToRotation(Vector3.forward,-candidate.Normal);
+                // Native GenericCraftingNail.UpdatePosition extends its head
+                // along local BACK, so forward must point INTO the assembly.
                 Vector3 at=candidate.Center;
                 return new[] {at.x,at.y,at.z,rotation.x,rotation.y,rotation.z,rotation.w};
             }
             throw new InvalidOperationException("No exterior hammer approach for " + plan.Id + " ingredient " + index);
         }
-        internal const string CraftingPatch = "interaction2-diag1";
+        private static void RepairDarksteel()
+        {
+            // Repair native rendering channels, not distribution/loot weights.
+            // Keep this optional: a missing visual asset must not disable crafting.
+            try
+            {
+                PhysicalMaterial dark=HashedGeneralValue<PhysicalMaterial>.Get(55232U);
+                if (dark==null) { CraftLog("darksteel-missing","Darksteel 55232 unavailable",0f); return; }
+                Material forging=null, cold=null;
+                foreach (Material material in Resources.FindObjectsOfTypeAll<Material>())
+                {
+                    if (material==null) continue;
+                    if (material.name=="Darksteel Alloy") forging=material;
+                    if (material.name=="Darksteel Alloy NonForging") cold=material;
+                }
+                if (forging==null || cold==null)
+                { CraftLog("darksteel-assets","Darksteel channels not replaced: forging="+(forging!=null)+" cold="+(cold!=null),0f); return; }
+                var channels=new PhysicalMaterial.MaterialChannel[6];
+                for(int i=0;i<channels.Length;i++)
+                {
+                    channels[i]=new PhysicalMaterial.MaterialChannel();
+                    Set(channels[i],"material",forging);
+                    Set(channels[i],"nonDeformingMaterial",cold);
+                    Set(channels[i],"atlasedMaterial",cold);
+                    Set(channels[i],"needsFixing",false);
+                    Set(channels[i],"offsetScale",new Vector4(0,0,1,1));
+                }
+#if ARMOR_QUEST
+                dark.androidMaterialChannels=new Il2CppReferenceArray<PhysicalMaterial.MaterialChannel>(channels);
+#else
+                Set(dark,"materialChannels",channels);
+#endif
+                Set(dark,"material",forging); Set(dark,"nonDeformingMaterial",cold); Set(dark,"isShowingInList",true);
+                var recipe=HashedGeneralValue<SmeltingRecipe>.Get(60118U);
+                var upgrade=HashedGeneralValue<SmelterUpgrades>.Get(5674U);
+                bool recipeAdded=false;
+                if (recipe!=null && upgrade!=null)
+                {
+                    var availableMaterials=new List<PhysicalMaterial>(); bool darkListed=false;
+#if ARMOR_QUEST
+                    var existingMaterials=upgrade.physicalMaterials;
+#else
+                    var existingMaterials=(PhysicalMaterial[])Get(upgrade,"physicalMaterials");
+#endif
+                    if (existingMaterials!=null) foreach(var existing in existingMaterials)
+                    { availableMaterials.Add(existing); if(existing!=null && existing.Hash==55232U) darkListed=true; }
+                    if (!darkListed)
+                    {
+                        availableMaterials.Add(dark);
+#if ARMOR_QUEST
+                        upgrade.physicalMaterials=new Il2CppReferenceArray<PhysicalMaterial>(availableMaterials.ToArray());
+#else
+                        Set(upgrade,"physicalMaterials",availableMaterials.ToArray());
+#endif
+                    }
+                    var recipes=new List<SmeltingRecipe>(); bool exists=false;
+#if ARMOR_QUEST
+                    var existingRecipes=upgrade.recipes;
+#else
+                    var existingRecipes=(SmeltingRecipe[])Get(upgrade,"recipes");
+#endif
+                    if (existingRecipes!=null) foreach(var existing in existingRecipes)
+                    { recipes.Add(existing); if (existing!=null && existing.Hash==recipe.Hash) exists=true; }
+                    if (!exists)
+                    {
+                        recipes.Add(recipe);
+#if ARMOR_QUEST
+                        upgrade.recipes=new Il2CppReferenceArray<SmeltingRecipe>(recipes.ToArray());
+#else
+                        Set(upgrade,"recipes",recipes.ToArray());
+#endif
+                        recipeAdded=true;
+                    }
+                }
+                GameObject ingot=Resources.Load<GameObject>("Network Prefabs/Props/Ingots/Darksteel Ingot");
+                if (ingot==null) ingot=Resources.Load<GameObject>("network prefabs/props/ingots/Darksteel Ingot");
+                NetworkPrefab prefab=ingot==null ? null : Component<NetworkPrefab>(ingot);
+                if (prefab!=null) Set(prefab,"canBeSpawnedThroughCommand",true);
+                CraftLog("darksteel-ready","Darksteel 55232 visible; 6 native render channels repaired; command ingot="+(prefab!=null)+" smelting recipe added="+recipeAdded+"; natural spawning unchanged",0f);
+            }
+            catch(Exception error) { CraftLog("darksteel-error","Darksteel repair failed: "+error.GetBaseException().Message,0f); }
+        }
+        internal const string CraftingPatch = "creative3-diag1";
         private static readonly Dictionary<string,float> diagnosticTimes = new Dictionary<string,float>();
         internal static void CraftLog(string key,string message,float interval=3f)
         {
@@ -400,20 +489,8 @@ namespace ArmorRestored
                 " incomingMaterial="+(__0.Material==null ? 0U : __0.Material.Hash)+
                 " enabled="+__instance.IsEnabled+" filled="+__instance.IsFilled;
             if (!__result) { CraftLog(logKey,"native reject "+details); return; }
-            if (source != 50988U && source != 47760U) return;
-            uint incoming = __0.Material == null ? 0U : __0.Material.Hash;
-            if (index >= 8 && incoming == 0) { __result = false; CraftLog(logKey,"material reject: missing metal material "+details); return; }
-            // Run the same rule on Quest previews and the authoritative server.
-            foreach (var otherDefinition in project.Recipe.Pieces)
-            {
-                GenericCraftingPiece other;
-                if (!project.MappedPieces.TryGetValue(otherDefinition.hash,out other) || other == null || !other.IsFilled) continue;
-                uint otherSource = otherDefinition.source.Prefab.Hash;
-                if ((otherSource == 50988U || otherSource == 47760U) &&
-                    (other.Material == null ? 0U : other.Material.Hash) != incoming)
-                { __result = false; CraftLog(logKey,"material reject: existing piece="+otherDefinition.hash+
-                    " existingMaterial="+(other.Material==null ? 0U : other.Material.Hash)+" "+details); return; }
-            }
+            // Creative builds may mix materials. Native source/level/fill checks
+            // above remain authoritative; every input keeps its own provenance.
             CraftLog(logKey,"accepted "+details);
         }
         private static bool AllowPiece(GenericCraftingStation __instance)

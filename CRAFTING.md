@@ -226,3 +226,33 @@ and second plates, then one attempt at the chest nail, from BOTH Quest and PC.
 A station heartbeat without a server `held Track callback` is useful evidence
 that the auto-place hook is not being reached. No behavior fix is claimed by this
 diagnostic build; it instruments the previous patch's decision points.
+
+### Creative crafting correction (`creative3-diag1`, supersedes interaction2)
+
+- Mixed primary metals are allowed in previews AND final completion. Native
+  source, level, filled-slot and known-material validation remain. Per-input
+  materials are retained in the provenance record for native dismantling. The
+  first primary input determines the finished item's single native material
+  channel/stats; this is not a new per-plate worn-mesh paint system.
+- Auto-take uses the native green-target radius, not an additional 8 cm test.
+  It finishes native hand interactions and leaves insertion/destruction to the
+  game's ComponentReleased end-of-frame coroutine. The previous synchronous
+  Released call raced that coroutine and hand synchronization; it is removed.
+  Native SetMaterial already calls RequestSyncPiece; no blind extra sync is
+  introduced. Native Pop logging remains for any further placement disappearance.
+- Confirmed from PC IL: GenericCraftingNail.UpdatePosition extends the unfinished
+  nail mesh along Vector3.back. Nail forward now points INTO the surface so the
+  head extends outward. A nail can keep the same surface point but now has the
+  opposite orientation. Whole-assembly approach-ray validation still applies.
+- Darksteel 55232 native forging/non-forging materials populate all six render
+  channels (androidMaterialChannels on Quest). Its native list visibility is
+  enabled, smelting recipe 60118 and material are added idempotently to upgrade
+  5674, and the native ingot is command-spawnable when its asset is found. No
+  MateriaLib dependency, custom material ID, or natural loot/distribution entry is
+  added. Missing native assets produce an explicit diagnostic and do not block
+  armor recipe registration.
+- Update both sides: compatibility signature now ends in `creative3`. Test on a
+  fresh project: mixed plates consecutively, auto-take at a green preview, chest
+  nail hammering, completion, save/reload and material-preserving dismantling.
+  Check `Darksteel 55232 visible` or the explicit missing-assets diagnostic.
+  Static/API/geometry tests cannot establish in-game success or a compiled DLL.
