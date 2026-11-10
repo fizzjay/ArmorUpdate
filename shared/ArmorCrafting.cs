@@ -315,25 +315,29 @@ namespace ArmorRestored
         }
         private static NetworkPrefab ResolvePaper()
         {
-            // PC's original paper is not necessarily present in Quest's prefab map.
-            // A native Item may retain the prefab even when the map omits it.
+            // Item.Prefab is NOT a stored reference on Quest: its getter calls
+            // the throwing PrefabManager.GetPrefab. Enumerate the actual map instead.
             var original = FindPrefab(37066U);
             if (IsPaper(original)) return original;
-            var originalItem = FindItem(37066U);
-            if (originalItem != null && IsPaper(originalItem.Prefab)) return originalItem.Prefab;
             NetworkPrefab selected = null;
+            bool selectedNamedPaper = false;
 #if ARMOR_QUEST
-            var nativeItems = NativeEnumerable.Items<Item>(HashedGeneralValue<Item>.All);
+            var nativePrefabs = NativeEnumerable.Items<NetworkPrefab>(PrefabManager.prefabMap.Values);
 #else
-            var nativeItems = HashedGeneralValue<Item>.All;
+            var map = (Dictionary<uint,NetworkPrefab>)AccessTools.Field(typeof(PrefabManager),"prefabMap").GetValue(null);
+            var nativePrefabs = new List<NetworkPrefab>(map.Values);
 #endif
-            foreach (Item item in nativeItems)
+            foreach (NetworkPrefab prefab in nativePrefabs)
             {
-                if (item == null || item.Prefab == null || (item.Hash >= PageStart && item.Hash < PageStart+16)) continue;
-                var prefab = item.Prefab;
+                if (prefab == null || (prefab.Hash >= PageStart && prefab.Hash < PageStart+16) || !IsPaper(prefab)) continue;
+                var item = PaperItem(prefab);
                 string name = (item.name ?? "") + " " + (prefab.name ?? "");
-                if (name.IndexOf("paper",StringComparison.OrdinalIgnoreCase) < 0 || !IsPaper(prefab)) continue;
-                if (selected == null || prefab.Hash < selected.Hash) selected = prefab;
+                bool namedPaper = name.IndexOf("paper",StringComparison.OrdinalIgnoreCase) >= 0;
+                // Any native physical page supplies the required behavior. Prefer
+                // paper by name; ties use hash so enumeration order cannot matter.
+                if (selected == null || (namedPaper && !selectedNamedPaper) ||
+                    (namedPaper == selectedNamedPaper && prefab.Hash < selected.Hash))
+                { selected = prefab; selectedNamedPaper = namedPaper; }
             }
             if (selected == null)
                 throw new InvalidOperationException("No native paper template with Pickup, Item and PageInstance; #37066=" +

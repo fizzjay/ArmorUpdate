@@ -222,11 +222,22 @@ class NativePaperResolutionTests(unittest.TestCase):
     def test_paper_is_resolved_from_validated_native_templates(self):
         text=source('shared/ArmorCrafting.cs')
         self.assertIn('ChildComponent<PageInstance>(prefab.gameObject)',text)
-        self.assertIn('originalItem.Prefab',text)
-        self.assertIn('NativeEnumerable.Items<Item>(HashedGeneralValue<Item>.All)',text)
+        self.assertNotIn('originalItem.Prefab',text)
+        self.assertIn('NativeEnumerable.Items<NetworkPrefab>(PrefabManager.prefabMap.Values)',text)
         self.assertIn('!IsPaper(prefab)',text)
         self.assertIn('Object.Instantiate(PaperItem(paper))',text)
 
     def test_failed_client_is_not_reported_as_data_mismatch(self):
         text=source('pchost/Net.cs')
         self.assertLess(text.index('string.IsNullOrEmpty(hello.Signature)'),text.index('hello.Signature != ArmorCrafting.Signature'))
+
+
+class QuestPaperPrefabGetterRegressionTests(unittest.TestCase):
+    def test_paper_discovery_never_reads_throwing_item_prefab(self):
+        text=source('shared/ArmorCrafting.cs')
+        body=text.split('private static NetworkPrefab ResolvePaper()',1)[1].split('private static void BuildPage',1)[0]
+        self.assertNotIn('item.Prefab',body)
+        self.assertNotIn('originalItem.Prefab',body)
+        self.assertIn('PrefabManager.prefabMap.Values',body)
+        self.assertIn('!IsPaper(prefab)',body)
+        self.assertIn('prefab.Hash < selected.Hash',body)
