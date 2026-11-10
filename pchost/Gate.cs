@@ -38,7 +38,7 @@ namespace ArmorRestored
 				return;
 			}
 			Gate.ServerVersion = (version ?? "");
-			if (wire != 4)
+			if (wire != 5)
 			{
 				Mod.Log.Warning("this server runs ArmorRestored " + Gate.ServerVersion + ", which does not play with 0.5.0; the server decides and armor stays off.");
 				Net.SendHello(connection);

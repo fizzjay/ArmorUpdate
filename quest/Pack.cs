@@ -399,7 +399,7 @@ namespace ArmorRestoredQuest
 				mesh.RecalculateNormals();
 			}
 			mesh.RecalculateBounds();
-			mesh.UploadMeshData(true);
+			mesh.UploadMeshData(false);
 			mesh.hideFlags = HideFlags.DontUnloadUnusedAsset;
 			meshDef.Made = mesh;
 			meshDef.V = (meshDef.N = (meshDef.T = (meshDef.UV = (meshDef.Weights = (meshDef.Bind = null)))));

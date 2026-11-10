@@ -63,10 +63,10 @@ class MaterialContract(unittest.TestCase):
     def test_protocol_version_and_distinct_message(self):
         pc = source('pchost/Net.cs')
         quest = source('quest/Wire.cs')
-        self.assertIn('int num = 4;', pc)
-        self.assertIn('int num2 = 4;', quest)
-        self.assertIn('wire != 4', source('pchost/Gate.cs'))
-        self.assertIn('_heardWire != 4', source('quest/Gate.cs'))
+        self.assertIn('int num = 5;', pc)
+        self.assertIn('int num2 = 5;', quest)
+        self.assertIn('wire != 5', source('pchost/Gate.cs'))
+        self.assertIn('_heardWire != 5', source('quest/Gate.cs'))
         self.assertIn('byte b = 13;', pc)
         self.assertIn('if (b == 13)', pc)
         self.assertIn('num2 == 13U && Gate.IsOpen', quest)
@@ -76,7 +76,7 @@ class MaterialContract(unittest.TestCase):
         quest = source('quest/Wire.cs')
         self.assertIn('unchecked((uint)keyValuePair.Value[8 + i])', pc)
         for text in (pc, quest):
-            self.assertIn('int[] array = new int[16]', text)
+            self.assertIn('int[] array = new int[272]', text)
             self.assertIn('s.SerializeBits(ref material, 32)', text)
             self.assertIn('array[8 + i] = unchecked((int)material)', text)
         broadcast = source('pchost/ServerArmor.cs')
@@ -89,12 +89,12 @@ class MaterialContract(unittest.TestCase):
             self.assertIn('dressed.ShownMaterials[j] != material', text)
             self.assertIn('dressed.ShownMaterials[j] = material', text)
             self.assertIn('WornMaterials.Clear()', text)
-            self.assertIn('WornMaterials.Apply(piece, material', text)
+            self.assertIn('ArmorCrafting.SplitWorn(', text)
         pc = source('pchost/ClientArmor.cs')
-        self.assertEqual(2, pc.count('WornMaterials.Apply(piece, material'))
+        self.assertIn('sharedMaterials = sectionMaterials', pc)
         quest = source('quest/Draw.cs')
-        self.assertIn('meshRenderer.sharedMaterial = sharedMaterial', quest)
-        self.assertIn('skinnedMeshRenderer.sharedMaterial = sharedMaterial', quest)
+        self.assertIn('meshRenderer.sharedMaterials = new Il2CppReferenceArray<Material>(sectionMaterials)', quest)
+        self.assertIn('skinnedMeshRenderer.sharedMaterials = new Il2CppReferenceArray<Material>(sectionMaterials)', quest)
         self.assertIn('for (int i = 0; i < 8; i++)', quest)
 
     def test_persistence_retains_original_format_compatibility(self):
@@ -287,8 +287,8 @@ class PcBuildContract(unittest.TestCase):
                 self.assertIn('metal_gauntlet_' + side + '_glove_flair_LOD0', text)
             self.assertLess(text.index('meshName != null'), text.index('Tinted.TryGetValue'))
             self.assertIn('Apply(piece, hash, result[i], meshName)', text)
-        self.assertIn('Pack.Mats(wornPart.Mats), meshDef.Name)', source('pchost/ClientArmor.cs'))
-        self.assertIn('Pack.MaterialOf(partDef.Mat), Pack.Meshes[partDef.Mesh].Name)', source('quest/Draw.cs'))
+        self.assertIn('Pack.Mats(wornPart.Mats),palette,slot', source('pchost/ClientArmor.cs'))
+        self.assertIn('new[] {Pack.MaterialOf(partDef.Mat)},palette,slot', source('quest/Draw.cs'))
 
     def test_coverage_reports_silent_skips(self):
         for platform in ('pchost', 'quest'):

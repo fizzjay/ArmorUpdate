@@ -116,8 +116,8 @@ class NativeIntegrationContracts(unittest.TestCase):
 
     def test_matching_wire_and_data_are_required(self):
         pc=source('pchost/Net.cs');quest=source('quest/Wire.cs')
-        self.assertIn('int num = 4;',pc)
-        self.assertIn('int num2 = 4;',quest)
+        self.assertIn('int num = 5;',pc)
+        self.assertIn('int num2 = 5;',quest)
         self.assertIn('hello.Signature != ArmorCrafting.Signature',pc)
         self.assertIn('if (wire >= 4)',pc)
         self.assertIn('string signature = ArmorCrafting.Signature;',pc)

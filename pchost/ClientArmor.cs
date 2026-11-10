@@ -237,15 +237,16 @@ namespace ArmorRestored
 								num = -1;
 							}
 							uint material = array.Length >= 16 ? unchecked((uint)array[8 + j]) : 0U;
-							if (dressed.Shown[j] != num || dressed.ShownMaterials[j] != material || (num >= 0 && !(dressed.Slots[j] != null)))
+							if (dressed.Shown[j] != num || dressed.ShownMaterials[j] != material || dressed.ShownPalettes[j] != WornIngredientGroups.Key(array,j) || (num >= 0 && !(dressed.Slots[j] != null)))
 							{
 								if (dressed.Slots[j] != null)
 								{
 									Object.Destroy(dressed.Slots[j]);
 								}
-								dressed.Slots[j] = ((num >= 0) ? ClientArmor.Build(dressed, num, material) : null);
+								dressed.Slots[j] = ((num >= 0) ? ClientArmor.Build(dressed, num, material, array, j) : null);
 								dressed.Shown[j] = num;
 								dressed.ShownMaterials[j] = material;
+                            dressed.ShownPalettes[j] = WornIngredientGroups.Key(array,j);
 								if (Settings.Debug && flag && num >= 0)
 								{
 									Mod.Log.Msg(Catalog.Title(num) + " sits at " + ClientArmor.FromHead(ClientArmor.SlotPoint(dressed, j)).ToString("F2") + " from the head (right, up, forward)");
@@ -275,7 +276,7 @@ namespace ArmorRestored
 		}
 
 		// Token: 0x06000023 RID: 35 RVA: 0x000036AC File Offset: 0x000018AC
-		private static GameObject Build(ClientArmor.Dressed d, int piece, uint material)
+		private static GameObject Build(ClientArmor.Dressed d, int piece, uint material, int[] palette, int slot)
 		{
 			PieceDef pieceDef = Pack.Pieces[piece];
 			GameObject gameObject = new GameObject("ArmorRestored " + Catalog.Id(piece));
@@ -285,6 +286,9 @@ namespace ArmorRestored
 			foreach (WornPart wornPart in pieceDef.Worn)
 			{
 				MeshDef meshDef = Pack.Meshes[wornPart.Mesh];
+                Material[] sectionMaterials;
+                Mesh sectionMesh=ArmorCrafting.SplitWorn(meshDef.Get(),meshDef.Name,piece,material,
+                    Pack.Mats(wornPart.Mats),palette,slot,out sectionMaterials);
 				GameObject gameObject2 = new GameObject(meshDef.Name);
 				gameObject2.layer = layer;
 				if (!wornPart.Skinned)
@@ -299,8 +303,8 @@ namespace ArmorRestored
 					{
 						gameObject2.transform.SetParent(transform, false);
 						Prefabs.Place(gameObject2.transform, wornPart.Local);
-						gameObject2.AddComponent<MeshFilter>().sharedMesh = meshDef.Get();
-						gameObject2.AddComponent<MeshRenderer>().sharedMaterials = WornMaterials.Apply(piece, material, Pack.Mats(wornPart.Mats), meshDef.Name);
+						gameObject2.AddComponent<MeshFilter>().sharedMesh = sectionMesh;
+						gameObject2.AddComponent<MeshRenderer>().sharedMaterials = sectionMaterials;
 						gameObject2.AddComponent<ClientArmor.Owner>().Holder = gameObject;
 					}
 				}
@@ -321,8 +325,8 @@ namespace ArmorRestored
 					}
 					skinnedMeshRenderer.bones = array;
 					skinnedMeshRenderer.rootBone = transform2;
-					skinnedMeshRenderer.sharedMesh = meshDef.Get();
-					skinnedMeshRenderer.sharedMaterials = WornMaterials.Apply(piece, material, Pack.Mats(wornPart.Mats), meshDef.Name);
+					skinnedMeshRenderer.sharedMesh = sectionMesh;
+					skinnedMeshRenderer.sharedMaterials = sectionMaterials;
 					skinnedMeshRenderer.updateWhenOffscreen = true;
 				}
 			}
@@ -850,6 +854,7 @@ namespace ArmorRestored
 			// Token: 0x04000037 RID: 55
 			public int[] Shown;
 			public uint[] ShownMaterials = new uint[8];
+            public string[] ShownPalettes = new string[8];
             public CosmeticCoverage Coverage = new CosmeticCoverage();
 
 			// Token: 0x04000038 RID: 56

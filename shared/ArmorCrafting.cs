@@ -38,7 +38,7 @@ namespace ArmorRestored
         internal static byte[] Fingerprint;
         internal static string Status = "not registered";
         internal static bool Ready;
-        internal static string Signature { get { return Ready && Fingerprint != null ? BitConverter.ToString(Fingerprint).Replace("-", "") + ":glyphs-52830-v1-creative3" : ""; } }
+        internal static string Signature { get { return Ready && Fingerprint != null ? BitConverter.ToString(Fingerprint).Replace("-", "") + ":glyphs-52830-v1-worn-sections1" : ""; } }
         private static bool hooks;
         private static PageCollection collection;
         private static readonly Glyph[] recipeGlyphs = new Glyph[16];
@@ -346,6 +346,60 @@ namespace ArmorRestored
                 return new[] {at.x,at.y,at.z,rotation.x,rotation.y,rotation.z,rotation.w};
             }
             throw new InvalidOperationException("No exterior hammer approach for " + plan.Id + " ingredient " + index);
+        }
+        private sealed class WornSplit
+        {
+            internal Mesh Mesh;
+            internal int[] Groups, Sources;
+        }
+        private static readonly Dictionary<int,WornSplit> wornSplits=new Dictionary<int,WornSplit>();
+        internal static Mesh SplitWorn(Mesh original,string name,int piece,uint fallback,
+            Material[] originals,int[] palette,int slot,out Material[] materials)
+        {
+            byte[] groups=piece/8==1 ? WornIngredientGroups.Get(name) : null;
+            if(groups==null || palette==null || palette.Length<272)
+            { materials=WornMaterials.Apply(piece,fallback,originals,name); return original; }
+            WornSplit split; int id=original.GetInstanceID();
+            if(!wornSplits.TryGetValue(id,out split))
+            {
+                var triangles=new List<int[]>(); var owners=new List<int>(); var sources=new List<int>();
+                int cursor=0;
+                for(int sub=0;sub<original.subMeshCount;sub++)
+                {
+                    var indices=original.GetTriangles(sub);
+                    var buckets=new SortedDictionary<int,List<int>>();
+                    for(int i=0;i<indices.Length;i+=3)
+                    {
+                        if(cursor>=groups.Length) throw new InvalidDataException("Worn ingredient map truncated: "+name);
+                        int group=groups[cursor++]; List<int> bucket;
+                        if(!buckets.TryGetValue(group,out bucket)) { bucket=new List<int>(); buckets.Add(group,bucket); }
+                        bucket.Add(indices[i]);bucket.Add(indices[i+1]);bucket.Add(indices[i+2]);
+                    }
+                    foreach(var entry in buckets)
+                    { owners.Add(entry.Key);sources.Add(Math.Min(sub,originals.Length-1));triangles.Add(entry.Value.ToArray()); }
+                }
+                if(cursor!=groups.Length) throw new InvalidDataException("Worn ingredient map length mismatch: "+name);
+                Mesh mesh=Cast<Mesh>(Object.Instantiate(original)); owned.Add(mesh);
+                mesh.name=original.name+" ingredient sections";mesh.subMeshCount=triangles.Count;
+                for(int sub=0;sub<triangles.Count;sub++)
+                {
+#if ARMOR_QUEST
+                    mesh.SetTriangles(new Il2CppStructArray<int>(triangles[sub]),sub);
+#else
+                    mesh.SetTriangles(triangles[sub],sub);
+#endif
+                }
+                split=new WornSplit {Mesh=mesh,Groups=owners.ToArray(),Sources=sources.ToArray()};wornSplits.Add(id,split);
+                CraftLog("worn-map-"+name,"worn ingredient sections mesh="+name+" sections="+triangles.Count,0f);
+            }
+            materials=new Material[split.Groups.Length];
+            for(int i=0;i<materials.Length;i++)
+            {
+                int group=split.Groups[i];
+                materials[i]=group==255 ? originals[split.Sources[i]] :
+                    WornMaterials.Apply(piece,WornIngredientGroups.Material(palette,slot,group,fallback),originals[split.Sources[i]],name);
+            }
+            return split.Mesh;
         }
         private static void RepairDarksteel()
         {
@@ -675,7 +729,7 @@ namespace ArmorRestored
                 RemovePublished(i);
             }
             for (int i = owned.Count - 1; i >= 0; i--) if (owned[i] != null) Object.Destroy(owned[i]);
-            owned.Clear(); glyphs.Clear(); Array.Clear(Recipes,0,16); Array.Clear(Pages,0,16); Array.Clear(Plans,0,16);
+            owned.Clear(); wornSplits.Clear(); glyphs.Clear(); Array.Clear(Recipes,0,16); Array.Clear(Pages,0,16); Array.Clear(Plans,0,16);
             Array.Clear(pageItems,0,16); Array.Clear(recipeGlyphs,0,16); Array.Clear(previousGlyphs,0,16); resultItems = null;
             collection = null; SetStatic(typeof(GenericCraftingRecipe), "mappedResult", null);
             Status = "not registered";

@@ -256,3 +256,33 @@ diagnostic build; it instruments the previous patch's decision points.
   nail hammering, completion, save/reload and material-preserving dismantling.
   Check `Darksteel 55232 visible` or the explicit missing-assets diagnostic.
   Static/API/geometry tests cannot establish in-game success or a compiled DLL.
+
+### Worn per-ingredient metals (`worn-sections1`, wire 5)
+
+The server now transmits a bounded 32-entry material palette for each worn slot,
+derived from its validated saved crafting origin. Both clients redraw on palette
+changes even when the armor ID and primary metal stay the same. Existing saved
+crafted armor already contains these inputs; it does not need to be recrafted.
+Loot/legacy armor with no crafting origin retains its single native material.
+Stats still use the primary material; multi-material combat balancing is not
+changed by this visual feature.
+
+Worn metal triangles are assigned to construction ingredients using exact atlas
+triangle/vertex matches, with explicit component ownership for reused atlas islands
+and differing LOD topology. `tools/build_worn_groups.py` reproducibly generates the
+compact maps in the existing shared source, so no additional project item or
+embedded resource is needed. The chest front, back and 8-triangle buckle group
+remain independently paintable. Helmets, shoulders, gauntlet plates/closures and
+split hips are covered; the glove backing has an explicit unpainted sentinel.
+Original positions, normals, UVs, bind poses and skin weights remain unchanged;
+cloned meshes only regroup triangle indices into material sections. Tinting still
+uses original armor maps/shaders. Cached section meshes are cleaned up with recipe
+assets. Base meshes remain CPU-readable to support this regrouping.
+
+Update PC/server AND Quest together: wire 5 rejects older table layouts rather
+than interpreting them as palette data. The crafting signature ends with
+`worn-sections1`. Runtime checklist: gold chest front + Darksteel second plate + a
+third-metal buckle on the dummy and player, other player visibility, same-primary
+secondary-metal-only swaps, save/rejoin, dismantle refunds, and neutral glove
+backing. Pickup rendering remains native single-channel; this patch adds worn
+section rendering, not a replacement pickup material system.

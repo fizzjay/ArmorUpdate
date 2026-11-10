@@ -274,10 +274,23 @@ namespace ArmorRestored
 				if (!(player2 == null) && player2.UserInfo != null)
 				{
 					list2.Add(player2);
-					int[] row = new int[16];
+					int[] row = new int[272];
 					Array.Copy(ServerArmor.WornBy(player2), row, 8);
 					uint[] materials = MaterialsFor(Players.Name(player2));
 					for (int slot = 0; slot < 8; slot++) row[8 + slot] = unchecked((int)materials[slot]);
+                    string[] origins=OriginsFor(Players.Name(player2));
+                    for(int slot=0;slot<8;slot++)
+                    {
+                        for(int group=0;group<32;group++) row[16+slot*32+group]=unchecked((int)materials[slot]);
+                        if(string.IsNullOrEmpty(origins[slot]) || origins[slot]=="!") continue;
+                        try
+                        {
+                            var origin=ArmorCraftOrigin.Decode(Convert.FromBase64String(origins[slot]));
+                            if(row[slot]<0 || origin.Result!=(uint)Catalog.Number(row[slot])) continue;
+                            for(int group=0;group<origin.Count;group++) row[16+slot*32+group]=unchecked((int)origin.MaterialAt(group));
+                        }
+                        catch(Exception error) { Mod.Log.Warning("Worn palette rejected: "+error.Message); }
+                    }
 					list.Add(new KeyValuePair<int, int[]>(player2.UserInfo.Identifier, row));
 				}
 			}

@@ -91,7 +91,7 @@ namespace ArmorRestoredQuest
 			{
 				return;
 			}
-			if (Gate._heardWire != 4)
+			if (Gate._heardWire != 5)
 			{
 				Mod.Log.Warning("this server runs ArmorRestored " + Gate._heard + ", which does not play with 0.5.0; the server decides and armor stays off.");
 				Crumb.At("gate stays shut, server " + Gate._heard + " wire " + Gate._heardWire.ToString());

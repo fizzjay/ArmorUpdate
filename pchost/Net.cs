@@ -20,7 +20,7 @@ namespace ArmorRestored
 				s.SerializeByte(ref b);
 				string text = "0.5.0";
 				s.SerializeString(ref text, (Stream.StringEncoding)1);
-				int num = 4;
+				int num = 5;
 				s.SerializeInteger(ref num);
 			});
 		}
@@ -32,7 +32,7 @@ namespace ArmorRestored
 			{
 				byte b = 5;
 				s.SerializeByte(ref b);
-				int num = 4;
+				int num = 5;
 				s.SerializeInteger(ref num);
 				string text = "0.5.0";
 				string text2 = Prefabs.RefusedLine();
@@ -174,6 +174,11 @@ namespace ArmorRestored
 						s.SerializeByte(ref b2);
 						uint material = unchecked((uint)keyValuePair.Value[8 + i]);
 						s.SerializeBits(ref material, 32);
+                        for(int group=0;group<32;group++)
+                        {
+                            uint input=unchecked((uint)keyValuePair.Value[16+i*32+group]);
+                            s.SerializeBits(ref input,32);
+                        }
 					}
 				}
 			});
@@ -241,7 +246,7 @@ namespace ArmorRestored
 				{
 					int key = 0;
 					s.SerializeInteger(ref key);
-					int[] array = new int[16];
+					int[] array = new int[272];
 					for (int i = 0; i < 8; i++)
 					{
 						byte b2 = 0;
@@ -250,6 +255,8 @@ namespace ArmorRestored
 						uint material = 0U;
 						s.SerializeBits(ref material, 32);
 						array[8 + i] = unchecked((int)material);
+                            for(int group=0;group<32;group++)
+                            { uint input=0; s.SerializeBits(ref input,32); array[16+i*32+group]=unchecked((int)input); }
 					}
 					dictionary[key] = array;
 					num2++;
@@ -335,11 +342,11 @@ namespace ArmorRestored
 				{
 					problem = "This server needs the ArmorRestored mod 0.5.0. Install it, then join again.";
 				}
-				else if (hello.Wire < 4)
+				else if (hello.Wire < 5)
 				{
 					problem = "Your ArmorRestored " + hello.Version + " is too old for this server's 0.5.0. Update it, then join again.";
 				}
-				else if (hello.Wire > 4)
+				else if (hello.Wire > 5)
 				{
 					problem = "Your ArmorRestored " + hello.Version + " is newer than this server's 0.5.0. The server needs an update first.";
 				}
@@ -468,7 +475,7 @@ namespace ArmorRestored
 		internal const byte Here = 20;
 
 		// Token: 0x04000055 RID: 85
-		internal const int Wire = 4;
+		internal const int Wire = 5;
 
 		// Token: 0x04000056 RID: 86
 		private const int AnswerWait = 5000;
