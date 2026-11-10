@@ -1124,10 +1124,10 @@
         },
         {
           "name": "DiffuseColor_Texture_2",
-          "sha256": "18e38a44141a50c04aa16b5897068233b7291593cfdd96846bae2919a24af8eb",
+          "sha256": "483a867137c35d4ad74864e4d7ec358fc25ff1294b12142ec4d0b170045c4380",
           "width": 512,
           "height": 1024,
-          "bytes": 524288
+          "bytes": 540111
         }
       ],
       "skin_deformers": 0

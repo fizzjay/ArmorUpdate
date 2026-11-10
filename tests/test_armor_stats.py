@@ -50,7 +50,7 @@ class ArmorStatsContracts(unittest.TestCase):
         self.assertIn('Body.Apply(w, ServerArmor.WornBy(player2), MaterialsFor(Players.Name(player2)))', server)
         self.assertIn('Body.Apply(ServerArmor.WiringOf(p), ServerArmor.WornBy(p), MaterialsFor(Players.Name(p)))', server)
         catalog = source('pchost/Catalog.cs')
-        for token in ('if (piece / 8 != 1) return original', 'if (strength == 1f) return original',
+        for token in ('if (piece / 8 != 1 && piece / 8 != 3) return original', 'if (strength == 1f) return original',
                       'Mathf.Pow', 'Object.Instantiate(original)', '(int)type == 0 || (int)type == 1 || (int)type == 2'):
             self.assertIn(token, catalog)
         self.assertNotIn('ReceiveDamage', source('shared/ArmorStats.cs'))

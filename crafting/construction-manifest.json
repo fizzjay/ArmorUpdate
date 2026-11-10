@@ -1,7 +1,7 @@
 {
   "schema": 1,
   "model_sha256": "119EDC0C48D29C7DBA66F5EA3CC7537E17601BF32184E4EDDEACE6716E897B4A",
-  "pack_sha256": "D003C7633163F4784922B63AE29E25AA3555855853C5996A017C654BB66B5CA7",
+  "pack_sha256": "3C061A7412BBE640D810367A6BA4C192F030271730E91D702C79DAF11CD29011",
   "recipes": [
     {
       "id": "leather.helmet",
@@ -227,6 +227,120 @@
         110,
         120,
         144
+      ]
+    },
+    {
+      "id": "hebios.helmet",
+      "reference_only": false,
+      "sources": [
+        50988,
+        50988,
+        50988,
+        63204
+      ],
+      "vertex_counts": [
+        2172,
+        540,
+        1368,
+        2322
+      ]
+    },
+    {
+      "id": "hebios.chest",
+      "reference_only": false,
+      "sources": [
+        50988,
+        50988,
+        63204
+      ],
+      "vertex_counts": [
+        3468,
+        3948,
+        7248
+      ]
+    },
+    {
+      "id": "hebios.shoulder_l",
+      "reference_only": false,
+      "sources": [
+        50988,
+        50988,
+        63204
+      ],
+      "vertex_counts": [
+        276,
+        2214,
+        1848
+      ]
+    },
+    {
+      "id": "hebios.shoulder_r",
+      "reference_only": false,
+      "sources": [
+        50988,
+        50988,
+        63204
+      ],
+      "vertex_counts": [
+        276,
+        2214,
+        1848
+      ]
+    },
+    {
+      "id": "hebios.gauntlet_l",
+      "reference_only": false,
+      "sources": [
+        50988,
+        50988,
+        63204
+      ],
+      "vertex_counts": [
+        1320,
+        4530,
+        10398
+      ]
+    },
+    {
+      "id": "hebios.gauntlet_r",
+      "reference_only": false,
+      "sources": [
+        50988,
+        50988,
+        63204
+      ],
+      "vertex_counts": [
+        1320,
+        4530,
+        10398
+      ]
+    },
+    {
+      "id": "hebios.tasset_l",
+      "reference_only": false,
+      "sources": [
+        50988,
+        50988,
+        63204
+      ],
+      "vertex_counts": [
+        348,
+        348,
+        4272
+      ]
+    },
+    {
+      "id": "hebios.tasset_r",
+      "reference_only": false,
+      "sources": [
+        50988,
+        50988,
+        63204
+      ],
+      "vertex_counts": [
+        456,
+        348,
+        4452
       ]
     }
   ]

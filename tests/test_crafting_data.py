@@ -67,7 +67,7 @@ class GeneratedConstructionTests(unittest.TestCase):
         self.assertEqual(stream.read(4), b'ACRF')
         self.assertEqual(read('i')[0], 1)
         self.assertEqual(stream.read(32).hex().upper(), manifest['model_sha256'])
-        self.assertEqual(read('i')[0], 16)
+        self.assertEqual(read('i')[0], 24)
         ids = []
         for recipe in manifest['recipes']:
             name, glyph = text(), text()
@@ -106,10 +106,10 @@ class GeneratedConstructionTests(unittest.TestCase):
                     seen.add(start)
                     start = parents[start]
         self.assertEqual(stream.tell(), len(data))
-        self.assertEqual(len(set(ids)), 16)
-        self.assertEqual(set(ids), {style+'.'+slot for style in ('leather','metal')
+        self.assertEqual(len(set(ids)), 24)
+        self.assertEqual(set(ids), {style+'.'+slot for style in ('leather','metal','hebios')
                                    for slot in ('helmet','chest','shoulder_l','shoulder_r','gauntlet_l','gauntlet_r','tasset_l','tasset_r')})
-        self.assertEqual(sum(not r['reference_only'] for r in manifest['recipes']), 16)
+        self.assertEqual(sum(not r['reference_only'] for r in manifest['recipes']), 24)
 
     def test_both_projects_embed_the_same_construction_resource(self):
         ns = {'m': 'http://schemas.microsoft.com/developer/msbuild/2003'}

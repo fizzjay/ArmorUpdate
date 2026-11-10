@@ -62,7 +62,7 @@ class NativeIntegrationContracts(unittest.TestCase):
     def test_native_recipes_pages_and_book_are_wired(self):
         code=source('shared/ArmorCrafting.cs')
         for text in ('New<GenericCraftingRecipe>()','new GenericCraftingPieceDefinition()',
-                     'New<Glyph>()','new NailSettings()','collection.PageBases','collection.Size + 16 > 255',
+                     'New<Glyph>()','new NailSettings()','collection.PageBases','collection.Size + 24 > 255',
                      'FindPrefab(37066U)','CreatePage(2)','PublishRecipe(recipe)',
                      'PublishGlyph(glyph)','BuildPage(i, holder, paper)', 'GenericCraftingSettings.GenericNailDefaultDefinition'):
             self.assertIn(text,code)
@@ -139,14 +139,14 @@ class NativeIntegrationContracts(unittest.TestCase):
     def test_generated_glyph_pack_is_complete(self):
         stream=io.BytesIO((ROOT/'crafting/glyphs.bin').read_bytes())
         self.assertEqual(stream.read(4),b'AGLY')
-        self.assertEqual(struct.unpack('<ii',stream.read(8)),(1,14))
+        self.assertEqual(struct.unpack('<ii',stream.read(8)),(1,21))
         names=[]
-        for _ in range(14):
+        for _ in range(21):
             size=struct.unpack('<i',stream.read(4))[0]
             names.append(stream.read(size).decode())
             self.assertEqual(struct.unpack('<ii',stream.read(8)),(256,256))
             self.assertEqual(len(stream.read(256*256*4)),256*256*4)
-        self.assertEqual(len(set(names)),14)
+        self.assertEqual(len(set(names)),21)
         self.assertEqual(stream.read(),b'')
 
 
@@ -213,7 +213,7 @@ class CraftingLazyRegistryTests(unittest.TestCase):
 
     def test_page_and_result_preflight_checks(self):
         text=source('shared/ArmorCrafting.cs')
-        self.assertIn('armor.Length < 16 || items.Length < 16',text)
+        self.assertIn('armor.Length < Catalog.Count || items.Length < Catalog.Count',text)
         self.assertIn('var paper = ResolvePaper()',text)
         self.assertIn('Cloned paper is missing native prefab/page component',text)
 

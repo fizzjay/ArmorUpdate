@@ -24,7 +24,7 @@ namespace ArmorRestored
 		// Token: 0x06000010 RID: 16 RVA: 0x0000283C File Offset: 0x00000A3C
 		internal static int Number(int piece)
 		{
-			return 52830 + piece;
+			return 52830 + piece + (piece >= 24 ? 1 : 0);
 		}
 
 		// Token: 0x06000011 RID: 17 RVA: 0x00002845 File Offset: 0x00000A45
@@ -36,8 +36,8 @@ namespace ArmorRestored
 		// Token: 0x06000012 RID: 18 RVA: 0x0000284C File Offset: 0x00000A4C
 		internal static int PieceOf(uint number)
 		{
-			int num = (int)(number - 52830U);
-			if (num < 0 || num >= Catalog.Count)
+			int num = (int)(number - 52830U - (number > 52854U ? 1U : 0U));
+			if (number == 52854U || num < 0 || num >= Catalog.Count)
 			{
 				return -1;
 			}
@@ -185,7 +185,7 @@ namespace ArmorRestored
         internal static ArmorDefinition MaterialDefinition(int piece, uint material)
         {
             ArmorDefinition original = Definition(piece / 8);
-            if (piece / 8 != 1) return original;
+            if (piece / 8 != 1 && piece / 8 != 3) return original;
             float strength = ArmorStats.Strength(material);
             if (strength == 1f) return original;
             ArmorDefinition result;
@@ -254,7 +254,8 @@ namespace ArmorRestored
 				Blunt = 0.6f,
 				Caustic = 0.1f,
 				Conductivity = 0.8f
-			}
+			},
+            new ArmorSet { Id="hebios", Title="Hebios", LootRarity=null, Pierce=.5f, Slash=.4f, Blunt=.9f, Caustic=.6f, Explosive=.4f, Conductivity=1.2f }
 		};
 
 		// Token: 0x0400001F RID: 31

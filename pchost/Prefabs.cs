@@ -147,7 +147,7 @@ namespace ArmorRestored
 								" (numbers ",
 								52830,
 								"-",
-								52830 + Catalog.Count - 1,
+								Catalog.Number(Catalog.Count - 1),
 								")."
 							}));
 							if (Mod.IsServer && Settings.Loot)

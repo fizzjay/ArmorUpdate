@@ -37,9 +37,9 @@ namespace ArmorRestored
         }
         internal static bool AllowedResult(uint hash)
         {
-            // Leather 52830..37, Metal 52838..45. Explicitly exclude Wyrm and
+            // Leather 52830..37, Metal 52838..45, Hebios 52855..62. Exclude Wyrm and
             // all other custom/native prefabs regardless of external settings.
-            return hash >= 52830U && hash <= 52845U;
+            return hash >= 52830U && hash <= 52845U || hash >= 52855U && hash <= 52862U;
         }
         private static int Count(BinaryReader reader, int min, int max)
         {
@@ -65,7 +65,7 @@ namespace ArmorRestored
             // Embedded resources are seekable. Bound allocation even if a resource
             // is accidentally replaced with corrupt or incompatible content.
             if (stream == null) throw new ArgumentNullException("stream");
-            if (!stream.CanSeek || stream.Length > 4 * 1024 * 1024) throw new InvalidDataException("Invalid construction resource size");
+            if (!stream.CanSeek || stream.Length > 8 * 1024 * 1024) throw new InvalidDataException("Invalid construction resource size");
             var result = new ArmorConstructionData();
             using (var reader = new BinaryReader(stream))
             {
@@ -75,13 +75,13 @@ namespace ArmorRestored
                 if (digest.Length != 32) throw new EndOfStreamException();
                 if (BitConverter.ToString(digest).Replace("-", "") != "119EDC0C48D29C7DBA66F5EA3CC7537E17601BF32184E4EDDEACE6716E897B4A")
                     throw new InvalidDataException("Construction model identity mismatch");
-                int count = Count(reader, 1, 16);
+                int count = Count(reader, 1, 24);
                 int totalVertices = 0;
                 for (int i = 0; i < count; i++)
                 {
                     var plan = new Plan { Id = Text(reader), Glyph = Text(reader) };
                     string[] parts = plan.Id.Split('.');
-                    if (parts.Length != 2 || (parts[0] != "leather" && parts[0] != "metal") || !ValidSlot(parts[1]))
+                    if (parts.Length != 2 || (parts[0] != "leather" && parts[0] != "metal" && parts[0] != "hebios") || !ValidSlot(parts[1]))
                         throw new InvalidDataException("Unapproved crafting result: " + plan.Id);
                     if (plan.Glyph.IndexOf('/') >= 0 || plan.Glyph.IndexOf('\\') >= 0 || !plan.Glyph.EndsWith(".png", StringComparison.Ordinal))
                         throw new InvalidDataException("Invalid glyph resource name");
@@ -91,7 +91,7 @@ namespace ArmorRestored
                     {
                         var input = new Ingredient();
                         input.Source = reader.ReadUInt32();
-                        uint primary = parts[0] == "metal" ? 50988U : 47760U;
+                        uint primary = parts[0] != "leather" ? 50988U : 47760U;
                         uint closure = parts[0] == "metal" ? 62594U : 63204U;
                         if (input.Source != primary && input.Source != closure)
                             throw new InvalidDataException("Unexpected ingredient source");
@@ -108,7 +108,7 @@ namespace ArmorRestored
                         input.Clearance = Count(reader, -2, 180);
                         int vertices = Count(reader, 1, 65000);
                         totalVertices += vertices;
-                        if (totalVertices > 100000) throw new InvalidDataException("Construction vertex budget exceeded");
+                        if (totalVertices > 200000) throw new InvalidDataException("Construction vertex budget exceeded");
                         input.Vertices = new float[vertices * 8];
                         for (int k = 0; k < input.Vertices.Length; k++) input.Vertices[k] = Number(reader);
                         input.Submeshes = new int[Count(reader, 1, 16)][];
@@ -177,7 +177,7 @@ namespace ArmorRestored
                 inputSources.Length > 32 || inputSources.Length != inputMaterials.Length)
                 throw new InvalidDataException("Invalid ingredient provenance");
             uint primary = result < 52838U ? 47760U : 50988U;
-            uint closure = result < 52838U ? 63204U : 62594U;
+            uint closure = result < 52838U || result >= 52855U ? 63204U : 62594U;
             for (int i = 0; i < inputSources.Length; i++)
                 if (inputSources[i] != primary && inputSources[i] != closure)
                     throw new InvalidDataException("Invalid ingredient source");
@@ -312,6 +312,15 @@ namespace ArmorRestored
         };
         internal static byte[] Get(string name)
         {
+            if (name != null && name.StartsWith("hebios/",StringComparison.Ordinal))
+            {
+                string[] fields=name.Split('/'); int group,count;
+                if(fields.Length!=5 || !int.TryParse(fields[2],out group) || !int.TryParse(fields[3],out count) ||
+                    (group!=255 && (group<0 || group>3)) || count<1 || count>30000)
+                    throw new InvalidDataException("Invalid Hebios ingredient mesh name");
+                var groups=new byte[count]; for(int i=0;i<count;i++) groups[i]=(byte)group;
+                return groups;
+            }
             string encoded; if(!Maps.TryGetValue(name,out encoded)) return null;
             byte[] runs=Convert.FromBase64String(encoded); var values=new List<byte>();
             for(int i=0;i<runs.Length;i+=2) for(int j=0;j<runs[i+1];j++) values.Add(runs[i]);

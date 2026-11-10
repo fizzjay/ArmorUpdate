@@ -128,17 +128,17 @@ namespace ArmorRestored
         {
             int set = piece / 8;
             int slot = piece % 8;
-            float total = set == 0 ? 6f : set == 1 ? 14f : 9f;
+            float total = set == 0 ? 6f : (set == 1 || set == 3) ? 14f : 9f;
             // Original seven-slot hip share is split between our two tassets.
             float share = slot == 0 ? 1.5f : slot == 1 ? 3f : slot == 2 || slot == 3 ? 1.25f : 1f;
-            float multiplier = set == 1 ? WeightMultiplier(hash) : 1f;
+            float multiplier = (set == 1 || set == 3) ? WeightMultiplier(hash) : 1f;
             return Mathf.Clamp(total * share / 11f * multiplier, .01f, 100f);
         }
         private static int Piece(Pickup pickup)
         {
             if (pickup == null || pickup.Entity == null || pickup.Entity.Prefab == null) return -1;
             uint hash = pickup.Entity.Prefab.Hash;
-            return hash >= 52830U && hash <= 52853U ? (int)(hash - 52830U) : -1;
+            return Catalog.PieceOf(hash);
         }
         private static uint MaterialHash(Pickup pickup)
         {

@@ -16,7 +16,7 @@ namespace ArmorRestoredQuest
     {
         internal static void Configure(int piece, GameObject armor)
         {
-            if (piece / 8 != 1) return;
+            if (piece / 8 != 1 && piece / 8 != 3) return;
             NetworkEntity entity = armor.GetComponent(Il2CppType.Of<NetworkEntity>())?.TryCast<NetworkEntity>();
             if (entity == null) throw new InvalidOperationException("armor has no NetworkEntity");
             Distribution distribution = Resources.Load<Distribution>("distributions/Metal Material Distribution");

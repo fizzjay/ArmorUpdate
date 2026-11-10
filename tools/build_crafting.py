@@ -199,14 +199,23 @@ def main():
     except ModuleNotFoundError:
         from build_stand import png_rgba
     glyphs = io.BytesIO()
-    glyphs.write(b'AGLY' + struct.pack('<ii', 1, 14))
+    glyphs.write(b'AGLY' + struct.pack('<ii', 1, 21))
     for path in sorted((ROOT / 'RecipeGlyphs').glob('*.png')):
         name = path.name.encode('utf8')
         width, height, rgba = png_rgba(path.read_bytes())
         glyphs.write(struct.pack('<i', len(name)) + name)
         glyphs.write(struct.pack('<ii', width, height) + rgba)
     (args.output / 'glyphs.bin').write_bytes(glyphs.getvalue())
-    print('Exported', len(summary['recipes']), 'plans;', len(data), 'bytes; no worn armor changed')
+    # Append the supplied Hebios set without modifying accepted Leather/Metal/Wyrm.
+    try:
+        from tools.import_hebios import build as import_hebios
+    except ModuleNotFoundError:
+        from import_hebios import build as import_hebios
+    if args.output.resolve() == (ROOT / "crafting").resolve():
+        import_hebios()
+    else:
+        print("Custom output contains the base 16 plans; run import_hebios.py for the installed 24-plan set.")
+    print('Exported 24 craftable plans; accepted worn armor unchanged')
 
 
 if __name__ == '__main__':

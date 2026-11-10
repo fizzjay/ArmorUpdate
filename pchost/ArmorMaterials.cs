@@ -14,7 +14,7 @@ namespace ArmorRestored
     {
         internal static void Configure(int piece, GameObject armor)
         {
-            if (Catalog.SetOf(piece).Id != "metal") return;
+            if (Catalog.SetOf(piece).Id != "metal" && Catalog.SetOf(piece).Id != "hebios") return;
             NetworkEntity entity = armor.GetComponent<NetworkEntity>();
             if (entity == null) throw new InvalidOperationException("armor has no NetworkEntity");
             Distribution distribution = Resources.Load<Distribution>("distributions/Metal Material Distribution");

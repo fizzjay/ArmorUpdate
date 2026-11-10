@@ -57,11 +57,13 @@ namespace ArmorRestored
             return (entity.Prefab != null && entity.Prefab.Hash == 28396U) ||
                 (entity.PrefabRoot != null && entity.PrefabRoot.Prefab != null && entity.PrefabRoot.Prefab.Hash == 28396U);
         }
+        // Existing saved Leather/Metal origins retain their immutable recipe identity.
+        private static readonly byte[] LegacyRecipeFingerprint = new byte[] { 0xD0,0x03,0xC7,0x63,0x31,0x63,0xF4,0x78,0x49,0x22,0xB6,0x3A,0xE2,0x9E,0x25,0xAA,0x35,0x55,0x85,0x58,0x53,0xC5,0x99,0x6A,0x01,0x7C,0x65,0x4B,0xB6,0x6B,0x5C,0xA7 };
         private static byte[] Digest(int index)
         {
             var bytes = new byte[36];
-            Array.Copy(ArmorCrafting.Fingerprint,bytes,32);
-            Array.Copy(BitConverter.GetBytes((uint)(52830+index)),0,bytes,32,4);
+            Array.Copy(index < 16 ? LegacyRecipeFingerprint : ArmorCrafting.Fingerprint,bytes,32);
+            Array.Copy(BitConverter.GetBytes((uint)Catalog.Number(index)),0,bytes,32,4);
             using (var sha = SHA256.Create()) return sha.ComputeHash(bytes);
         }
         private static bool Equal(byte[] a, byte[] b)
@@ -134,7 +136,7 @@ namespace ArmorRestored
                 found = true;
             }
             if (!found || (index >= 8 && primaryMaterial == 0)) throw new InvalidOperationException("Missing armor material");
-            if (project.Recipe.ResultHash != 52830U+(uint)index) throw new InvalidOperationException("Armor result identity mismatch");
+            if (project.Recipe.ResultHash != (uint)Catalog.Number(index)) throw new InvalidOperationException("Armor result identity mismatch");
             return new ArmorCraftOrigin(project.Recipe.ResultHash,Digest(index),sources,materials);
         }
         private static bool SpawnResult(GenericCraftingStation __instance, ref NetworkEntity __result)
@@ -223,7 +225,7 @@ namespace ArmorRestored
             var tracked = (IDictionary)ArmorCrafting.Get(station,"trackedPickups");
             if (dock == null || dock.QuantityStored != 0 || armor.Rigidbody == null || !tracked.Contains(armor.Rigidbody)) return;
             int index = Catalog.PieceOf(armor.Entity.Prefab.Hash);
-            if (index < 0 || index >= 16) return; // never turn Wyrm loot into a recipe
+            if (index < 0 || (index >= 16 && index < 24) || index >= Catalog.Count) return; // never turn Wyrm loot into a recipe
             var recipe = ArmorCrafting.Recipes[index];
             var definitions = recipe.Pieces;
             var record = armor.Entity.GetComponent<ArmorCraftRecord>();

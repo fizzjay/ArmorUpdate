@@ -62,7 +62,7 @@ namespace ArmorRestoredQuest
 						{
 							uint num5 = 0U;
 							s.SerializeBits(ref num5, 8);
-							array[i] = (int)((num5 == 0U || num5 > 24U) ? uint.MaxValue : (num5 - 1U));
+							array[i] = (int)((num5 == 0U || num5 > (uint)Catalog.Count) ? uint.MaxValue : (num5 - 1U));
 							uint material = 0U;
 							s.SerializeBits(ref material, 32);
 							array[8 + i] = unchecked((int)material);

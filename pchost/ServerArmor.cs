@@ -356,7 +356,7 @@ namespace ArmorRestored
                 }
             }
             catch (Exception error) { Net.SendNote(p,"equip cancelled: invalid crafted armor origin: " + error.Message); return; }
-            if (Catalog.SetOf(num).Id == "metal" && material == 0U)
+            if ((Catalog.SetOf(num).Id == "metal" || Catalog.SetOf(num).Id == "hebios") && material == 0U)
             {
                 Net.SendNote(p, "equip cancelled: could not read this item's metal material; item was not consumed");
                 Mod.Log.Error("metal equip refused: PhysicalMaterialPart has no readable material on entity " + entityId);

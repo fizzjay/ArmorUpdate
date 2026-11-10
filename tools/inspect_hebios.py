@@ -21,7 +21,7 @@ def inspect(path):
   if kind=='Video':
    content=re.search(r'Content:\s*,\s*"([A-Za-z0-9+/=\s]+)"',body)
    if not content:raise ValueError('Missing embedded texture '+name)
-   png=base64.b64decode(re.sub(r'\s','',content.group(1)),validate=True)
+   png=b''.join(base64.b64decode(re.sub(r'\s','',v),validate=True) for v in re.findall(r'"([A-Za-z0-9+/=\s]+)"',body.split('Content:')[1]))
    if png[:8]!=b'\x89PNG\r\n\x1a\n' or png[12:16]!=b'IHDR':raise ValueError('Non-PNG embedded image')
    width,height=struct.unpack('>II',png[16:24])
    if not 0<width<=4096 or not 0<height<=4096:raise ValueError('Unbounded embedded texture')

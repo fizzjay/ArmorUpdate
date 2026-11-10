@@ -26,12 +26,13 @@ namespace ArmorRestoredQuest
 
         internal static Material Apply(int piece, uint hash, Material original, string meshName = null)
         {
-            if (piece / 8 != 1 || hash == 0U || original == null) return original;
+            if (piece / 8 != 1 && piece / 8 != 3 || hash == 0U || original == null) return original;
             // The flexible glove backing is fabric, not a metal plate. Keep its
             // original neutral atlas appearance even when the plates are colored.
             if (meshName != null &&
                 (meshName == "metal_gauntlet_L_glove_flair_LOD0" ||
                  meshName == "metal_gauntlet_R_glove_flair_LOD0")) return original;
+            if (meshName != null && meshName.StartsWith("hebios/",StringComparison.Ordinal) && meshName.Contains("/255/")) return original;
             Dictionary<int, Material> variants;
             if (!Tinted.TryGetValue(hash, out variants))
             {

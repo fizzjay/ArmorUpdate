@@ -1,4 +1,4 @@
-# Native armor crafting and dismantling — 0.5.0 / wire 4
+# Native armor crafting and dismantling — 0.5.0 / wire 5
 
 ## Implementation status
 
@@ -15,7 +15,7 @@ before deploying to a live server.
 
 ## Player workflow
 
-- **Leather and Metal:** eight separate native recipes each, including independent
+- **Leather, Metal and Hebios:** eight separate native recipes each, including independent
   left/right tassets. Native physical ingredients, workbench ghosts, and hammerable
   nails are used; this is not an inventory-consumption command.
 - **Wyrm:** kill loot only. No crafting recipe, book entry, or recipe page is
@@ -28,11 +28,12 @@ before deploying to a live server.
   subject to its 255-entry limit. This makes them available to native collection
   page generation; it does not force every existing book to unlock all pages.
 - For immediate testing, run **`armor recipes <player>`** on the server. It spawns
-  all 16 physical pages near that player. Page prefab/item numbers are 60032–60047.
+  all 24 physical pages near that player. Pages are 60032–60047 (Leather/Metal)
+  and 60056–60063 (Hebios); Wyrm entries remain unused.
 - Put a recipe page on the workbench, add the displayed ingredients, hammer the
-  native nails, then grab the completed armor. All primary ingredients must have
-  the same physical material. Fasteners may differ and retain their own provenance.
-- To dismantle Leather/Metal, remove the paper and clear the bench, then release
+  native nails, then grab the completed armor. Primary ingredients may use different physical materials. Every input retains
+  its own material provenance.
+- To dismantle Leather/Metal/Hebios, remove the paper and clear the bench, then release
   the armor into the bench's native tracked interaction area. The server restores
   a filled native project and detaches one outer ingredient. Remove the remaining
   ingredients using native workbench dismantling. The empty project is cleared.
@@ -84,13 +85,14 @@ systems are not claimed.
 
 ## Compatibility and lifetime
 
-All PC/server/Quest participants need **0.5.0 / wire 4 with identical construction
+All PC/server/Quest participants need **0.5.0 / wire 5 with identical construction
 data**. Hello messages now carry the construction fingerprint. The server rejects
 mismatched protocol/data even when the old join policy was log/off, because
 unknown native recipe/page IDs are not safe on older clients. Wire 3 is not
 compatible. Existing armor-state message 13 and eight slots are preserved.
 
-Recipes occupy 60000–60015 in the native recipe registry. Glyphs occupy 52830–52845
+Leather/Metal recipes occupy 60000–60015; Hebios recipes occupy 60024–60031.
+Glyphs occupy 52830–52845 and 52855–52862
 in their separate registry. The original glyph range collided with native Glyph_Pierce;
 the hello signature now includes the corrected glyph layout revision. These fixed-v1 IDs must never be reused for changed
 recipes; future balance/layout versions need new IDs plus retained legacy plans.
@@ -119,7 +121,8 @@ Reference DLL SHA-256:
 `13FE26BB526EC1C25F0A874DCC47DC32027B91DB4BDC0FC04FE7A206D44C306C`.
 Its embedded model SHA-256 matches the 35-entry donor jig archive:
 `119EDC0C48D29C7DBA66F5EA3CC7537E17601BF32184E4EDDEACE6716E897B4A`.
-All 14 supplied glyph PNGs match the reference byte-for-byte.
+The original 14 glyph PNGs match the reference byte-for-byte; seven supplied
+Hebios glyphs are also embedded (21 total).
 
 The exporter partitions compact pickup meshes by authored UV4 role/group and
 rejects crossed tags or absent groups. Tasset primary panels are assigned to
@@ -130,17 +133,17 @@ compact meshes. New nails are seated on exposed surface triangles, checking a
 level. This geometric check is not a game hammer/collider test.
 
 Both projects embed the same `construction.bin` and `glyphs.bin`. Glyphs are
-predecoded RGBA, avoiding an ImageConversion dependency. Rebuilding either
-resource never modifies either existing `armor.pack`. The supplied game DLLs are
+predecoded RGBA, avoiding an ImageConversion dependency. The original Leather/Metal exporter does not change accepted worn records;
+its final Hebios import step appends to both `armor.pack` resources. The supplied game DLLs are
 kept in ignored reference folders, not redistributed as new loose dependencies.
 
 ## Required game checks
 
 - Build both projects with their existing local dependencies; no framework
   migration was made in this change.
-- Confirm `armor list` reports 16 registered native recipes on PC and Quest.
+- Confirm `armor list` reports 24 registered native recipes on PC and Quest.
 - Craft every slot, including both tassets; inspect nail access and mesh colliders.
-- Test mixed-primary rejection, two different fastener materials, and material
+- Test mixed-primary acceptance, two different fastener materials, and material
   transfer before replication on both clients.
 - Save/reload completed pickups, stand-docked armor, worn armor, partially built
   projects, and partially dismantled projects; verify exact input materials.
@@ -301,19 +304,51 @@ Run `tools/check_crafting_nail_access.py` for all 33 nails. The compatibility
 signature now ends with `worn-sections1-benchup2`; update both sides together.
 Actual table collider/hammer reach still needs confirmation in-game.
 
-### Hebios asset preparation (not yet registered armor)
+### Hebios integration
 
-The supplied `hebios armor/*.fbx` files have been synchronized from the user's
-branch. `tools/inspect_hebios.py` verifies ASCII FBX object connections, geometry
-indices/polygon counts, bone-attachment helper names and embedded PNG payloads.
-The reproducible inventory is `crafting/hebios-import-audit.json`. All seven
-files include embedded textures; no additional texture upload is needed.
+`tools/import_hebios.py` now imports the seven supplied ASCII FBXs into both runtime
+packs, producing eight equipment slots. `crafting/hebios-runtime-manifest.json`
+records triangle counts and native ingredient costs. All 24,154 triangles are
+retained. The combined hips are partitioned by triangle centroid across x=0;
+central belt/pennant geometry belongs to only one side, never duplicated.
+Each side uses the same existing split-tasset convention: two primary plates
+and a separate half-belt closure input (three inputs per side rather than
+charging the entire five-input combined recipe twice).
 
-This is an asset audit, NOT a completed Hebios implementation. Remaining work:
-convert FBX transforms/UVs/material textures into the runtime pack, split combined
-hips into existing left/right slots, map named helpers to native avatar bones,
-allocate nonconflicting result/page/recipe/glyph IDs, extend bounded catalogs and
-protocol validation beyond 24 armor results, and build ingredient provenance and
-worn material-section mappings using the existing native crafting pipeline.
-No Hebios results or recipes are published by this patch. Wyrm stays kill-only;
-existing working Leather/Metal assets and mixed-metal rendering are preserved.
+- Results: **52855–52862**, after Wyrm 52846–52853 and stand **52854**.
+- Recipes: **60024–60031**; pages: **60056–60063**. Wyrm recipe/page indices
+  remain empty. All catalog, equipment, stand, save and wire bounds cover 32 items.
+- The six non-hip source arrays, parent graphs, levels and nail flags use the
+  supplied native Hebios metadata verbatim, retained in `hebios-jig-plans.json`.
+- Centimetres/right-handed FBX coordinates are converted to Unity metres,
+  including parent transforms, ZXY local rotations and XYZ pre-rotations.
+  Rigid parts attach relative to named `ATTBone_*` helpers. Glove backing retains
+  four-influence skin weights; its rest pose is baked from the supplied clusters
+  and helper pose, not left in the original full-avatar coordinate space.
+- Embedded PNGs are decoded completely, including the hips texture whose base64
+  spans multiple quoted chunks. RGBA32 works on PC and through Quest's existing
+  CPU texture path; original maps and material colors remain the basis for tint.
+- Each mesh records its primary/closure owner. Front/back chest plates, helmet
+  crown/cheek/nape, shoulder cap/sode, forearm/hand plates and tasset front/rear
+  panels retain independent input material colors. Buckles and lacing follow
+  closure inputs; flexible glove backing stays neutral.
+- New nails are seated on the imported geometry, not the donor's folded jig.
+  Helmet/chest jigs turn as complete assemblies for upper access. All **50**
+  required nails across all 24 recipes pass the full-assembly geometric audit.
+- Legacy Leather/Metal recipe-origin digests are retained, so adding Hebios does
+  not invalidate saved provenance or refuse dismantling older crafted items.
+- Existing Leather/Metal/Wyrm mesh and piece records, original textures/materials,
+  and the original 16 construction records are byte-identical.
+
+Rebuild with `.venv/bin/python tools/import_hebios.py`; it is idempotent and strips
+only its own appended records. Development dependencies are in
+`tools/crafting-requirements.txt`. Glyphs are generated from all 21 source PNGs by
+`tools/build_crafting.py`. The shared crafting signature changes with this set;
+update server and both clients together.
+
+**Validation limit:** this is implemented source and generated runtime data,
+not a tested game release. No C# compiler/complete Unity references are available
+here. In-game dummy fit, skin deformation, collision/hammer access, save/rejoin,
+mixed-material display and complete/disassemble transactions still need testing
+on PC and Quest. Existing unrelated cosmetic-coverage/grip/rarity work is not
+claimed fixed by this integration.

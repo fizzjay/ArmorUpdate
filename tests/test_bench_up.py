@@ -8,7 +8,7 @@ ROOT=Path(__file__).resolve().parents[1]
 class BenchUpTests(unittest.TestCase):
     def test_all_required_nails_have_upward_full_assembly_clearance(self):
         count=0
-        turns={'metal.gauntlet_l','metal.tasset_l','metal.tasset_r'}
+        turns={'metal.gauntlet_l','metal.tasset_l','metal.tasset_r','hebios.helmet','hebios.chest'}
         for name,parts in plans(ROOT/'crafting/construction.bin'):
             up,selected=orientation(parts)
             self.assertEqual((0,0,1) if name in turns else (0,1,0),up)
@@ -19,7 +19,7 @@ class BenchUpTests(unittest.TestCase):
             lift=.06-lowest
             for _,vertices,_ in parts:
                 for v in vertices:self.assertGreaterEqual(dot(v,up)+lift,.06-1e-6)
-        self.assertEqual(33,count)
+        self.assertEqual(50,count)
 
     def test_runtime_rotates_all_inputs_and_nails_but_not_worn(self):
         code=(ROOT/'shared/ArmorCrafting.cs').read_text()

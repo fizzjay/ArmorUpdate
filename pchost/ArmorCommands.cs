@@ -82,7 +82,7 @@ namespace ArmorRestored
             });
         }
 
-        [Command("recipes", "Spawn the 16 Leather/Metal recipe pages near a player: armor recipes <player>")]
+        [Command("recipes", "Spawn the 24 Leather/Metal/Hebios recipe pages near a player: armor recipes <player>")]
         public static string Recipes(string player)
         {
             return ArmorCommands.Run(delegate
@@ -93,13 +93,14 @@ namespace ArmorRestored
                 if (target == null) return error;
                 Vector3 at = ServerArmor.Head(target) + ServerArmor.Front(target);
                 int count = 0;
-                for (int i=0;i<16;i++)
+                for (int i=0;i<Catalog.Count;i++)
                 {
+                    if (ArmorCrafting.Pages[i] == null) continue;
                     var page = SpawnHelper.Spawn(ArmorCrafting.Pages[i], SpawnData.DontGenerate, null,
                         at + new Vector3((i%4)*.15f-.225f,(i/4)*.04f,0f), Quaternion.identity, null);
                     if (page != null) count++;
                 }
-                return "Spawned " + count + "/16 armor recipe pages. Use a native crafting workbench; no Wyrm recipes.";
+                return "Spawned " + count + "/24 armor recipe pages. Use a native crafting workbench; no Wyrm recipes.";
             });
         }
 
@@ -164,7 +165,7 @@ namespace ArmorRestored
             });
         }
 
-		[Command("give", "Spawn armor in front of a player: armor give <player> <leather|metal|wyrm> <slot|all> (slots: helmet chest shoulder_l shoulder_r gauntlet_l gauntlet_r tasset_l tasset_r)")]
+		[Command("give", "Spawn armor in front of a player: armor give <player> <leather|metal|wyrm|hebios> <slot|all> (slots: helmet chest shoulder_l shoulder_r gauntlet_l gauntlet_r tasset_l tasset_r)")]
 		public static string Give(string player, string set, string slot)
 		{
 			return ArmorCommands.Run(delegate
@@ -200,7 +201,7 @@ namespace ArmorRestored
 		}
 
 		// Token: 0x0600003B RID: 59 RVA: 0x0000489C File Offset: 0x00002A9C
-		[Command("wear", "Put armor straight on a player: armor wear <player> <leather|metal|wyrm> <slot|all>")]
+		[Command("wear", "Put armor straight on a player: armor wear <player> <leather|metal|wyrm|hebios> <slot|all>")]
 		public static string Wear(string player, string set, string slot)
 		{
 			return ArmorCommands.Run(delegate
@@ -424,7 +425,7 @@ namespace ArmorRestored
 			int num = Catalog.FindSet(set);
 			if (num < 0)
 			{
-				why = "no armor set '" + set + "' (leather, metal, wyrm)";
+				why = "no armor set '" + set + "' (leather, metal, wyrm, hebios)";
 				return false;
 			}
 			if (string.Equals(slot, "all", StringComparison.OrdinalIgnoreCase))

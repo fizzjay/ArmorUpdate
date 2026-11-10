@@ -1,0 +1,83 @@
+[
+  {
+    "id": "hebios.helmet",
+    "meshes": 22,
+    "triangles": 2134,
+    "sources": [
+      50988,
+      50988,
+      50988,
+      63204
+    ]
+  },
+  {
+    "id": "hebios.chest",
+    "meshes": 64,
+    "triangles": 4888,
+    "sources": [
+      50988,
+      50988,
+      63204
+    ]
+  },
+  {
+    "id": "hebios.shoulder_l",
+    "meshes": 22,
+    "triangles": 1446,
+    "sources": [
+      50988,
+      50988,
+      63204
+    ]
+  },
+  {
+    "id": "hebios.shoulder_r",
+    "meshes": 22,
+    "triangles": 1446,
+    "sources": [
+      50988,
+      50988,
+      63204
+    ]
+  },
+  {
+    "id": "hebios.gauntlet_l",
+    "meshes": 32,
+    "triangles": 5416,
+    "sources": [
+      50988,
+      50988,
+      63204
+    ]
+  },
+  {
+    "id": "hebios.gauntlet_r",
+    "meshes": 32,
+    "triangles": 5416,
+    "sources": [
+      50988,
+      50988,
+      63204
+    ]
+  },
+  {
+    "id": "hebios.tasset_l",
+    "meshes": 21,
+    "triangles": 1656,
+    "sources": [
+      50988,
+      50988,
+      63204
+    ]
+  },
+  {
+    "id": "hebios.tasset_r",
+    "meshes": 23,
+    "triangles": 1752,
+    "sources": [
+      50988,
+      50988,
+      63204
+    ]
+  }
+]
