@@ -199,14 +199,14 @@ def main():
     except ModuleNotFoundError:
         from build_stand import png_rgba
     glyphs = io.BytesIO()
-    glyphs.write(b'AGLY' + struct.pack('<ii', 1, 21))
+    glyphs.write(b'AGLY' + struct.pack('<ii', 1, 35))
     for path in sorted((ROOT / 'RecipeGlyphs').glob('*.png')):
         name = path.name.encode('utf8')
         width, height, rgba = png_rgba(path.read_bytes())
         glyphs.write(struct.pack('<i', len(name)) + name)
         glyphs.write(struct.pack('<ii', width, height) + rgba)
     (args.output / 'glyphs.bin').write_bytes(glyphs.getvalue())
-    # Append the supplied Hebios set without modifying accepted Leather/Metal/Wyrm.
+    # Consolidated import of Hebios/Wood/Mushroom, retaining original 24 pieces.
     try:
         from tools.import_hebios import build as import_hebios
     except ModuleNotFoundError:

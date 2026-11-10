@@ -82,7 +82,7 @@ namespace ArmorRestored
             });
         }
 
-        [Command("recipes", "Spawn the 24 Leather/Metal/Hebios recipe pages near a player: armor recipes <player>")]
+        [Command("recipes", "Spawn the 24 Leather/Metal/Wood recipe pages near a player: armor recipes <player>")]
         public static string Recipes(string player)
         {
             return ArmorCommands.Run(delegate
@@ -165,7 +165,7 @@ namespace ArmorRestored
             });
         }
 
-		[Command("give", "Spawn armor in front of a player: armor give <player> <leather|metal|wyrm|hebios> <slot|all> (slots: helmet chest shoulder_l shoulder_r gauntlet_l gauntlet_r tasset_l tasset_r)")]
+		[Command("give", "Spawn armor in front of a player: armor give <player> <leather|metal|wyrm|hebios|wood|mushroom> <slot|all> (slots: helmet chest shoulder_l shoulder_r gauntlet_l gauntlet_r tasset_l tasset_r)")]
 		public static string Give(string player, string set, string slot)
 		{
 			return ArmorCommands.Run(delegate
@@ -201,7 +201,7 @@ namespace ArmorRestored
 		}
 
 		// Token: 0x0600003B RID: 59 RVA: 0x0000489C File Offset: 0x00002A9C
-		[Command("wear", "Put armor straight on a player: armor wear <player> <leather|metal|wyrm|hebios> <slot|all>")]
+		[Command("wear", "Put armor straight on a player: armor wear <player> <leather|metal|wyrm|hebios|wood|mushroom> <slot|all>")]
 		public static string Wear(string player, string set, string slot)
 		{
 			return ArmorCommands.Run(delegate
@@ -425,7 +425,7 @@ namespace ArmorRestored
 			int num = Catalog.FindSet(set);
 			if (num < 0)
 			{
-				why = "no armor set '" + set + "' (leather, metal, wyrm, hebios)";
+				why = "no armor set '" + set + "' (leather, metal, wyrm, hebios, wood, mushroom)";
 				return false;
 			}
 			if (string.Equals(slot, "all", StringComparison.OrdinalIgnoreCase))

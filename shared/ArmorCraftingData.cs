@@ -37,9 +37,9 @@ namespace ArmorRestored
         }
         internal static bool AllowedResult(uint hash)
         {
-            // Leather 52830..37, Metal 52838..45, Hebios 52855..62. Exclude Wyrm and
-            // all other custom/native prefabs regardless of external settings.
-            return hash >= 52830U && hash <= 52845U || hash >= 52855U && hash <= 52862U;
+            // Saved origins: Leather/Metal, legacy Hebios, and Wood. Exclude Wyrm and
+            // Mushroom. Runtime Craftable() separately excludes legacy Hebios recipes.
+            return hash >= 52830U && hash <= 52845U || hash >= 52855U && hash <= 52870U;
         }
         private static int Count(BinaryReader reader, int min, int max)
         {
@@ -75,13 +75,13 @@ namespace ArmorRestored
                 if (digest.Length != 32) throw new EndOfStreamException();
                 if (BitConverter.ToString(digest).Replace("-", "") != "119EDC0C48D29C7DBA66F5EA3CC7537E17601BF32184E4EDDEACE6716E897B4A")
                     throw new InvalidDataException("Construction model identity mismatch");
-                int count = Count(reader, 1, 24);
+                int count = Count(reader, 1, 32);
                 int totalVertices = 0;
                 for (int i = 0; i < count; i++)
                 {
                     var plan = new Plan { Id = Text(reader), Glyph = Text(reader) };
                     string[] parts = plan.Id.Split('.');
-                    if (parts.Length != 2 || (parts[0] != "leather" && parts[0] != "metal" && parts[0] != "hebios") || !ValidSlot(parts[1]))
+                    if (parts.Length != 2 || (parts[0] != "leather" && parts[0] != "metal" && parts[0] != "hebios" && parts[0] != "wood") || !ValidSlot(parts[1]))
                         throw new InvalidDataException("Unapproved crafting result: " + plan.Id);
                     if (plan.Glyph.IndexOf('/') >= 0 || plan.Glyph.IndexOf('\\') >= 0 || !plan.Glyph.EndsWith(".png", StringComparison.Ordinal))
                         throw new InvalidDataException("Invalid glyph resource name");
@@ -91,8 +91,8 @@ namespace ArmorRestored
                     {
                         var input = new Ingredient();
                         input.Source = reader.ReadUInt32();
-                        uint primary = parts[0] != "leather" ? 50988U : 47760U;
-                        uint closure = parts[0] == "metal" ? 62594U : 63204U;
+                        uint primary = parts[0] == "wood" ? 47118U : parts[0] != "leather" ? 50988U : 47760U;
+                        uint closure = parts[0] == "wood" ? 43836U : parts[0] == "metal" ? 62594U : 63204U;
                         if (input.Source != primary && input.Source != closure)
                             throw new InvalidDataException("Unexpected ingredient source");
                         input.Parent = reader.ReadInt32();
@@ -176,8 +176,8 @@ namespace ArmorRestored
             if (inputSources == null || inputMaterials == null || inputSources.Length == 0 ||
                 inputSources.Length > 32 || inputSources.Length != inputMaterials.Length)
                 throw new InvalidDataException("Invalid ingredient provenance");
-            uint primary = result < 52838U ? 47760U : 50988U;
-            uint closure = result < 52838U || result >= 52855U ? 63204U : 62594U;
+            uint primary = result >= 52863U ? 47118U : result < 52838U ? 47760U : 50988U;
+            uint closure = result >= 52863U ? 43836U : result < 52838U || result >= 52855U ? 63204U : 62594U;
             for (int i = 0; i < inputSources.Length; i++)
                 if (inputSources[i] != primary && inputSources[i] != closure)
                     throw new InvalidDataException("Invalid ingredient source");
@@ -370,7 +370,7 @@ namespace ArmorRestored
         };
         internal static byte[] Get(string name)
         {
-            if (name != null && name.StartsWith("hebios/",StringComparison.Ordinal))
+            if (name != null && (name.StartsWith("hebios/",StringComparison.Ordinal) || name.StartsWith("wood/",StringComparison.Ordinal)))
             {
                 string[] fields=name.Split('/'); int group,count;
                 if(fields.Length!=5 || !int.TryParse(fields[2],out group) || !int.TryParse(fields[3],out count) ||

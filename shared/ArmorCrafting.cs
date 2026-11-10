@@ -32,26 +32,27 @@ namespace ArmorRestored
     internal static class ArmorCrafting
     {
         internal const uint RecipeStart = 60000U, PageStart = 60032U, GlyphStart = 52830U;
-        internal static readonly GenericCraftingRecipe[] Recipes = new GenericCraftingRecipe[32];
-        internal static readonly NetworkPrefab[] Pages = new NetworkPrefab[32];
-        internal static readonly ArmorConstructionData.Plan[] Plans = new ArmorConstructionData.Plan[32];
+        internal static readonly GenericCraftingRecipe[] Recipes = new GenericCraftingRecipe[48];
+        internal static readonly NetworkPrefab[] Pages = new NetworkPrefab[48];
+        internal static readonly ArmorConstructionData.Plan[] Plans = new ArmorConstructionData.Plan[48];
         internal static byte[] Fingerprint;
         internal static string Status = "not registered";
         internal static bool Ready;
-        internal static string Signature { get { return Ready && Fingerprint != null ? BitConverter.ToString(Fingerprint).Replace("-", "") + ":glyphs-52830-v1-worn-sections1-benchup2-hebios1-surfaces2" : ""; } }
+        internal static string Signature { get { return Ready && Fingerprint != null ? BitConverter.ToString(Fingerprint).Replace("-", "") + ":glyphs-52830-v1-worn-sections1-benchup2-hebios1-surfaces2-wood1-loot-hebios-mushroom" : ""; } }
         private static bool hooks;
         private static PageCollection collection;
-        private static readonly Glyph[] recipeGlyphs = new Glyph[32];
-        private static readonly Glyph[] previousGlyphs = new Glyph[32];
+        private static readonly Glyph[] recipeGlyphs = new Glyph[48];
+        private static readonly Glyph[] previousGlyphs = new Glyph[48];
         private static Item[] resultItems;
-        private static readonly Item[] pageItems = new Item[32];
+        private static readonly Item[] pageItems = new Item[48];
         private static readonly List<Object> owned = new List<Object>();
         private static readonly Dictionary<string, Sprite> glyphs = new Dictionary<string, Sprite>();
+        internal static bool Craftable(int piece) { return piece>=0 && (piece<16 || piece>=32 && piece<40); }
         internal static int Index(GenericCraftingRecipe recipe)
         {
             if (recipe == null) return -1;
             uint hash = recipe.Hash;
-            if (hash < RecipeStart || hash >= RecipeStart+32) return -1;
+            if (hash < RecipeStart || hash >= RecipeStart+48) return -1;
             var registered = Recipes[hash-RecipeStart];
             return registered != null && registered.GetInstanceID() == recipe.GetInstanceID() && recipe.ResultHash == (uint)Catalog.Number((int)(hash-RecipeStart)) ? (int)(hash-RecipeStart) : -1;
         }
@@ -100,7 +101,7 @@ namespace ArmorRestored
                         else if (previous.nailSettings == null && piece.nailSettings != null) templates[hash] = piece;
                     }
                 }
-                foreach (uint source in new uint[] { 47760U, 63204U, 50988U, 62594U })
+                foreach (uint source in new uint[] { 47760U, 63204U, 50988U, 62594U, 43836U, 47118U })
                     if (!templates.ContainsKey(source)) throw new InvalidOperationException("Missing native ingredient template " + source);
                 stage = "resolving native recipe paper";
                 var paper = ResolvePaper();
@@ -122,13 +123,14 @@ namespace ArmorRestored
                         data = ArmorConstructionData.Read(new MemoryStream(bytes, false));
                     }
                 }
+                for(int i=0;i<Catalog.Count;i++) Plans[i]=data.Find(Catalog.Id(i));
                 stage = "loading glyph textures";
                 LoadGlyphs();
                 if (collection.PageBases == null) throw new InvalidOperationException("Native crafting book has no page bases");
                 // Preflight every namespace before mutating native registries.
                 for (int i = 0; i < Catalog.Count; i++)
                 {
-                    if (i >= 16 && i < 24) continue;
+                    if (!Craftable(i)) continue;
                     if (armor[i] == null || items[i] == null) throw new InvalidOperationException("Missing armor result " + i);
                     stage = "checking IDs for slot " + i;
                     uint pageHash = PageStart + (uint)i, recipeHash = RecipeStart + (uint)i, glyphHash = (uint)Catalog.Number(i);
@@ -148,7 +150,7 @@ namespace ArmorRestored
                 }
                 for (int i = 0; i < Catalog.Count; i++)
                 {
-                    if (i >= 16 && i < 24) continue;
+                    if (!Craftable(i)) continue;
                     stage = "creating recipe for slot " + i;
                     var recipe = New<GenericCraftingRecipe>();
                     if (recipe == null) throw new InvalidOperationException("Native recipe allocation returned null");
@@ -189,6 +191,21 @@ namespace ArmorRestored
                     stage = "building page for slot " + i;
                     BuildPage(i, holder, paper);
                 }
+                // Loot-only sets still receive their own icons, but NO recipe or page.
+                string[] suffixes={"Helmet","Cuirass","Pauldron_Left","Pauldron_Right","Bracer_Left","Bracer_Right","Tassets","Tassets"};
+                for(int i=24;i<Catalog.Count;i++)
+                {
+                    if(i>=32 && i<40) continue;
+                    stage="creating loot glyph for "+Catalog.Id(i);
+                    uint hash=(uint)Catalog.Number(i);
+                    if(FindGlyph(hash)!=null) throw new InvalidOperationException("Loot glyph collision "+hash);
+                    if(items[i]==null) throw new InvalidOperationException("Missing loot item "+i);
+                    var glyph=New<Glyph>();owned.Add(glyph);recipeGlyphs[i]=glyph;previousGlyphs[i]=items[i].Glyph;
+                    glyph.name="ArmorRestored "+Catalog.Id(i);Set(glyph,"hash",(int)hash);
+                    Sprite sprite; string file="ATT_"+(i<32 ? "Hebios" : "Mushroom")+"Armor_"+suffixes[i%8]+".png";
+                    if(!glyphs.TryGetValue(file,out sprite)) throw new InvalidDataException("Missing loot glyph "+file);
+                    Set(glyph,"sprite",sprite);PublishGlyph(glyph);Set(items[i],"glyph",glyph);
+                }
                 stage = "appending recipes to native book";
                 var bases = new List<Object>();
                 foreach (Object value in collection.PageBases) bases.Add(value);
@@ -200,7 +217,7 @@ namespace ArmorRestored
 #endif
                 SetStatic(typeof(GenericCraftingRecipe), "mappedResult", null);
                 Ready = true;
-                Status = "24 native recipes/pages; Leather, Metal and Hebios";
+                Status = "24 native recipes/pages; Leather, Metal and Wood";
                 Mod.Log.Msg("armor crafting: " + Status);
                 CraftLog("ready","registered signature="+Signature+" recipes="+Recipes.Length,0f);
             }
@@ -385,7 +402,7 @@ namespace ArmorRestored
         internal static Mesh SplitWorn(Mesh original,string name,int piece,uint fallback,
             Material[] originals,int[] palette,int slot,out Material[] materials)
         {
-            byte[] groups=piece/8!=2 ? WornIngredientGroups.Get(name) : null;
+            byte[] groups=piece/8!=2 && piece/8!=5 ? WornIngredientGroups.Get(name) : null;
             if(groups==null || palette==null || palette.Length<272)
             { materials=WornMaterials.Apply(piece,fallback,originals,name); return original; }
             WornSplit split; int id=original.GetInstanceID();
@@ -436,6 +453,8 @@ namespace ArmorRestored
             if(plan!=null && group>=0 && group<plan.Ingredients.Length)
             {
                 uint source=plan.Ingredients[group].Source;
+                if(source==47118U) return WornMaterials.ApplyWood(hash,original);
+                if(source==43836U) return original;
                 if(source==47760U || source==63204U) return WornMaterials.ApplyLeather(hash,original,name);
             }
             return WornMaterials.Apply(piece,hash,original,name);
@@ -630,7 +649,7 @@ namespace ArmorRestored
         {
             if (__instance.Entity == null || __instance.Entity.Prefab == null) return true;
             uint hash = __instance.Entity.Prefab.Hash;
-            if (hash < PageStart || hash >= PageStart + 32) return true;
+            if (hash < PageStart || hash >= PageStart + 48) return true;
             int index = (int)(hash - PageStart);
             if (Pages[index] == null || !Same(__instance.Entity.Prefab,Pages[index])) return true;
             if (!Ready || Recipes[index] == null) throw new InvalidOperationException("Armor recipe page is unavailable");
@@ -668,7 +687,7 @@ namespace ArmorRestored
 #endif
             foreach (NetworkPrefab prefab in nativePrefabs)
             {
-                if (prefab == null || (prefab.Hash >= PageStart && prefab.Hash < PageStart+32) || !IsPaper(prefab)) continue;
+                if (prefab == null || (prefab.Hash >= PageStart && prefab.Hash < PageStart+48) || !IsPaper(prefab)) continue;
                 var item = PaperItem(prefab);
                 string name = (item.name ?? "") + " " + (prefab.name ?? "");
                 bool namedPaper = name.IndexOf("paper",StringComparison.OrdinalIgnoreCase) >= 0;
@@ -800,8 +819,8 @@ namespace ArmorRestored
                 RemovePublished(i);
             }
             for (int i = owned.Count - 1; i >= 0; i--) if (owned[i] != null) Object.Destroy(owned[i]);
-            owned.Clear(); wornSplits.Clear(); removalGrace.Clear(); glyphs.Clear(); Array.Clear(Recipes,0,32); Array.Clear(Pages,0,32); Array.Clear(Plans,0,32);
-            Array.Clear(pageItems,0,32); Array.Clear(recipeGlyphs,0,32); Array.Clear(previousGlyphs,0,32); resultItems = null;
+            owned.Clear(); wornSplits.Clear(); removalGrace.Clear(); glyphs.Clear(); Array.Clear(Recipes,0,48); Array.Clear(Pages,0,48); Array.Clear(Plans,0,48);
+            Array.Clear(pageItems,0,48); Array.Clear(recipeGlyphs,0,48); Array.Clear(previousGlyphs,0,48); resultItems = null;
             collection = null; SetStatic(typeof(GenericCraftingRecipe), "mappedResult", null);
             Status = "not registered";
         }
@@ -810,9 +829,9 @@ namespace ArmorRestored
             using (var stream = typeof(ArmorCrafting).Assembly.GetManifestResourceStream("ArmorRestored.recipe-glyphs"))
             using (var reader = new BinaryReader(stream))
             {
-                if (reader.ReadUInt32() != 0x594C4741U || reader.ReadInt32() != 1 || reader.ReadInt32() != 21)
+                if (reader.ReadUInt32() != 0x594C4741U || reader.ReadInt32() != 1 || reader.ReadInt32() != 35)
                     throw new InvalidDataException("Invalid glyph resource");
-                for (int i = 0; i < 21; i++)
+                for (int i = 0; i < 35; i++)
                 {
                     int length = reader.ReadInt32(); if (length < 1 || length > 100) throw new InvalidDataException("Invalid glyph name");
                     string name = System.Text.Encoding.UTF8.GetString(reader.ReadBytes(length));

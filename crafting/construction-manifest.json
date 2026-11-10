@@ -1,7 +1,7 @@
 {
   "schema": 1,
   "model_sha256": "119EDC0C48D29C7DBA66F5EA3CC7537E17601BF32184E4EDDEACE6716E897B4A",
-  "pack_sha256": "3C061A7412BBE640D810367A6BA4C192F030271730E91D702C79DAF11CD29011",
+  "pack_sha256": "7F2A01637F9265080DECAE4E3E2F2EF3E6A4F8938F3EE69DB6688DB9C24928DE",
   "recipes": [
     {
       "id": "leather.helmet",
@@ -341,6 +341,120 @@
         456,
         348,
         4452
+      ]
+    },
+    {
+      "id": "wood.helmet",
+      "reference_only": false,
+      "sources": [
+        43836,
+        47118,
+        47118,
+        47118
+      ],
+      "vertex_counts": [
+        642,
+        1572,
+        504,
+        564
+      ]
+    },
+    {
+      "id": "wood.chest",
+      "reference_only": false,
+      "sources": [
+        43836,
+        47118,
+        47118
+      ],
+      "vertex_counts": [
+        3432,
+        2424,
+        1584
+      ]
+    },
+    {
+      "id": "wood.shoulder_l",
+      "reference_only": false,
+      "sources": [
+        43836,
+        47118,
+        47118
+      ],
+      "vertex_counts": [
+        1068,
+        408,
+        3144
+      ]
+    },
+    {
+      "id": "wood.shoulder_r",
+      "reference_only": false,
+      "sources": [
+        43836,
+        47118,
+        47118
+      ],
+      "vertex_counts": [
+        1068,
+        408,
+        2892
+      ]
+    },
+    {
+      "id": "wood.gauntlet_l",
+      "reference_only": false,
+      "sources": [
+        43836,
+        47118,
+        47118
+      ],
+      "vertex_counts": [
+        1404,
+        324,
+        684
+      ]
+    },
+    {
+      "id": "wood.gauntlet_r",
+      "reference_only": false,
+      "sources": [
+        43836,
+        47118,
+        47118
+      ],
+      "vertex_counts": [
+        1404,
+        324,
+        684
+      ]
+    },
+    {
+      "id": "wood.tasset_l",
+      "reference_only": false,
+      "sources": [
+        43836,
+        47118,
+        47118
+      ],
+      "vertex_counts": [
+        1650,
+        678,
+        288
+      ]
+    },
+    {
+      "id": "wood.tasset_r",
+      "reference_only": false,
+      "sources": [
+        43836,
+        47118,
+        47118
+      ],
+      "vertex_counts": [
+        1338,
+        366,
+        288
       ]
     }
   ]

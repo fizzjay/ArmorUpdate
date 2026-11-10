@@ -19,7 +19,7 @@ class BenchUpTests(unittest.TestCase):
             lift=.06-lowest
             for _,vertices,_ in parts:
                 for v in vertices:self.assertGreaterEqual(dot(v,up)+lift,.06-1e-6)
-        self.assertEqual(50,count)
+        self.assertEqual(61,count)
 
     def test_runtime_rotates_all_inputs_and_nails_but_not_worn(self):
         code=(ROOT/'shared/ArmorCrafting.cs').read_text()

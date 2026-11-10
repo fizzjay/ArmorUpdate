@@ -139,14 +139,14 @@ class NativeIntegrationContracts(unittest.TestCase):
     def test_generated_glyph_pack_is_complete(self):
         stream=io.BytesIO((ROOT/'crafting/glyphs.bin').read_bytes())
         self.assertEqual(stream.read(4),b'AGLY')
-        self.assertEqual(struct.unpack('<ii',stream.read(8)),(1,21))
+        self.assertEqual(struct.unpack('<ii',stream.read(8)),(1,35))
         names=[]
-        for _ in range(21):
+        for _ in range(35):
             size=struct.unpack('<i',stream.read(4))[0]
             names.append(stream.read(size).decode())
             self.assertEqual(struct.unpack('<ii',stream.read(8)),(256,256))
             self.assertEqual(len(stream.read(256*256*4)),256*256*4)
-        self.assertEqual(len(set(names)),21)
+        self.assertEqual(len(set(names)),35)
         self.assertEqual(stream.read(),b'')
 
 

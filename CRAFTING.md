@@ -15,9 +15,12 @@ before deploying to a live server.
 
 ## Player workflow
 
-- **Leather, Metal and Hebios:** eight separate native recipes each, including independent
+- **Leather, Metal and Wood:** eight separate native recipes each, including independent
   left/right tassets. Native physical ingredients, workbench ghosts, and hammerable
   nails are used; this is not an inventory-consumption command.
+- **Hebios and Mushroom:** loot-only (Epic and Rare global loot respectively,
+  subject to the existing loot setting). Neither set registers recipes or pages.
+- **Wood:** crafting-only; never added to global loot.
 - **Wyrm:** kill loot only. No crafting recipe, book entry, or recipe page is
   registered. Wyrm dismantling is not defined, so this implementation does not
   turn it into generic Leather/Metal ingredients.
@@ -29,11 +32,11 @@ before deploying to a live server.
   page generation; it does not force every existing book to unlock all pages.
 - For immediate testing, run **`armor recipes <player>`** on the server. It spawns
   all 24 physical pages near that player. Pages are 60032–60047 (Leather/Metal)
-  and 60056–60063 (Hebios); Wyrm entries remain unused.
+  and 60064–60071 (Wood); Wyrm, Hebios and Mushroom page indices remain unused.
 - Put a recipe page on the workbench, add the displayed ingredients, hammer the
   native nails, then grab the completed armor. Primary ingredients may use different physical materials. Every input retains
   its own material provenance.
-- To dismantle Leather/Metal/Hebios, remove the paper and clear the bench, then release
+- To dismantle Leather/Metal/Wood, remove the paper and clear the bench, then release
   the armor into the bench's native tracked interaction area. The server restores
   a filled native project and detaches one outer ingredient. Remove the remaining
   ingredients using native workbench dismantling. The empty project is cleared.
@@ -91,8 +94,9 @@ mismatched protocol/data even when the old join policy was log/off, because
 unknown native recipe/page IDs are not safe on older clients. Wire 3 is not
 compatible. Existing armor-state message 13 and eight slots are preserved.
 
-Leather/Metal recipes occupy 60000–60015; Hebios recipes occupy 60024–60031.
-Glyphs occupy 52830–52845 and 52855–52862
+Leather/Metal recipes occupy 60000–60015; Wood recipes occupy 60032–60039.
+The former Hebios recipes (60024–60031) are no longer published.
+Glyphs occupy 52830–52845 and 52855–52878
 in their separate registry. The original glyph range collided with native Glyph_Pierce;
 the hello signature now includes the corrected glyph layout revision. These fixed-v1 IDs must never be reused for changed
 recipes; future balance/layout versions need new IDs plus retained legacy plans.
@@ -304,7 +308,7 @@ Run `tools/check_crafting_nail_access.py` for all 33 nails. The compatibility
 signature now ends with `worn-sections1-benchup2`; update both sides together.
 Actual table collider/hammer reach still needs confirmation in-game.
 
-### Hebios integration
+### Hebios integration history (now loot-only; see current policy below)
 
 `tools/import_hebios.py` now imports the seven supplied ASCII FBXs into both runtime
 packs, producing eight equipment slots. `crafting/hebios-runtime-manifest.json`
@@ -387,3 +391,64 @@ native dummy, save/rejoin, and compare dyes. Pull a piece off the workbench and
 move it away during the one-second grace; confirm ordinary insertion still works
 afterward. The independent worn palette is authoritative; this patch does not
 add a new per-input network palette for loose completed pickup renderers.
+
+## Current port: Wood crafting and Mushroom loot
+
+This policy supersedes the historical Hebios crafting notes above:
+
+| Set | Acquisition | Native book recipes |
+| --- | --- | --- |
+| Leather | Existing crafting and existing loot unchanged | 8 |
+| Metal | Existing crafting and existing loot unchanged | 8 |
+| Wyrm | Existing kill-only drops | None |
+| Hebios | Loot-only, Epic global rarity | None |
+| Wood | Crafting-only; no global loot entries | 8 |
+| Mushroom | Loot-only, Rare global rarity | None |
+
+Both new sets are imported from the uploaded FBXs into the existing runtime
+packs (48 armor items total). Wood retains all **9,714** source triangles and
+Mushroom all **28,298**. Each has eight equipment slots, with hips partitioned
+between the two existing slots without duplicate triangles. Existing equipment,
+stand, save and packet paths use the expanded catalog; no new runtime `.cs` file
+or `.csproj` entry is required. Updates are consolidated into existing importer,
+material, crafting and catalog files instead of introducing a file per feature.
+
+- Wood result IDs: **52863–52870**, recipes **60032–60039**, pages **60064–60071**.
+- Mushroom result IDs: **52871–52878**. The stand remains **52854**.
+- `armor recipes <player>` creates all 24 Leather/Metal/Wood pages. All 24
+  recipes are published and appended to native collection **57634**, provider 2.
+  This registers them for the book; it does not force-unlock every saved book.
+- Native Woodland graphs/costs/levels/nail flags are retained in the existing
+  combined `hebios-jig-plans.json`. Wood sources are **43836** (binding) and
+  **47118** (wood). The combined hips become one binding plus two wood inputs
+  on each side, following the existing split-tasset convention.
+- Wood worn sections retain separate input ownership. Native wood textures,
+  tiling, offsets and color replace only authored bark/heartwood surfaces;
+  moss-hide and bindings retain their authored materials. Generated clones are
+  cached, retried on missing assets and released on clear. Native physical
+  material/provenance is set before crafted output replication and saved for
+  dismantling, equipment and rejoin. Default/admin-spawned Wood remains authored
+  until valid crafting provenance is present. New set protection values are
+  conservative mod defaults, not claims about official game balance; the donor's
+  standalone wood-settings API is not introduced as a separate dependency.
+- Mushroom keeps its supplied textures and named helper attachments. One embedded
+  texture is a Unity YAML RGBA32 asset, not a PNG; its raw pixel payload is decoded
+  explicitly. Generated texture data is deduplicated across all FBXs, keeping
+  each client pack around **42.4 MiB** instead of roughly 185 MiB.
+- All **35** supplied glyphs share the existing glyph binary. Hebios and Mushroom
+  receive item glyphs separately from recipe registration, without adding either
+  set to the book. Loot-only sets are also refused by the dismantling path.
+- Legacy Hebios construction data remains readable only for older saved material
+  provenance/appearance; its recipes/pages are not registered. Remove obsolete
+  Hebios recipe papers from test benches before updating. Leather/Metal saved
+  recipe identities and their original 16 construction records remain unchanged.
+- The one-second withdrawal grace and leather dye behavior remain in place.
+
+Validation: **168 Python tests**, PC/Quest C# syntax parsing, byte-identical
+regeneration of all generated resources, and full-assembly access for all **44
+active crafting nails** (61 including legacy Hebios data) pass. These are not C#
+compilation or Unity game tests. Verify book-page generation, Wood insertion and
+completion/dismantling, mixed wood species on worn pieces, dummy fitting, stand
+slots, loot generation and save/rejoin on both platforms before live deployment.
+Update server and both clients together; the shared signature now identifies
+Wood recipes and loot-only Hebios/Mushroom.

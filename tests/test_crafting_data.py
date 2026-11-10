@@ -67,7 +67,7 @@ class GeneratedConstructionTests(unittest.TestCase):
         self.assertEqual(stream.read(4), b'ACRF')
         self.assertEqual(read('i')[0], 1)
         self.assertEqual(stream.read(32).hex().upper(), manifest['model_sha256'])
-        self.assertEqual(read('i')[0], 24)
+        self.assertEqual(read('i')[0], 32)
         ids = []
         for recipe in manifest['recipes']:
             name, glyph = text(), text()
@@ -106,10 +106,10 @@ class GeneratedConstructionTests(unittest.TestCase):
                     seen.add(start)
                     start = parents[start]
         self.assertEqual(stream.tell(), len(data))
-        self.assertEqual(len(set(ids)), 24)
-        self.assertEqual(set(ids), {style+'.'+slot for style in ('leather','metal','hebios')
+        self.assertEqual(len(set(ids)), 32)
+        self.assertEqual(set(ids), {style+'.'+slot for style in ('leather','metal','hebios','wood')
                                    for slot in ('helmet','chest','shoulder_l','shoulder_r','gauntlet_l','gauntlet_r','tasset_l','tasset_r')})
-        self.assertEqual(sum(not r['reference_only'] for r in manifest['recipes']), 24)
+        self.assertEqual(sum(not r['reference_only'] for r in manifest['recipes']), 32)
 
     def test_both_projects_embed_the_same_construction_resource(self):
         ns = {'m': 'http://schemas.microsoft.com/developer/msbuild/2003'}
@@ -126,7 +126,10 @@ class GeneratedConstructionTests(unittest.TestCase):
 class WyrmKillLootContract(unittest.TestCase):
     def test_wyrm_is_not_inserted_into_global_tables(self):
         source = (ROOT / 'pchost/Loot.cs').read_text(encoding='utf-8-sig')
-        self.assertIn('j < 2', source)
+        self.assertIn('j < Catalog.Sets.Length', source)
+        catalog=(ROOT/'pchost/Catalog.cs').read_text('utf-8-sig')
+        self.assertIn('Id="wood", Title="Wood", LootRarity=null',catalog)
+        self.assertIn('Id = "wyrm",\n\t\t\t\tTitle = "Wyrm",\n\t\t\t\tLootRarity = null',catalog)
         self.assertNotIn('Settings.WyrmLoot', source)
 
     def test_native_death_hook_checks_transition_and_uses_eight_slots(self):

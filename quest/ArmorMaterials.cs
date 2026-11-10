@@ -16,7 +16,7 @@ namespace ArmorRestoredQuest
     {
         internal static void Configure(int piece, GameObject armor)
         {
-            if (piece / 8 != 1 && piece / 8 != 3) return;
+            if (piece / 8 != 1 && piece / 8 != 3 && piece / 8 != 4) return;
             NetworkEntity entity = armor.GetComponent(Il2CppType.Of<NetworkEntity>())?.TryCast<NetworkEntity>();
             if (entity == null) throw new InvalidOperationException("armor has no NetworkEntity");
             Distribution distribution = Resources.Load<Distribution>("distributions/Metal Material Distribution");
@@ -32,11 +32,11 @@ namespace ArmorRestoredQuest
             foreach (Component component in armor.GetComponentsInChildren(Il2CppType.Of<Renderer>(), true))
             {
                 Renderer renderer = component.TryCast<Renderer>();
-                if (renderer != null && piece / 8 != 3) renderers.Add(renderer);
+                if (renderer != null && piece / 8 < 3) renderers.Add(renderer);
             }
             part.renderers = new Il2CppReferenceArray<Renderer>(renderers.ToArray());
             part.entity = entity;
-            part.materialDistribution = distribution;
+            part.materialDistribution = piece / 8 == 4 ? null : distribution;
             List<MonoBehaviour> behaviours = new List<MonoBehaviour>();
             bool registered = false;
             if (entity.networkEntityBehaviours != null)

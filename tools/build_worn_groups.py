@@ -77,7 +77,7 @@ if __name__=='__main__':
         };
         internal static byte[] Get(string name)
         {
-            if (name != null && name.StartsWith("hebios/",StringComparison.Ordinal))
+            if (name != null && (name.StartsWith("hebios/",StringComparison.Ordinal) || name.StartsWith("wood/",StringComparison.Ordinal)))
             {
                 string[] fields=name.Split('/'); int group,count;
                 if(fields.Length!=5 || !int.TryParse(fields[2],out group) || !int.TryParse(fields[3],out count) ||

@@ -72,7 +72,7 @@ namespace ArmorRestored
             int difference = 0; for (int i=0;i<a.Length;i++) difference |= a[i]^b[i]; return difference==0;
         }
         private static uint MaterialHash(PhysicalMaterial material) { return material == null ? 0U : material.Hash; }
-        private static bool Primary(uint source) { return source == 50988U || source == 47760U; }
+        private static bool Primary(uint source) { return source == 50988U || source == 47760U || source == 47118U; }
         private static PhysicalMaterial Resolve(uint hash)
         {
             if (hash == 0U) return null;
@@ -226,7 +226,7 @@ namespace ArmorRestored
             var tracked = (IDictionary)ArmorCrafting.Get(station,"trackedPickups");
             if (dock == null || dock.QuantityStored != 0 || armor.Rigidbody == null || !tracked.Contains(armor.Rigidbody)) return;
             int index = Catalog.PieceOf(armor.Entity.Prefab.Hash);
-            if (index < 0 || (index >= 16 && index < 24) || index >= Catalog.Count) return; // never turn Wyrm loot into a recipe
+            if (!ArmorCrafting.Craftable(index)) return; // never turn Wyrm loot into a recipe
             var recipe = ArmorCrafting.Recipes[index];
             var definitions = recipe.Pieces;
             var record = armor.Entity.GetComponent<ArmorCraftRecord>();

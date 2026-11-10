@@ -55,6 +55,50 @@ namespace ArmorRestoredQuest
             return tinted;
         }
 
+        private sealed class WoodVariant
+        {
+            internal Material Material;
+            internal bool Ready;
+        }
+        private static readonly Dictionary<uint,Dictionary<int,WoodVariant>> Woods = new Dictionary<uint,Dictionary<int,WoodVariant>>();
+        internal static Material ApplyWood(uint hash,Material original)
+        {
+            if(hash==0U || original==null) return original;
+            // Authored moss-hide and rope bindings are not wood surfaces.
+            string name=original.name.ToLowerInvariant();
+            if(!name.Contains("gotera_oak_bark") && !name.Contains("heartwood") &&
+               !name.Contains("bark_edges") && !name.Contains("bark_ridges") && !name.Contains("cut_grain")) return original;
+            Dictionary<int,WoodVariant> variants;
+            if(!Woods.TryGetValue(hash,out variants)) {variants=new Dictionary<int,WoodVariant>();Woods.Add(hash,variants);}
+            int id=original.GetInstanceID();WoodVariant variant;
+            if(!variants.TryGetValue(id,out variant))
+            {
+                variant=new WoodVariant {Material=new Material(original)};
+                variants.Add(id,variant);UpdateWood(hash,variant);
+            }
+            return variant.Material;
+        }
+        private static void UpdateWood(uint hash,WoodVariant variant)
+        {
+            if(variant.Ready || variant.Material==null) return;
+            try
+            {
+                var physical=HashedGeneralValue<PhysicalMaterial>.Get(hash);
+                if(physical==null || physical.Hash!=hash) return;
+                Material wood=physical.GetNonAtlasedNonDeformingMaterial(0);
+                if(wood==null || wood.mainTexture==null) return;
+                Material surface=variant.Material;
+                surface.name="ArmorRestored wood / "+wood.name;
+                surface.mainTexture=wood.mainTexture;
+                surface.mainTextureScale=wood.mainTextureScale;
+                surface.mainTextureOffset=wood.mainTextureOffset;
+                if(surface.HasProperty("_Color")) surface.SetColor("_Color",wood.HasProperty("_Color") ? wood.GetColor("_Color") : Color.white);
+                foreach(string key in new[] {"_UseAtlas","_UseVertexColor","_Glow"}) if(surface.HasProperty(key)) surface.SetFloat(key,0f);
+                variant.Ready=true;
+            }
+            catch(Exception error) {if(Warned.Add(hash)) Mod.Log.Warning("Wood surface "+hash+": "+error.GetBaseException().Message+"; keeping authored texture and retrying.");}
+        }
+
         private sealed class LeatherVariant
         {
             internal Material Original, Material;
@@ -166,6 +210,7 @@ namespace ArmorRestoredQuest
         {
             if (Time.unscaledTime < nextTick) return;
             nextTick = Time.unscaledTime + 1f;
+            foreach(var palette in Woods) foreach(var variant in palette.Value.Values) UpdateWood(palette.Key,variant);
             foreach(var palette in Leathers) foreach(var variant in palette.Value.Values) UpdateLeather(palette.Key,variant);
             foreach (KeyValuePair<uint, Dictionary<int, Material>> entry in Tinted)
             {
@@ -296,6 +341,9 @@ namespace ArmorRestoredQuest
                 if(variant.Material!=null) UnityEngine.Object.Destroy(variant.Material);
                 if(variant.Texture!=null) UnityEngine.Object.Destroy(variant.Texture);
             }
+            foreach(var palette in Woods) foreach(var variant in palette.Value.Values)
+                if(variant.Material!=null) UnityEngine.Object.Destroy(variant.Material);
+            Woods.Clear();
             Leathers.Clear();
             AuthoredColors.Clear();
             Tinted.Clear();

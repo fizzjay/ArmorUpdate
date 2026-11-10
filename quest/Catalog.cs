@@ -72,14 +72,14 @@ namespace ArmorRestoredQuest
 		internal const int SlotCount = 8;
 
 		// Token: 0x04000003 RID: 3
-		internal const int Count = 32;
+		internal const int Count = 48;
 
 		// Token: 0x04000004 RID: 4
 		private static readonly string[] SetIds = new string[]
 		{
 			"leather",
 			"metal",
-			"wyrm", "hebios"
+			"wyrm", "hebios", "wood", "mushroom"
 		};
 
 		// Token: 0x04000005 RID: 5
@@ -87,7 +87,7 @@ namespace ArmorRestoredQuest
 		{
 			"Leather",
 			"Metal",
-			"Wyrm", "Hebios"
+			"Wyrm", "Hebios", "Wood", "Mushroom"
 		};
 
 		// Token: 0x04000006 RID: 6

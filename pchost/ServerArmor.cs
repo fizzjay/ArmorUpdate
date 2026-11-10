@@ -282,7 +282,7 @@ namespace ArmorRestored
                     for(int slot=0;slot<8;slot++)
                     {
                         // Uncrafted Hebios uses authored maps/colors, not its default material channel.
-                        uint appearance = row[slot] / 8 == 3 ? 0U : materials[slot];
+                        uint appearance = (row[slot] / 8 == 3 || row[slot] / 8 == 4) ? 0U : materials[slot];
                         row[8+slot]=unchecked((int)appearance);
                         for(int group=0;group<32;group++) row[16+slot*32+group]=unchecked((int)appearance);
                         if(string.IsNullOrEmpty(origins[slot]) || origins[slot]=="!") continue;
