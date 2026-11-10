@@ -32,7 +32,7 @@ namespace ArmorRestoredQuest
             foreach (Component component in armor.GetComponentsInChildren(Il2CppType.Of<Renderer>(), true))
             {
                 Renderer renderer = component.TryCast<Renderer>();
-                if (renderer != null) renderers.Add(renderer);
+                if (renderer != null && piece / 8 != 3) renderers.Add(renderer);
             }
             part.renderers = new Il2CppReferenceArray<Renderer>(renderers.ToArray());
             part.entity = entity;

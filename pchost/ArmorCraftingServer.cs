@@ -86,6 +86,7 @@ namespace ArmorRestored
             if (!Mod.IsServer || !ArmorCrafting.Ready || __instance == null || !NativeBench(__0)) return;
             var project = Project(__0);
             if (project == null || ArmorCrafting.Index(project.Recipe) < 0 || inserting.Contains(__instance)) return;
+            if (ArmorCrafting.RemovalGrace(__0)) return;
             var pickup = __instance.Pickup;
             string diagnosticKey="take-"+__instance.GetInstanceID();
             ArmorCrafting.CraftLog(diagnosticKey+"-track","held Track callback station="+__0.GetInstanceID()+" recipe="+project.Recipe.Hash+
@@ -270,6 +271,7 @@ namespace ArmorRestored
                     if (definitions[i].level > definitions[outer].level) outer=i;
                 }
                 project.SetMaxLevel();
+                ArmorCrafting.BeginRemoval(station);
                 var detached = project.MappedPieces[definitions[outer].hash];
                 SpawnHelper.Spawn(definitions[outer].source.Prefab,SpawnData.DontGenerate,station.Entity.Chunk,
                     station.PiecesParent.TransformPoint(detached.CenterPosition),station.PiecesParent.rotation,entity =>
@@ -311,6 +313,7 @@ namespace ArmorRestored
             if (__state == null || ArmorCrafting.Index(__state.Recipe)<0) { __state=null; return true; }
             Claim consumed;
             if (claimed.TryGetValue(__state,out consumed)) { __state=null; return false; }
+            if (__instance.IsFilled) ArmorCrafting.BeginRemoval(__state.Station);
             ArmorCrafting.CraftLog("pop-"+__instance.GetInstanceID(),"native Pop recipe="+__state.Recipe.Hash+" filled="+__instance.IsFilled+" complete="+__instance.IsComplete,0f);
             return true;
         }

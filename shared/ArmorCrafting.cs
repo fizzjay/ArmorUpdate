@@ -38,7 +38,7 @@ namespace ArmorRestored
         internal static byte[] Fingerprint;
         internal static string Status = "not registered";
         internal static bool Ready;
-        internal static string Signature { get { return Ready && Fingerprint != null ? BitConverter.ToString(Fingerprint).Replace("-", "") + ":glyphs-52830-v1-worn-sections1-benchup2-hebios1" : ""; } }
+        internal static string Signature { get { return Ready && Fingerprint != null ? BitConverter.ToString(Fingerprint).Replace("-", "") + ":glyphs-52830-v1-worn-sections1-benchup2-hebios1-surfaces2" : ""; } }
         private static bool hooks;
         private static PageCollection collection;
         private static readonly Glyph[] recipeGlyphs = new Glyph[32];
@@ -385,7 +385,7 @@ namespace ArmorRestored
         internal static Mesh SplitWorn(Mesh original,string name,int piece,uint fallback,
             Material[] originals,int[] palette,int slot,out Material[] materials)
         {
-            byte[] groups=(piece/8==1 || piece/8==3) ? WornIngredientGroups.Get(name) : null;
+            byte[] groups=piece/8!=2 ? WornIngredientGroups.Get(name) : null;
             if(groups==null || palette==null || palette.Length<272)
             { materials=WornMaterials.Apply(piece,fallback,originals,name); return original; }
             WornSplit split; int id=original.GetInstanceID();
@@ -426,9 +426,19 @@ namespace ArmorRestored
             {
                 int group=split.Groups[i];
                 materials[i]=group==255 ? originals[split.Sources[i]] :
-                    WornMaterials.Apply(piece,WornIngredientGroups.Material(palette,slot,group,fallback),originals[split.Sources[i]],name);
+                    ApplySurface(piece,group,WornIngredientGroups.Material(palette,slot,group,fallback),originals[split.Sources[i]],name);
             }
             return split.Mesh;
+        }
+        private static Material ApplySurface(int piece,int group,uint hash,Material original,string name)
+        {
+            var plan=piece>=0 && piece<Plans.Length ? Plans[piece] : null;
+            if(plan!=null && group>=0 && group<plan.Ingredients.Length)
+            {
+                uint source=plan.Ingredients[group].Source;
+                if(source==47760U || source==63204U) return WornMaterials.ApplyLeather(hash,original,name);
+            }
+            return WornMaterials.Apply(piece,hash,original,name);
         }
         private static void ConfigureDarksteelChannel(object channel,Material forging,Material cold)
         {
@@ -581,6 +591,7 @@ namespace ArmorRestored
             var project = Get(__instance,"project") as IProject;
             int index = project == null ? -1 : Index(project.Recipe);
             if (index < 0) return;
+            if(RemovalGrace(project.Station)) { __result=false; return; }
             var definition = (GenericCraftingPieceDefinition)Get(__instance,"definition");
             uint source = definition.source.Prefab.Hash;
             string logKey="accept-"+__0.GetInstanceID()+"-"+definition.hash;
@@ -593,10 +604,24 @@ namespace ArmorRestored
             // above remain authoritative; every input keeps its own provenance.
             CraftLog(logKey,"accepted "+details);
         }
+        private static readonly Dictionary<int,float> removalGrace = new Dictionary<int,float>();
+        internal static void BeginRemoval(GenericCraftingStation station)
+        {
+            if(station!=null) removalGrace[station.GetInstanceID()]=Time.unscaledTime+1f;
+        }
+        internal static bool RemovalGrace(GenericCraftingStation station)
+        {
+            if(station==null) return false;
+            int id=station.GetInstanceID(); float until;
+            if(!removalGrace.TryGetValue(id,out until)) return false;
+            if(Time.unscaledTime<until) return true;
+            removalGrace.Remove(id); return false;
+        }
         private static bool AllowPiece(GenericCraftingStation __instance)
         {
             var project = Get(__instance,"currentProject") as IProject;
             if (project == null || Index(project.Recipe) < 0) return true;
+            if(RemovalGrace(__instance)) return false;
             var entity = __instance.Entity;
             return entity != null && ((entity.Prefab != null && entity.Prefab.Hash == 28396U) ||
                 (entity.PrefabRoot != null && entity.PrefabRoot.Prefab != null && entity.PrefabRoot.Prefab.Hash == 28396U));
@@ -775,7 +800,7 @@ namespace ArmorRestored
                 RemovePublished(i);
             }
             for (int i = owned.Count - 1; i >= 0; i--) if (owned[i] != null) Object.Destroy(owned[i]);
-            owned.Clear(); wornSplits.Clear(); glyphs.Clear(); Array.Clear(Recipes,0,32); Array.Clear(Pages,0,32); Array.Clear(Plans,0,32);
+            owned.Clear(); wornSplits.Clear(); removalGrace.Clear(); glyphs.Clear(); Array.Clear(Recipes,0,32); Array.Clear(Pages,0,32); Array.Clear(Plans,0,32);
             Array.Clear(pageItems,0,32); Array.Clear(recipeGlyphs,0,32); Array.Clear(previousGlyphs,0,32); resultItems = null;
             collection = null; SetStatic(typeof(GenericCraftingRecipe), "mappedResult", null);
             Status = "not registered";

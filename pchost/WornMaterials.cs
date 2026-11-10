@@ -14,6 +14,7 @@ namespace ArmorRestored
         private static readonly Dictionary<uint, Dictionary<int, Material>> Tinted = new Dictionary<uint, Dictionary<int, Material>>();
         private static readonly Dictionary<uint, float> Retry = new Dictionary<uint, float>();
         private static readonly HashSet<uint> Warned = new HashSet<uint>();
+        private static readonly Dictionary<int,Color> AuthoredColors = new Dictionary<int,Color>();
         private static float nextTick;
 
         internal static Material[] Apply(int piece, uint hash, Material[] originals, string meshName = null)
@@ -46,14 +47,115 @@ namespace ArmorRestored
                 // once native assets arrive, without rebuilding the fitted meshes.
                 tinted = new Material(original);
                 tinted.name = original.name + " material " + hash;
+                if(piece / 8 == 3 && original.HasProperty("_Color")) AuthoredColors[tinted.GetInstanceID()]=original.GetColor("_Color");
                 variants[id] = tinted;
             }
             if (Resolve(hash)) Paint(tinted, Colors[hash]);
             return tinted;
         }
 
+        private sealed class LeatherVariant
+        {
+            internal Material Original, Material;
+            internal Texture2D Texture;
+            internal bool Ready;
+        }
+        private static readonly Dictionary<uint,Dictionary<int,LeatherVariant>> Leathers = new Dictionary<uint,Dictionary<int,LeatherVariant>>();
+        internal static Material ApplyLeather(uint hash,Material original,string meshName)
+        {
+            if(hash==0U || original==null) return original;
+            // Only soft hide is dyed. Hardware and neutral glove backing retain their maps.
+            string surface=original.name.ToLowerInvariant();
+            Texture source=original.mainTexture;
+            string atlas=source==null ? "" : source.name;
+            if(!surface.Contains("leather") && !surface.Contains("oxblood") &&
+                atlas!="leather_armor_d" && atlas!="ATT_Leather_Albedo") return original;
+            Dictionary<int,LeatherVariant> variants;
+            if(!Leathers.TryGetValue(hash,out variants)) { variants=new Dictionary<int,LeatherVariant>(); Leathers.Add(hash,variants); }
+            int id=original.GetInstanceID(); LeatherVariant entry;
+            if(!variants.TryGetValue(id,out entry))
+            {
+                entry=new LeatherVariant { Original=original,Material=new Material(original) };
+                entry.Material.name=original.name+" leather dye "+hash;
+                variants.Add(id,entry);
+                UpdateLeather(hash,entry);
+            }
+            return entry.Material;
+        }
+        private static Material NativeLeather(uint hash)
+        {
+            var physical=HashedGeneralValue<PhysicalMaterial>.Get(hash);
+            if(physical==null || physical.Hash!=hash) return null;
+            Material dye=physical.GetNonAtlasedNonDeformingMaterial(0);
+            if(dye==null || !dye.HasProperty("_Color2")) dye=physical.GetMaterial(0);
+            return dye!=null && dye.shader!=null && dye.shader.name=="Township Tale/RampLerp3" &&
+                dye.HasProperty("_Sampler") && dye.HasProperty("_Color1") && dye.HasProperty("_Color2") ? dye : null;
+        }
+        private static float Luminance(Color color) { return .2126f*color.r+.7152f*color.g+.0722f*color.b; }
+        private static void UpdateLeather(uint hash,LeatherVariant entry)
+        {
+            if(entry.Ready || entry.Original==null || entry.Material==null) return;
+            RenderTexture previous=RenderTexture.active,temporary=null; Texture2D texture=null;
+            try
+            {
+                Material dye=NativeLeather(hash); if(dye==null) return;
+                Color dark=ShaderColor(dye,"_Color"),middle=ShaderColor(dye,"_Color1"),light=ShaderColor(dye,"_Color2");
+                float knee=dye.HasProperty("_Color1Position") ? Mathf.Clamp(dye.GetFloat("_Color1Position"),.01f,.99f) : .5f;
+                Texture source=entry.Original.mainTexture;
+                if(source==null)
+                {
+                    if(entry.Material.HasProperty("_Color")) entry.Material.SetColor("_Color",middle);
+                    entry.Ready=true;return;
+                }
+                temporary=RenderTexture.GetTemporary(source.width,source.height,0,RenderTextureFormat.ARGB32,RenderTextureReadWrite.Linear);
+                Graphics.Blit(source,temporary); RenderTexture.active=temporary;
+                texture=new Texture2D(source.width,source.height,TextureFormat.RGBA32,true,true);
+                texture.name="ArmorRestored leather tones "+source.name+" "+hash;
+                texture.filterMode=source.filterMode;texture.wrapMode=source.wrapMode;texture.anisoLevel=source.anisoLevel;
+                texture.ReadPixels(new Rect(0,0,source.width,source.height),0,0);texture.Apply(false,false);
+                var pixels=texture.GetPixels();var histogram=new int[256];
+                for(int i=0;i<pixels.Length;i++) histogram[Mathf.Clamp(Mathf.RoundToInt(Luminance(pixels[i])*255f),0,255)]++;
+                int median=0,total=histogram[0]; while(median<255 && total<pixels.Length/2) total+=histogram[++median];
+                // Map authored median to the native undyed leather's 0.38 tone.
+                float low=0f,mid=.5f,high=1f,referenceKnee=.5f;
+                Material reference=NativeLeather(33384U);
+                if(reference!=null)
+                {
+                    float a=Luminance(ShaderColor(reference,"_Color")),b=Luminance(ShaderColor(reference,"_Color1")),c=Luminance(ShaderColor(reference,"_Color2"));
+                    if(a<b && b<c) {low=a;mid=b;high=c;referenceKnee=Mathf.Clamp(reference.GetFloat("_Color1Position"),.01f,.99f);}
+                }
+                float referenceTone=.38f<referenceKnee ? Mathf.Lerp(low,mid,.38f/referenceKnee) : Mathf.Lerp(mid,high,(.38f-referenceKnee)/(1f-referenceKnee));
+                float scale=referenceTone/(Math.Max(1,median)/255f);
+                for(int i=0;i<pixels.Length;i++)
+                {
+                    float value=Luminance(pixels[i])*scale;
+                    float tone=value<mid ? referenceKnee*Mathf.InverseLerp(low,mid,value) : referenceKnee+(1f-referenceKnee)*Mathf.InverseLerp(mid,high,value);
+                    Color color=tone<knee ? Color.Lerp(dark,middle,tone/knee) : Color.Lerp(middle,light,(tone-knee)/(1f-knee));
+                    color.a=pixels[i].a;pixels[i]=color;
+                }
+                texture.SetPixels(pixels);texture.Apply(true,true);
+                // Bake the ramp into the authored atlas; retain the original shader,
+                // normal/metal maps, UVs, alpha and geometry on both render paths.
+                entry.Material.mainTexture=texture;
+                // The new atlas already contains the dye colors; don't multiply
+                // it by the old brown/oxblood material color a second time.
+                if(entry.Material.HasProperty("_Color")) entry.Material.SetColor("_Color",Color.white);
+                if(entry.Material.HasProperty("_BaseColor")) entry.Material.SetColor("_BaseColor",Color.white);
+                entry.Texture=texture;texture=null;entry.Ready=true;
+            }
+            catch(Exception error) { if(Warned.Add(hash)) Mod.Log.Warning("Leather dye "+hash+": "+error.GetBaseException().Message+"; retaining original texture and retrying."); }
+            finally
+            {
+                RenderTexture.active=previous;
+                if(temporary!=null) RenderTexture.ReleaseTemporary(temporary);
+                if(texture!=null) UnityEngine.Object.Destroy(texture);
+            }
+        }
+
         private static void Paint(Material material, Color tint)
         {
+            Color authored;
+            if(AuthoredColors.TryGetValue(material.GetInstanceID(),out authored)) tint*=authored;
             tint.a = 1f;
             if (material.HasProperty("_Color")) material.SetColor("_Color", tint);
             if (material.HasProperty("_BaseColor")) material.SetColor("_BaseColor", tint);
@@ -63,6 +165,7 @@ namespace ArmorRestored
         {
             if (Time.unscaledTime < nextTick) return;
             nextTick = Time.unscaledTime + 1f;
+            foreach(var palette in Leathers) foreach(var variant in palette.Value.Values) UpdateLeather(palette.Key,variant);
             foreach (KeyValuePair<uint, Dictionary<int, Material>> entry in Tinted)
             {
                 if (!Resolve(entry.Key)) continue;
@@ -187,6 +290,13 @@ namespace ArmorRestored
             foreach (Dictionary<int, Material> variants in Tinted.Values)
                 foreach (Material material in variants.Values)
                     if (material != null) UnityEngine.Object.Destroy(material);
+            foreach(var palette in Leathers) foreach(var variant in palette.Value.Values)
+            {
+                if(variant.Material!=null) UnityEngine.Object.Destroy(variant.Material);
+                if(variant.Texture!=null) UnityEngine.Object.Destroy(variant.Texture);
+            }
+            Leathers.Clear();
+            AuthoredColors.Clear();
             Tinted.Clear();
             Colors.Clear();
             RawColors.Clear();

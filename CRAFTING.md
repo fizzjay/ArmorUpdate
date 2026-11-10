@@ -352,3 +352,38 @@ here. In-game dummy fit, skin deformation, collision/hammer access, save/rejoin,
 mixed-material display and complete/disassemble transactions still need testing
 on PC and Quest. Existing unrelated cosmetic-coverage/grip/rarity work is not
 claimed fixed by this integration.
+
+### Original Hebios appearance, withdrawal grace and leather dyes
+
+- Uncrafted Hebios sends zero appearance hashes instead of coloring the worn set
+  with its randomly assigned physical-material channel. Valid saved crafting
+  provenance alone populates its per-input worn palette. Physical material still
+  exists for native stats/save behavior. Hebios native `PhysicalMaterialPart`
+  receives no renderer targets, preventing it from replacing the original pickup
+  atlases with the default copper material. Metal armor's existing native
+  renderer/material behavior is unchanged.
+- Before a filled armor crafting piece is popped, its station receives a **one
+  second** withdrawal grace period. Both native ingredient acceptance/insertion
+  and the server's held-item auto-release respect that period. The initial
+  dismantling refund gets the same protection before spawning. The grace applies
+  to that station, not unrelated benches or native non-armor projects. Normal
+  auto-placement resumes after the second; there is no permanent drop requirement.
+- Leather now has triangle-to-input ownership maps, with the original geometry
+  untouched. For leather inputs (47760 or 63204), worn soft-hide surfaces use
+  the native `Township Tale/RampLerp3` three-color dye palette. The authored atlas
+  is read on the GPU and tone-mapped using the undyed leather (33384) reference.
+  Dye colors are baked into a cached atlas, preserving source alpha, UVs,
+  normal/metal maps and the existing armor shader. Hardware and neutral Hebios
+  glove backing are not converted into leather. Missing dyes retain the original
+  appearance and retry once a second; cached materials/textures are destroyed on
+  clear. Metal inputs continue using the accepted iron-relative coloring.
+- No new source file or csproj compile entry is required. Update the modified
+  shared files and PC/Quest files together. The crafting signature now ends in
+  `surfaces2`, preventing older rendering code from joining a mismatched server.
+
+These are source/data checks, not game validation. Verify uncrafted Hebios held,
+stand-docked and worn; then craft mixed metal/leather inputs, equip through the
+native dummy, save/rejoin, and compare dyes. Pull a piece off the workbench and
+move it away during the one-second grace; confirm ordinary insertion still works
+afterward. The independent worn palette is authoritative; this patch does not
+add a new per-input network palette for loose completed pickup renderers.

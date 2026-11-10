@@ -24,7 +24,7 @@ def build():
  _,meshes,pieces=parse((ROOT/'quest/ArmorRestored.armor.pack').read_bytes())
  def key(t):return tuple(sorted(tuple(round(x,5) for x in uv) for uv in t))
  result={}
- for p in pieces[8:16]:
+ for p in pieces[:16]:
   lookup=collections.defaultdict(set); vertices=collections.defaultdict(set)
   for i,ts in enumerate(plans[p['id']]):
    for t in ts:
@@ -53,7 +53,7 @@ def build():
       common=set.intersection(*vertex_matches)
       if len(common)==1: matches=common
      group=next(iter(matches)) if len(matches)==1 else fallback
-     if 'glove_flair' in name:group=255
+     if 'glove_flair' in name and p['id'].startswith('metal.'):group=255
      groups.append(group)
    result[name]=groups
  return result
@@ -77,6 +77,15 @@ if __name__=='__main__':
         };
         internal static byte[] Get(string name)
         {
+            if (name != null && name.StartsWith("hebios/",StringComparison.Ordinal))
+            {
+                string[] fields=name.Split('/'); int group,count;
+                if(fields.Length!=5 || !int.TryParse(fields[2],out group) || !int.TryParse(fields[3],out count) ||
+                    (group!=255 && (group<0 || group>3)) || count<1 || count>30000)
+                    throw new InvalidDataException("Invalid Hebios ingredient mesh name");
+                var groups=new byte[count]; for(int i=0;i<count;i++) groups[i]=(byte)group;
+                return groups;
+            }
             string encoded; if(!Maps.TryGetValue(name,out encoded)) return null;
             byte[] runs=Convert.FromBase64String(encoded); var values=new List<byte>();
             for(int i=0;i<runs.Length;i+=2) for(int j=0;j<runs[i+1];j++) values.Add(runs[i]);

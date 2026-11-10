@@ -26,7 +26,7 @@ namespace ArmorRestored
             Set(part, "impactors", new ImpactGenerator[0]);
             Set(part, "listenToPhysicalMaterial", new MonoBehaviour[0]);
             Set(part, "durabilityModule", armor.GetComponent<DurabilityModule>());
-            Set(part, "renderers", armor.GetComponentsInChildren<Renderer>(true));
+            Set(part, "renderers", piece / 8 == 3 ? new Renderer[0] : armor.GetComponentsInChildren<Renderer>(true));
             Set(part, "entity", entity);
             Set(part, "materialDistribution", distribution);
             object registered = Get(entity, "networkEntityBehaviours");
