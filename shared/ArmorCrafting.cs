@@ -348,7 +348,12 @@ namespace ArmorRestored
             if (diagnosticTimes.TryGetValue(key,out previous) && now-previous<interval) return;
             if (diagnosticTimes.Count>=256) diagnosticTimes.Clear();
             diagnosticTimes[key]=now;
-            Mod.Log.Msg("armor craft diag ["+CraftingPatch+" " + (Mod.IsServer ? "server" : "client") + "] " + message);
+#if ARMOR_QUEST
+            const string side = "quest-client";
+#else
+            string side = Mod.IsServer ? "server" : "pc-client";
+#endif
+            Mod.Log.Msg("armor craft diag ["+CraftingPatch+" " + side + "] " + message);
         }
         private static void TrackDiagnostic(GenericCraftingStation __instance)
         {

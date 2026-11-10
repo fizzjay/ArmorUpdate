@@ -319,3 +319,16 @@ class CraftingDiagnosticTests(unittest.TestCase):
                        'auto-place aborted', 'auto-place native Released returned',
                        'native ComponentReleased'):
             self.assertIn(marker, code)
+
+
+class QuestDiagnosticCompilationTests(unittest.TestCase):
+    def test_logger_uses_pc_server_flag_only_in_pc_branch(self):
+        code = source('shared/ArmorCrafting.cs')
+        begin = code.index('internal static void CraftLog(')
+        end = code.index('private static void TrackDiagnostic', begin)
+        logger = code[begin:end]
+        self.assertIn('#if ARMOR_QUEST', logger)
+        quest, pc = logger.split('#if ARMOR_QUEST',1)[1].split('#else',1)
+        self.assertNotIn('Mod.IsServer', quest)
+        self.assertIn('Mod.IsServer', pc)
+        self.assertIn('quest-client', quest)
