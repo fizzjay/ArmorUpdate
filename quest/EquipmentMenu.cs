@@ -32,7 +32,7 @@ namespace ArmorRestoredQuest
             {
                 MethodInfo getter = AccessTools.PropertyGetter(typeof(QuickAccessMenuAction), "IsIgnored");
                 if (getter == null) throw new MissingMethodException("QuickAccessMenuAction.IsIgnored");
-                new Harmony("armorrestored.quest.equipment-menu").Patch(getter,
+                new HarmonyLib.Harmony("armorrestored.quest.equipment-menu").Patch(getter,
                     postfix: new HarmonyMethod(typeof(EquipmentMenu), nameof(IgnoredPostfix)));
                 installed = true;
                 Mod.Log.Msg("equipment menu: native Equipment Mode visibility hook ready; validity and transitions unchanged.");

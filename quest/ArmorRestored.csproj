@@ -67,6 +67,18 @@
     </Reference>
   </ItemGroup>
   <ItemGroup>
+    <Compile Include="..\shared\ArmorCrafting.cs">
+      <Link>ArmorCrafting.cs</Link>
+    </Compile>
+    <Compile Include="..\shared\ArmorCraftingData.cs">
+      <Link>ArmorCraftingData.cs</Link>
+    </Compile>
+    <Compile Include="..\shared\ArmorStats.cs">
+      <Link>ArmorStats.cs</Link>
+    </Compile>
+    <Compile Include="..\shared\ArmorVisibility.cs">
+      <Link>ArmorVisibility.cs</Link>
+    </Compile>
     <Compile Include="..\shared\EquipmentMode.cs">
       <Link>EquipmentMode.cs</Link>
     </Compile>
@@ -108,6 +120,16 @@
   <ItemGroup>
     <EmbeddedResource Include="..\armorstand\stand.bin">
       <LogicalName>ArmorRestored.stand</LogicalName>
+    </EmbeddedResource>
+  </ItemGroup>
+  <ItemGroup>
+    <EmbeddedResource Include="..\crafting\construction.bin">
+      <LogicalName>ArmorRestored.construction.bin</LogicalName>
+    </EmbeddedResource>
+  </ItemGroup>
+  <ItemGroup>
+    <EmbeddedResource Include="..\crafting\glyphs.bin">
+      <LogicalName>ArmorRestored.recipe-glyphs</LogicalName>
     </EmbeddedResource>
   </ItemGroup>
 </Project>

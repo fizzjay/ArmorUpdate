@@ -59,3 +59,23 @@ class EquipmentModeContracts(unittest.TestCase):
         self.assertIn('EquipmentMenu.Install();', source('quest/Main.cs'))
         self.assertIn('EquipmentMenu.Tick();', source('quest/Main.cs'))
         self.assertIn('Compile Include="EquipmentMenu.cs"', source('quest/ArmorRestored.csproj'))
+
+    def test_direct_body_equipment_controls_are_disabled_on_both_clients(self):
+        for path in ('quest/Hands.cs', 'pchost/ClientArmor.cs'):
+            code = source(path)
+            self.assertIn('!modeDummy || !dressed.Dummy', code)
+            self.assertIn('if (me == null || !me.Dummy || !dummy || !EquipmentMode.Same(live, me.Rig)) return;', code)
+            self.assertIn('Closed[0] = ', code)
+
+    def test_quest_menu_uses_unambiguous_harmony_type(self):
+        self.assertIn('new HarmonyLib.Harmony(', source('quest/EquipmentMenu.cs'))
+
+    def test_dummy_removal_is_on_grip_edge_without_dwell(self):
+        quest = source('quest/Hands.cs')
+        pc = source('pchost/ClientArmor.cs')
+        self.assertIn('if (!flag3) return;', quest)
+        self.assertIn('Wire.SendUnequip(num, hand)', quest)
+        self.assertIn('else if (flag2 && array != null', pc)
+        self.assertIn('Net.SendUnequip(slot, i)', pc)
+        self.assertNotIn('Time.unscaledTime - Hands.PendingAt', quest)
+        self.assertNotIn('Time.unscaledTime - ClientArmor.PendingAt', pc)

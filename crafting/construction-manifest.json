@@ -1,0 +1,233 @@
+{
+  "schema": 1,
+  "model_sha256": "119EDC0C48D29C7DBA66F5EA3CC7537E17601BF32184E4EDDEACE6716E897B4A",
+  "pack_sha256": "D003C7633163F4784922B63AE29E25AA3555855853C5996A017C654BB66B5CA7",
+  "recipes": [
+    {
+      "id": "leather.helmet",
+      "reference_only": false,
+      "sources": [
+        47760,
+        47760,
+        63204
+      ],
+      "vertex_counts": [
+        49,
+        181,
+        183
+      ]
+    },
+    {
+      "id": "leather.chest",
+      "reference_only": false,
+      "sources": [
+        47760,
+        47760,
+        63204
+      ],
+      "vertex_counts": [
+        392,
+        392,
+        1546
+      ]
+    },
+    {
+      "id": "leather.shoulder_l",
+      "reference_only": false,
+      "sources": [
+        47760,
+        47760,
+        63204
+      ],
+      "vertex_counts": [
+        182,
+        238,
+        233
+      ]
+    },
+    {
+      "id": "leather.shoulder_r",
+      "reference_only": false,
+      "sources": [
+        47760,
+        47760,
+        63204
+      ],
+      "vertex_counts": [
+        182,
+        238,
+        233
+      ]
+    },
+    {
+      "id": "leather.gauntlet_l",
+      "reference_only": false,
+      "sources": [
+        47760,
+        63204,
+        63204
+      ],
+      "vertex_counts": [
+        273,
+        233,
+        232
+      ]
+    },
+    {
+      "id": "leather.gauntlet_r",
+      "reference_only": false,
+      "sources": [
+        47760,
+        63204,
+        63204
+      ],
+      "vertex_counts": [
+        273,
+        233,
+        232
+      ]
+    },
+    {
+      "id": "leather.tasset_l",
+      "reference_only": false,
+      "sources": [
+        47760,
+        47760,
+        63204
+      ],
+      "vertex_counts": [
+        34,
+        128,
+        156
+      ]
+    },
+    {
+      "id": "leather.tasset_r",
+      "reference_only": false,
+      "sources": [
+        47760,
+        47760,
+        63204
+      ],
+      "vertex_counts": [
+        34,
+        128,
+        156
+      ]
+    },
+    {
+      "id": "metal.helmet",
+      "reference_only": false,
+      "sources": [
+        50988,
+        50988,
+        50988,
+        62594
+      ],
+      "vertex_counts": [
+        374,
+        210,
+        200,
+        34
+      ]
+    },
+    {
+      "id": "metal.chest",
+      "reference_only": false,
+      "sources": [
+        50988,
+        50988,
+        62594
+      ],
+      "vertex_counts": [
+        426,
+        120,
+        12
+      ]
+    },
+    {
+      "id": "metal.shoulder_l",
+      "reference_only": false,
+      "sources": [
+        50988,
+        50988,
+        62594
+      ],
+      "vertex_counts": [
+        142,
+        106,
+        106
+      ]
+    },
+    {
+      "id": "metal.shoulder_r",
+      "reference_only": false,
+      "sources": [
+        50988,
+        50988,
+        62594
+      ],
+      "vertex_counts": [
+        142,
+        106,
+        106
+      ]
+    },
+    {
+      "id": "metal.gauntlet_l",
+      "reference_only": false,
+      "sources": [
+        50988,
+        50988,
+        62594
+      ],
+      "vertex_counts": [
+        3137,
+        436,
+        82
+      ]
+    },
+    {
+      "id": "metal.gauntlet_r",
+      "reference_only": false,
+      "sources": [
+        50988,
+        50988,
+        62594
+      ],
+      "vertex_counts": [
+        3137,
+        436,
+        82
+      ]
+    },
+    {
+      "id": "metal.tasset_l",
+      "reference_only": false,
+      "sources": [
+        50988,
+        50988,
+        62594
+      ],
+      "vertex_counts": [
+        110,
+        120,
+        144
+      ]
+    },
+    {
+      "id": "metal.tasset_r",
+      "reference_only": false,
+      "sources": [
+        50988,
+        50988,
+        62594
+      ],
+      "vertex_counts": [
+        110,
+        120,
+        144
+      ]
+    }
+  ]
+}

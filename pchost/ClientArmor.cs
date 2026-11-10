@@ -38,6 +38,7 @@ namespace ArmorRestored
 		// Token: 0x0600001E RID: 30 RVA: 0x00002FE4 File Offset: 0x000011E4
 		internal static void Clear()
 		{
+            ArmorVisibility.ClearButtons();
 			foreach (ClientArmor.Dressed dressed in ClientArmor.Bodies.Values)
 			{
 				dressed.Coverage.Clear();
@@ -230,6 +231,7 @@ namespace ArmorRestored
 						for (int j = 0; j < 8; j++)
 						{
 							int num = array[j];
+                            if (flag && ArmorVisibility.Hidden(j)) num = -1;
 							if (flag && !dressed.Dummy && j == 0 && !Settings.OwnHelmet)
 							{
 								num = -1;
@@ -441,19 +443,24 @@ namespace ArmorRestored
                 Releases.Clear();
                 ClientArmor.Held[0] = ClientArmor.Held[1] = null;
                 ClientArmor.PendingSlot[0] = ClientArmor.PendingSlot[1] = -1;
+                ClientArmor.Closed[0] = ClientArmor.Closed[1] = false;
                 interactionRig = nextRig;
             }
             bool modeDummy;
             Transform modeRig = EquipmentMode.Resolve(dressed == null ? null : dressed.Rig, out modeDummy);
-            if (dressed == null || !EquipmentMode.Same(modeRig, dressed.Rig) || modeDummy != dressed.Dummy
+            // Armor changes are only available through the native equipment dummy.
+            if (dressed == null || !modeDummy || !dressed.Dummy || !EquipmentMode.Same(modeRig, dressed.Rig) || modeDummy != dressed.Dummy
                 || !dressed.Rig.gameObject.activeInHierarchy)
             {
+                ArmorVisibility.ClearButtons();
                 Releases.Clear();
                 ClientArmor.Held[0] = ClientArmor.Held[1] = null;
                 ClientArmor.PendingSlot[0] = ClientArmor.PendingSlot[1] = -1;
+                ClientArmor.Closed[0] = ClientArmor.Closed[1] = false;
                 return;
             }
-			int[] array = null;
+			ArmorVisibility.Show(dressed.Rig, delegate(int slot) { return Body.Anchor(dressed.Bones, slot); });
+            int[] array = null;
 			if (dressed != null && dressed.Player.UserInfo != null)
 			{
 				ClientArmor.Table.TryGetValue(dressed.Player.UserInfo.Identifier, out array);
@@ -506,55 +513,32 @@ namespace ArmorRestored
 					catch (Exception)
 					{
 					}
-					bool flag2 = flag && !ClientArmor.Closed[i];
+					if (ArmorVisibility.Hand(i, interactor.InteractionPoint == null ? interactor.transform.position : interactor.InteractionPoint.position, flag, !interactor.IsInteracting))
+                    {
+                        ClientArmor.PendingSlot[i] = -1;
+                        ClientArmor.Closed[i] = flag;
+                        continue;
+                    }
+                    bool flag2 = flag && !ClientArmor.Closed[i];
 					ClientArmor.Closed[i] = flag;
 					if (!flag || interactor.IsInteracting)
 					{
 						ClientArmor.PendingSlot[i] = -1;
 					}
-					else if (array != null && dressed != null && Time.unscaledTime >= ClientArmor._cooldown)
-					{
-						if (flag2 || ClientArmor.PendingSlot[i] < 0)
-						{
-							ClientArmor.PendingSlot[i] = ClientArmor.TouchedSlot(dressed, array, interactor.transform.position, i);
-							ClientArmor.PendingAt[i] = Time.unscaledTime;
-							if (Settings.Debug)
-							{
-								Mod.Log.Msg(string.Concat(new string[]
-								{
-									ClientArmor.HandName(i),
-									" hand closed empty ",
-									(ClientArmor.PendingSlot[i] >= 0) ? ("on " + Catalog.Title(array[ClientArmor.PendingSlot[i]])) : "on no worn piece",
-									" (",
-									ClientArmor.Distances(dressed, array, interactor.transform.position),
-									")"
-								}));
-							}
-						}
-						else
-						{
-							int num = ClientArmor.PendingSlot[i];
-							if (num >= 0 && Time.unscaledTime - ClientArmor.PendingAt[i] >= 0.35f)
-							{
-								ClientArmor.PendingSlot[i] = -1;
-								if (array[num] >= 0 && ClientArmor.TouchedSlot(dressed, array, interactor.transform.position, i) == num)
-								{
-									ClientArmor._cooldown = Time.unscaledTime + 1f;
-									Net.SendUnequip(num, i);
-									Mod.Log.Msg(string.Concat(new string[]
-									{
-										"take off ",
-										Catalog.Title(array[num]),
-										" with the ",
-										ClientArmor.HandName(i),
-										" hand"
-									}));
-								}
-							}
-						}
-					}
-				}
-			}
+                    else if (flag2 && array != null && dressed != null && Time.unscaledTime >= ClientArmor._cooldown)
+                    {
+                        // Request immediately on a fresh grip, never while dwelling.
+                        int slot = ClientArmor.TouchedSlot(dressed, array, interactor.transform.position, i);
+                        if (slot >= 0)
+                        {
+                            ClientArmor._cooldown = Time.unscaledTime + 1f;
+                            Net.SendUnequip(slot, i);
+                            Mod.Log.Msg("take off " + Catalog.Title(array[slot]) + " with the " + ClientArmor.HandName(i) + " hand");
+                        }
+                    }
+                }
+            }
+
             Transform target = dressed == null ? null : dressed.Rig;
             bool dummy;
             Transform live = EquipmentMode.Resolve(target, out dummy);
@@ -627,6 +611,9 @@ namespace ArmorRestored
 		// Token: 0x0600002F RID: 47 RVA: 0x0000408C File Offset: 0x0000228C
 		private static void LetGo(ClientArmor.Dressed me, Pickup was)
 		{
+            bool dummy;
+            Transform live = EquipmentMode.Resolve(me == null ? null : me.Rig, out dummy);
+            if (me == null || !me.Dummy || !dummy || !EquipmentMode.Same(live, me.Rig)) return;
             if (ArmorStand.NearSocket(was)) return;
             if (was == null || was.Dock != null || was.IsInteractedWith || was.Interactors.Count != 0) return;
 			if (was == null || was.Entity == null)
@@ -785,7 +772,6 @@ namespace ArmorRestored
 		}
 
 		// Token: 0x04000020 RID: 32
-		private const float HoldToRemove = 0.35f;
 
 		// Token: 0x04000021 RID: 33
 		private static readonly Dictionary<int, int[]> Table = new Dictionary<int, int[]>();

@@ -52,6 +52,18 @@
     <Compile Include="ArmorCommands.cs" />
     <Compile Include="ArmorSet.cs" />
     <Compile Include="Body.cs" />
+    <Compile Include="..\shared\ArmorCrafting.cs">
+      <Link>ArmorCrafting.cs</Link>
+    </Compile>
+    <Compile Include="..\shared\ArmorCraftingData.cs">
+      <Link>ArmorCraftingData.cs</Link>
+    </Compile>
+    <Compile Include="..\shared\ArmorStats.cs">
+      <Link>ArmorStats.cs</Link>
+    </Compile>
+    <Compile Include="..\shared\ArmorVisibility.cs">
+      <Link>ArmorVisibility.cs</Link>
+    </Compile>
     <Compile Include="..\shared\EquipmentMode.cs">
       <Link>EquipmentMode.cs</Link>
     </Compile>
@@ -67,6 +79,9 @@
     <Compile Include="ColliderSpec.cs" />
     <Compile Include="Gate.cs" />
     <Compile Include="Loot.cs" />
+    <Compile Include="WyrmArmorLoot.cs" />
+    <Compile Include="ArmorCraftingServer.cs" />
+    <Compile Include="ArmorCraftRecord.cs" />
     <Compile Include="Main.cs" />
     <Compile Include="MatDef.cs" />
     <Compile Include="MeshDef.cs" />
@@ -99,4 +114,14 @@
     </EmbeddedResource>
   </ItemGroup>
   <Import Project="$(MSBuildToolsPath)\Microsoft.CSharp.targets" />
+  <ItemGroup>
+    <EmbeddedResource Include="..\crafting\construction.bin">
+      <LogicalName>ArmorRestored.construction.bin</LogicalName>
+    </EmbeddedResource>
+  </ItemGroup>
+  <ItemGroup>
+    <EmbeddedResource Include="..\crafting\glyphs.bin">
+      <LogicalName>ArmorRestored.recipe-glyphs</LogicalName>
+    </EmbeddedResource>
+  </ItemGroup>
 </Project>

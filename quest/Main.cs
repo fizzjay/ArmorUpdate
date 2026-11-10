@@ -22,6 +22,8 @@ namespace ArmorRestoredQuest
 				Mod.DataDir = Path.Combine(MelonEnvironment.UserDataDirectory, "ArmorRestored");
 				Directory.CreateDirectory(Mod.DataDir);
 				Settings.Load();
+                try { ArmorStats.Install(); }
+                catch (Exception statsError) { Mod.Log.Warning("armor material stats disabled: " + statsError.Message); }
                 EquipmentMenu.Install();
 				Wire.Prepare();
 				MethodInfo methodInfo = AccessTools.Method(typeof(JoinServerPipeline), "ConnectionApprovedByServer", null, null);
@@ -35,13 +37,13 @@ namespace ArmorRestoredQuest
 					this._running = true;
 					Mod.Log.Msg(string.Concat(new string[]
 					{
-						"0.4.0 started: idle until a server says it runs ArmorRestored (own helmet ",
+						"0.5.0 started: idle until a server says it runs ArmorRestored (own helmet ",
 						Settings.OwnHelmet ? "shown" : "hidden",
 						", debug ",
 						Settings.Debug ? "on" : "off",
 						")."
 					}));
-					Crumb.At("started 0.4.0");
+					Crumb.At("started 0.5.0");
 				}
 			}
 			catch (Exception ex)
@@ -99,7 +101,8 @@ namespace ArmorRestoredQuest
 			}
 			try
 			{
-				Hands.Tick();
+				ArmorStats.Tick();
+                Hands.Tick();
 				ArmorStand.TickDiagnostics();
 			}
 			catch (Exception e3)

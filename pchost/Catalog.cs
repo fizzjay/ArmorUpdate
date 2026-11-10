@@ -178,6 +178,41 @@ namespace ArmorRestored
 			return armorDefinition;
 		}
 
+        private static readonly Dictionary<float, ArmorDefinition> MetalDefinitions = new Dictionary<float, ArmorDefinition>();
+
+        // Keep the native impact pipeline and set conductivity/elemental behavior.
+        // Only physical damage multipliers scale with the material strength.
+        internal static ArmorDefinition MaterialDefinition(int piece, uint material)
+        {
+            ArmorDefinition original = Definition(piece / 8);
+            if (piece / 8 != 1) return original;
+            float strength = ArmorStats.Strength(material);
+            if (strength == 1f) return original;
+            ArmorDefinition result;
+            if (MetalDefinitions.TryGetValue(strength, out result)) return result;
+            FieldInfo entries = typeof(ArmorDefinition).GetField("attackTypeMultipliers", BindingFlags.Instance | BindingFlags.Public | BindingFlags.NonPublic);
+            FieldInfo kind = typeof(AttackTypeMultiplier).GetField("type", BindingFlags.Instance | BindingFlags.Public | BindingFlags.NonPublic);
+            FieldInfo amount = typeof(AttackTypeMultiplier).GetField("multiplier", BindingFlags.Instance | BindingFlags.Public | BindingFlags.NonPublic);
+            var values = new List<AttackTypeMultiplier>();
+            foreach (AttackTypeMultiplier entry in (AttackTypeMultiplier[])entries.GetValue(original))
+            {
+                var copy = new AttackTypeMultiplier();
+                ImpactType type = (ImpactType)kind.GetValue(entry);
+                float multiplier = (float)amount.GetValue(entry);
+                if ((int)type == 0 || (int)type == 1 || (int)type == 2)
+                    multiplier = Mathf.Pow(Mathf.Clamp(multiplier, .01f, 1f), strength);
+                kind.SetValue(copy, type);
+                amount.SetValue(copy, multiplier);
+                values.Add(copy);
+            }
+            result = Object.Instantiate(original);
+            result.name = "Metal Armor material strength " + strength;
+            entries.SetValue(result, values.ToArray());
+            Object.DontDestroyOnLoad(result);
+            MetalDefinitions.Add(strength, result);
+            return result;
+        }
+
 		// Token: 0x0400001C RID: 28
 		internal const int FirstNumber = 52830;
 

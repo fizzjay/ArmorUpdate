@@ -114,12 +114,14 @@ namespace ArmorRestoredQuest
 			{
 				uint num = 5U;
 				s.SerializeBits(ref num, 8);
-				int num2 = 3;
+				int num2 = 4;
 				s.SerializeInteger(ref num2);
 				string version2 = version;
 				string refused2 = refused;
 				s.SerializeString(ref version2, (Stream.StringEncoding)1);
 				s.SerializeString(ref refused2, (Stream.StringEncoding)1);
+                string signature = ArmorCrafting.Signature;
+                s.SerializeString(ref signature, (Stream.StringEncoding)1);
 			});
 		}
 
@@ -202,7 +204,7 @@ namespace ArmorRestoredQuest
 		internal const int Type = 137;
 
 		// Token: 0x04000093 RID: 147
-		internal const int Number = 3;
+		internal const int Number = 4;
 
 		// Token: 0x04000094 RID: 148
 		private const uint Equip = 2U;

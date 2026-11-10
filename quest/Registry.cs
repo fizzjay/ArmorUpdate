@@ -122,7 +122,9 @@ namespace ArmorRestoredQuest
 							}
 						}
 						ArmorStand.Register(Registry._holder, Registry.Prefabs, Registry.Items);
+                        ArmorCrafting.Register(Registry._holder, Registry.Prefabs, Registry.Items);
                         if (ArmorStand.Prefab == null) list.Add("armorstand");
+                        if (!ArmorCrafting.Ready) list.Add("crafting");
                         Crumb.At("register: itemsByName reset");
 						HashedGeneralValue<Item>.itemsByName = null;
 						Registry._refused = string.Join(",", list.ToArray());
@@ -486,6 +488,7 @@ namespace ArmorRestoredQuest
 		// Token: 0x0600006D RID: 109 RVA: 0x0000768C File Offset: 0x0000588C
 		internal static string Unregister()
 		{
+            ArmorCrafting.Unregister();
             ArmorStand.Unregister();
 			Il2CppSystem.Collections.Generic.Dictionary<uint, NetworkPrefab> prefabMap = PrefabManager.prefabMap;
 			Il2CppSystem.Collections.Generic.Dictionary<uint, Item> items = HashedGeneralValue<Item>.items;

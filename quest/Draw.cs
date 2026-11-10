@@ -184,6 +184,7 @@ namespace ArmorRestoredQuest
 						for (int j = 0; j < 8; j++)
 						{
 							int num = array[j];
+                            if (flag && ArmorVisibility.Hidden(j)) num = -1;
 							if (flag && !dressed.Dummy && j == 0 && !Settings.OwnHelmet)
 							{
 								num = -1;

@@ -27,6 +27,7 @@ namespace ArmorRestoredQuest
 		// Token: 0x06000031 RID: 49 RVA: 0x00003BC8 File Offset: 0x00001DC8
 		internal static void Clear()
 		{
+            ArmorVisibility.ClearButtons();
 			Hands.Held[0] = (Hands.Held[1] = null);
 			Hands.Closed[0] = (Hands.Closed[1] = false);
 			Hands.PendingSlot[0] = (Hands.PendingSlot[1] = -1);
@@ -63,19 +64,24 @@ namespace ArmorRestoredQuest
                 Releases.Clear();
                 Hands.Held[0] = Hands.Held[1] = null;
                 Hands.PendingSlot[0] = Hands.PendingSlot[1] = -1;
+                Hands.Closed[0] = Hands.Closed[1] = false;
                 interactionRig = nextRig;
             }
             bool modeDummy;
             Transform modeRig = EquipmentMode.Resolve(dressed == null ? null : dressed.Rig, out modeDummy);
-            if (dressed == null || !EquipmentMode.Same(modeRig, dressed.Rig) || modeDummy != dressed.Dummy
+            // Armor changes are only available through the native equipment dummy.
+            if (dressed == null || !modeDummy || !dressed.Dummy || !EquipmentMode.Same(modeRig, dressed.Rig) || modeDummy != dressed.Dummy
                 || !dressed.Rig.gameObject.activeInHierarchy)
             {
+                ArmorVisibility.ClearButtons();
                 Releases.Clear();
                 Hands.Held[0] = Hands.Held[1] = null;
                 Hands.PendingSlot[0] = Hands.PendingSlot[1] = -1;
+                Hands.Closed[0] = Hands.Closed[1] = false;
                 return;
             }
-			int[] worn = Draw.WornBy(dressed);
+			ArmorVisibility.Show(dressed.Rig, delegate(int slot) { return Hands.Anchor(dressed, slot); });
+            int[] worn = Draw.WornBy(dressed);
 			for (int i = 0; i < 2; i++)
 			{
 				Hands.Hand(i, dressed, worn);
@@ -126,6 +132,12 @@ namespace ArmorRestoredQuest
 			Hands.Held[hand] = pickup;
             Releases.Holding(pickup);
 			bool flag2 = Hands.Grip(interactor);
+            if (ArmorVisibility.Hand(hand, interactor.InteractionPoint == null ? interactor.transform.position : interactor.InteractionPoint.position, flag2, !isInteracting))
+            {
+                Hands.PendingSlot[hand] = -1;
+                Hands.Closed[hand] = flag2;
+                return;
+            }
 			bool flag3 = flag2 && !Hands.Closed[hand];
 			Hands.Closed[hand] = flag2;
 			if (!flag2 || isInteracting)
@@ -138,34 +150,10 @@ namespace ArmorRestoredQuest
 				return;
 			}
 			Vector3 position = interactor.transform.position;
-			if (flag3 || Hands.PendingSlot[hand] < 0)
-			{
-				Hands.PendingSlot[hand] = Hands.TouchedSlot(me, worn, position, hand);
-				Hands.PendingAt[hand] = Time.unscaledTime;
-				if (Settings.Debug)
-				{
-					Mod.Log.Msg(string.Concat(new string[]
-					{
-						Hands.HandName(hand),
-						" hand closed empty ",
-						(Hands.PendingSlot[hand] >= 0) ? ("on " + Catalog.Title(worn[Hands.PendingSlot[hand]])) : "on no worn piece",
-						" (",
-						Hands.Distances(me, worn, position),
-						")"
-					}));
-				}
-				return;
-			}
-			int num = Hands.PendingSlot[hand];
-			if (num < 0 || Time.unscaledTime - Hands.PendingAt[hand] < 0.35f)
-			{
-				return;
-			}
-			Hands.PendingSlot[hand] = -1;
-			if (worn[num] < 0 || Hands.TouchedSlot(me, worn, position, hand) != num)
-			{
-				return;
-			}
+            // One fresh press = one removal request. No dwell or hold timer.
+            if (!flag3) return;
+            int num = Hands.TouchedSlot(me, worn, position, hand);
+            if (num < 0) return;
 			Hands._cooldown = Time.unscaledTime + 1f;
 			Wire.SendUnequip(num, hand);
 			Mod.Log.Msg(string.Concat(new string[]
@@ -251,6 +239,9 @@ namespace ArmorRestoredQuest
 		// Token: 0x06000038 RID: 56 RVA: 0x00004078 File Offset: 0x00002278
 		private static void LetGo(Dressed me, Pickup was)
 		{
+            bool dummy;
+            Transform live = EquipmentMode.Resolve(me == null ? null : me.Rig, out dummy);
+            if (me == null || !me.Dummy || !dummy || !EquipmentMode.Same(live, me.Rig)) return;
             if (ArmorStand.NearSocket(was)) return;
             if (was == null || was.Dock != null || was.IsInteractedWith || was.Interactors.Count != 0) return;
 			int num = Hands.PieceOf(was);
@@ -524,7 +515,6 @@ namespace ArmorRestoredQuest
 		}
 
 		// Token: 0x0400002C RID: 44
-		private const float HoldToRemove = 0.35f;
 
 		// Token: 0x0400002D RID: 45
 		private const float TouchReach = 0.2f;

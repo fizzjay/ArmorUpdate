@@ -46,8 +46,21 @@ namespace ArmorRestored
 					int num = 0;
 					while (num < array3.Length && num < 8)
 					{
-						string[] saved = array3[num].Split('@');
+						string[] originFields = array3[num].Split('#');
+                        string[] saved = originFields[0].Split('@');
 						array4[num] = ServerArmor.PieceById(saved[0]);
+                        if (originFields.Length > 1 && array4[num] >= 0)
+                        {
+                            string encoded = originFields[1];
+                            try
+                            {
+                                if (originFields.Length != 2 || encoded.Length > 440) throw new InvalidDataException("Invalid worn origin length");
+                                var origin = ArmorCraftOrigin.Decode(Convert.FromBase64String(encoded));
+                                if (origin.Result != (uint)Catalog.Number(array4[num])) throw new InvalidDataException("Worn origin/result mismatch");
+                                OriginsFor(array2[0])[num] = encoded;
+                            }
+                            catch { OriginsFor(array2[0])[num] = "!"; Mod.Log.Warning("Invalid worn crafting origin retained as non-refundable for " + array2[0]); }
+                        }
 						uint material;
 						if (saved.Length == 2 && uint.TryParse(saved[1], out material))
 							ServerArmor.MaterialsFor(array2[0])[num] = material;
@@ -86,6 +99,8 @@ namespace ArmorRestored
 						uint material = ServerArmor.MaterialsFor(keyValuePair.Key)[j];
 						if (keyValuePair.Value[j] >= 0 && material != 0U)
 							stringBuilder.Append('@').Append(material);
+                        string origin = OriginsFor(keyValuePair.Key)[j];
+                        if (keyValuePair.Value[j] >= 0 && origin != null) stringBuilder.Append('#').Append(origin);
 					}
 					stringBuilder.Append('\n');
 				}
@@ -184,7 +199,8 @@ namespace ArmorRestored
 					{
 						Wiring w = Body.Wire(player2.PlayerCharacter.transform, true);
 						ServerArmor.Wired[instanceID] = w;
-						Body.Apply(w, ServerArmor.WornBy(player2));
+						Body.Apply(w, ServerArmor.WornBy(player2), MaterialsFor(Players.Name(player2)));
+                            ArmorStats.RefreshWearer(player2);
 						HealthObject healthObject = Body.Health(w);
 						if (healthObject != null)
 						{
@@ -275,7 +291,8 @@ namespace ArmorRestored
 		private static void Changed(Player p)
 		{
 			ServerArmor.Save();
-			Body.Apply(ServerArmor.WiringOf(p), ServerArmor.WornBy(p));
+			Body.Apply(ServerArmor.WiringOf(p), ServerArmor.WornBy(p), MaterialsFor(Players.Name(p)));
+            ArmorStats.RefreshWearer(p);
 			ServerArmor._dirty = true;
 		}
 
@@ -313,6 +330,19 @@ namespace ArmorRestored
 			int num3 = array[num2];
 			uint material = ArmorMaterials.Read(networkEntity);
 			uint[] materials = MaterialsFor(Players.Name(p));
+            string[] origins = OriginsFor(Players.Name(p));
+            string incomingOrigin = null;
+            try
+            {
+                var record = networkEntity.GetComponent<ArmorCraftRecord>();
+                var origin = record == null ? null : record.Read();
+                if (origin != null)
+                {
+                    if (origin.Result != networkEntity.Prefab.Hash) throw new InvalidDataException("Crafted origin/result mismatch");
+                    incomingOrigin = Convert.ToBase64String(origin.Encode());
+                }
+            }
+            catch (Exception error) { Net.SendNote(p,"equip cancelled: invalid crafted armor origin: " + error.Message); return; }
             if (Catalog.SetOf(num).Id == "metal" && material == 0U)
             {
                 Net.SendNote(p, "equip cancelled: could not read this item's metal material; item was not consumed");
@@ -320,12 +350,19 @@ namespace ArmorRestored
                 return;
             }
             // Do not consume the incoming item if the replaced piece cannot be returned.
-            if (num3 >= 0 && ServerArmor.Spawn(num3, position, Quaternion.identity, materials[num2]) == null)
+            NetworkEntity returned = null;
+            if (num3 >= 0 && (returned = ServerArmor.Spawn(num3, position, Quaternion.identity, materials[num2], origins[num2])) == null)
             {
                 Net.SendNote(p, "equip cancelled: could not return the previously worn piece");
                 return;
             }
             networkEntity.SceneDestroy();
+            if (networkEntity != null && !networkEntity.IsBeingDestroyed)
+            {
+                if (returned != null) returned.SceneDestroy();
+                Net.SendNote(p,"equip cancelled: incoming item could not be consumed"); return;
+            }
+            origins[num2] = incomingOrigin;
 			array[num2] = num;
 			materials[num2] = material;
 			Mod.Log.Msg(Players.Name(p) + " put on " + Catalog.Title(num) + ((num3 >= 0) ? (" (dropped " + Catalog.Title(num3) + ")") : ""));
@@ -352,13 +389,14 @@ namespace ArmorRestored
 				return;
 			}
 			Vector3 at = ServerArmor.Hand(p, hand);
-			NetworkEntity networkEntity = ServerArmor.Spawn(num, at, Quaternion.identity, MaterialsFor(Players.Name(p))[slot]);
+			NetworkEntity networkEntity = ServerArmor.Spawn(num, at, Quaternion.identity, MaterialsFor(Players.Name(p))[slot], OriginsFor(Players.Name(p))[slot]);
 			if (networkEntity == null)
 			{
 				Net.SendNote(p, "could not spawn " + Catalog.Title(num));
 				return;
 			}
-			MaterialsFor(Players.Name(p))[slot] = 0U;
+			OriginsFor(Players.Name(p))[slot] = null;
+            MaterialsFor(Players.Name(p))[slot] = 0U;
 			array[slot] = -1;
 			Mod.Log.Msg(Players.Name(p) + " took off " + Catalog.Title(num));
 			ServerArmor.Changed(p);
@@ -366,7 +404,7 @@ namespace ArmorRestored
 		}
 
 		// Token: 0x0600009C RID: 156 RVA: 0x000096D4 File Offset: 0x000078D4
-		internal static NetworkEntity Spawn(int piece, Vector3 at, Quaternion rot, uint material = 0U)
+		internal static NetworkEntity Spawn(int piece, Vector3 at, Quaternion rot, uint material = 0U, string origin = null)
 		{
 			NetworkPrefab networkPrefab = Prefabs.ByPiece[piece];
 			if (networkPrefab == null)
@@ -378,11 +416,29 @@ namespace ArmorRestored
 			NetworkEntity template = networkPrefab.GetComponent<NetworkEntity>();
 			uint previous = template == null ? 0U : ArmorMaterials.Read(template);
 			NetworkEntity networkEntity;
+            NetworkEntity unpublished = null;
+            ArmorCraftOrigin savedOrigin = origin == null ? null : ArmorCraftOrigin.Decode(Convert.FromBase64String(origin));
+            if (savedOrigin != null && savedOrigin.Result != (uint)Catalog.Number(piece)) throw new InvalidDataException("Returned origin/result mismatch");
 			try
 			{
 				ArmorMaterials.Restore(template, material);
-				networkEntity = SpawnHelper.Spawn(networkPrefab, SpawnData.Default, null, at, rot, null);
+				networkEntity = SpawnHelper.Spawn(networkPrefab, SpawnData.Default, null, at, rot, entity =>
+                {
+                    unpublished = entity;
+                    ArmorMaterials.Restore(entity,material);
+                    if (savedOrigin != null)
+                    {
+                        var record = entity.GetComponent<ArmorCraftRecord>();
+                        if (record == null) throw new InvalidOperationException("Returned armor has no saved origin component");
+                        record.Store(savedOrigin);
+                    }
+                });
 			}
+            catch
+            {
+                if (unpublished != null && !unpublished.IsBeingDestroyed) unpublished.SceneDestroy();
+                throw;
+            }
 			finally
 			{
 				ArmorMaterials.Restore(template, previous);
@@ -404,6 +460,7 @@ namespace ArmorRestored
 		{
 			ServerArmor.WornBy(p)[piece % 8] = piece;
 			MaterialsFor(Players.Name(p))[piece % 8] = 0U;
+            OriginsFor(Players.Name(p))[piece % 8] = null;
 			ServerArmor.Changed(p);
 		}
 
@@ -419,9 +476,10 @@ namespace ArmorRestored
 				{
 					if (drop)
 					{
-						ServerArmor.Spawn(array[i], vector + Vector3.up * 0.15f * (float)num, Quaternion.identity, MaterialsFor(Players.Name(p))[i]);
+						if (ServerArmor.Spawn(array[i], vector + Vector3.up * 0.15f * (float)num, Quaternion.identity, MaterialsFor(Players.Name(p))[i], OriginsFor(Players.Name(p))[i]) == null) continue;
 					}
-					MaterialsFor(Players.Name(p))[i] = 0U;
+					OriginsFor(Players.Name(p))[i] = null;
+                    MaterialsFor(Players.Name(p))[i] = 0U;
 					array[i] = -1;
 					num++;
 				}
@@ -499,7 +557,7 @@ namespace ArmorRestored
 		// Token: 0x040000A7 RID: 167
 		private static readonly Dictionary<string, uint[]> Materials = new Dictionary<string, uint[]>(StringComparer.OrdinalIgnoreCase);
 
-		private static uint[] MaterialsFor(string player)
+		internal static uint[] MaterialsFor(string player)
 		{
 			uint[] values;
 			if (!Materials.TryGetValue(player, out values))
@@ -510,7 +568,15 @@ namespace ArmorRestored
 			return values;
 		}
 
-		private static readonly Dictionary<string, int[]> Worn = new Dictionary<string, int[]>(StringComparer.OrdinalIgnoreCase);
+		private static readonly Dictionary<string,string[]> Origins = new Dictionary<string,string[]>(StringComparer.OrdinalIgnoreCase);
+        private static string[] OriginsFor(string player)
+        {
+            string[] values;
+            if (!Origins.TryGetValue(player,out values)) { values = new string[8]; Origins[player] = values; }
+            return values;
+        }
+
+        private static readonly Dictionary<string, int[]> Worn = new Dictionary<string, int[]>(StringComparer.OrdinalIgnoreCase);
 
 		// Token: 0x040000A8 RID: 168
 		private static readonly Dictionary<int, Wiring> Wired = new Dictionary<int, Wiring>();
