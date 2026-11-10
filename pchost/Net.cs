@@ -343,6 +343,10 @@ namespace ArmorRestored
 				{
 					problem = "Your ArmorRestored " + hello.Version + " is newer than this server's 0.5.0. The server needs an update first.";
 				}
+                else if (ArmorCrafting.Ready && string.IsNullOrEmpty(hello.Signature))
+                {
+                    problem = "Client armor crafting registration failed. Check the client log for armor crafting disabled at; join is blocked to protect native recipes.";
+                }
 				else if (hello.Signature != ArmorCrafting.Signature)
                 {
                     problem = "Armor construction data differs between server and client. Install the same ArmorRestored build.";

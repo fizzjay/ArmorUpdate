@@ -100,9 +100,8 @@ namespace ArmorRestored
                 }
                 foreach (uint source in new uint[] { 47760U, 63204U, 50988U, 62594U })
                     if (!templates.ContainsKey(source)) throw new InvalidOperationException("Missing native ingredient template " + source);
-                var paper = FindPrefab(37066U);
-                if (paper == null || Component<Pickup>(paper.gameObject) == null || Component<PageInstance>(paper.gameObject) == null || Component<Pickup>(paper.gameObject).Item == null)
-                    throw new InvalidOperationException("Original Paper #37066 unavailable");
+                stage = "resolving native recipe paper";
+                var paper = ResolvePaper();
                 collection = HashedGeneralValue<PageCollection>.Get(57634U);
                 if (collection == null || collection.PreferredProvider != 2 || collection.Size + 16 > 255)
                     throw new InvalidOperationException("Native crafting book collection unavailable/full");
@@ -303,17 +302,57 @@ namespace ArmorRestored
             if (__instance.Data == null) __instance.Set(Recipes[index].CreatePage(2));
             return false;
         }
+        private static Item PaperItem(NetworkPrefab prefab)
+        {
+            if (prefab == null) return null;
+            var pickup = ChildComponent<Pickup>(prefab.gameObject);
+            if (pickup == null) return null;
+            return pickup.Item != null ? pickup.Item : FindItem(prefab.Hash);
+        }
+        private static bool IsPaper(NetworkPrefab prefab)
+        {
+            return prefab != null && ChildComponent<PageInstance>(prefab.gameObject) != null && PaperItem(prefab) != null;
+        }
+        private static NetworkPrefab ResolvePaper()
+        {
+            // PC's original paper is not necessarily present in Quest's prefab map.
+            // A native Item may retain the prefab even when the map omits it.
+            var original = FindPrefab(37066U);
+            if (IsPaper(original)) return original;
+            var originalItem = FindItem(37066U);
+            if (originalItem != null && IsPaper(originalItem.Prefab)) return originalItem.Prefab;
+            NetworkPrefab selected = null;
+#if ARMOR_QUEST
+            var nativeItems = NativeEnumerable.Items<Item>(HashedGeneralValue<Item>.All);
+#else
+            var nativeItems = HashedGeneralValue<Item>.All;
+#endif
+            foreach (Item item in nativeItems)
+            {
+                if (item == null || item.Prefab == null || (item.Hash >= PageStart && item.Hash < PageStart+16)) continue;
+                var prefab = item.Prefab;
+                string name = (item.name ?? "") + " " + (prefab.name ?? "");
+                if (name.IndexOf("paper",StringComparison.OrdinalIgnoreCase) < 0 || !IsPaper(prefab)) continue;
+                if (selected == null || prefab.Hash < selected.Hash) selected = prefab;
+            }
+            if (selected == null)
+                throw new InvalidOperationException("No native paper template with Pickup, Item and PageInstance; #37066=" +
+                    (original == null ? "absent" : original.name + ", pickup=" + (ChildComponent<Pickup>(original.gameObject)!=null) +
+                     ", page=" + (ChildComponent<PageInstance>(original.gameObject)!=null) + ", item=" + (PaperItem(original)!=null)));
+            Mod.Log.Msg("armor crafting: native paper fallback " + selected.Hash + " (" + selected.name + ")");
+            return selected;
+        }
         private static void BuildPage(int index, GameObject holder, NetworkPrefab paper)
         {
             GameObject root = Cast<GameObject>(Object.Instantiate(paper.gameObject, holder.transform));
             if (root == null) throw new InvalidOperationException("Could not clone recipe paper");
             owned.Add(root); root.name = "Armor recipe " + Catalog.Title(index);
             var prefab = Component<NetworkPrefab>(root);
-            if (prefab == null || Component<PageInstance>(root) == null)
+            if (prefab == null || ChildComponent<PageInstance>(root) == null)
                 throw new InvalidOperationException("Cloned paper is missing native prefab/page component");
             Pages[index] = prefab;
             Set(prefab, "hash", (int)(PageStart + (uint)index)); Set(prefab, "SaveMode", 0);
-            var item = Cast<Item>(Object.Instantiate(Component<Pickup>(paper.gameObject).Item));
+            var item = Cast<Item>(Object.Instantiate(PaperItem(paper)));
             if (item == null) throw new InvalidOperationException("Could not clone recipe paper item");
             owned.Add(item); pageItems[index] = item; item.name = root.name; Set(item, "hash", (int)(PageStart + (uint)index)); item.Prefab = prefab;
             foreach (Pickup pickup in Pickups(root)) if (pickup != null) pickup.Item = item;
@@ -382,6 +421,16 @@ namespace ArmorRestored
         private static T New<T>() where T : ScriptableObject { return ScriptableObject.CreateInstance(Il2CppType.Of<T>()).TryCast<T>(); }
         private static T Cast<T>(Object value) where T : Il2CppObjectBase { return value == null ? null : value.TryCast<T>(); }
         private static T Component<T>(GameObject root) where T : UnityEngine.Component { return root.GetComponent(Il2CppType.Of<T>())?.TryCast<T>(); }
+        private static T ChildComponent<T>(GameObject root) where T : UnityEngine.Component
+        {
+            if (root == null) return null;
+            foreach (UnityEngine.Component component in root.GetComponentsInChildren(Il2CppType.Of<T>(),true))
+            {
+                var typed = component == null ? null : component.TryCast<T>();
+                if (typed != null) return typed;
+            }
+            return null;
+        }
         private static IEnumerable<Pickup> Pickups(GameObject root)
         { foreach (UnityEngine.Component component in root.GetComponentsInChildren(Il2CppType.Of<Pickup>(),true)) yield return component.TryCast<Pickup>(); }
         private static void PublishGlyph(Glyph glyph) { HashedGeneralValue<Glyph>.items.Add(glyph.Hash,glyph); HashedGeneralValue<Glyph>.itemsByName = null; }
@@ -402,6 +451,8 @@ namespace ArmorRestored
         private static T New<T>() where T : ScriptableObject { return ScriptableObject.CreateInstance<T>(); }
         private static T Cast<T>(Object value) where T : class { return value as T; }
         private static T Component<T>(GameObject root) where T : UnityEngine.Component { return root.GetComponent<T>(); }
+        private static T ChildComponent<T>(GameObject root) where T : UnityEngine.Component
+        { return root == null ? null : root.GetComponentInChildren<T>(true); }
         private static IEnumerable<Pickup> Pickups(GameObject root) { return root.GetComponentsInChildren<Pickup>(true); }
         private static Dictionary<uint,T> Values<T>()
         {

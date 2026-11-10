@@ -214,5 +214,19 @@ class CraftingLazyRegistryTests(unittest.TestCase):
     def test_page_and_result_preflight_checks(self):
         text=source('shared/ArmorCrafting.cs')
         self.assertIn('armor.Length < 16 || items.Length < 16',text)
-        self.assertIn('Component<Pickup>(paper.gameObject).Item == null',text)
+        self.assertIn('var paper = ResolvePaper()',text)
         self.assertIn('Cloned paper is missing native prefab/page component',text)
+
+
+class NativePaperResolutionTests(unittest.TestCase):
+    def test_paper_is_resolved_from_validated_native_templates(self):
+        text=source('shared/ArmorCrafting.cs')
+        self.assertIn('ChildComponent<PageInstance>(prefab.gameObject)',text)
+        self.assertIn('originalItem.Prefab',text)
+        self.assertIn('NativeEnumerable.Items<Item>(HashedGeneralValue<Item>.All)',text)
+        self.assertIn('!IsPaper(prefab)',text)
+        self.assertIn('Object.Instantiate(PaperItem(paper))',text)
+
+    def test_failed_client_is_not_reported_as_data_mismatch(self):
+        text=source('pchost/Net.cs')
+        self.assertLess(text.index('string.IsNullOrEmpty(hello.Signature)'),text.index('hello.Signature != ArmorCrafting.Signature'))
