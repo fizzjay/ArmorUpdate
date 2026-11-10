@@ -343,6 +343,38 @@ namespace ArmorRestored
                     (namedPaper == selectedNamedPaper && prefab.Hash < selected.Hash))
                 { selected = prefab; selectedNamedPaper = namedPaper; }
             }
+            int loadedFromFolder = 0, loadedPrefabCount = 0, loadedBookCount = 0;
+            if (selected == null)
+            {
+                // PrepareSpawnSetups may already have run against a partial map.
+                // Explicitly load the same resource folder used by the native
+                // PC PrepareSpawnSetups, without clearing/rebuilding prefabMap.
+#if ARMOR_QUEST
+                var resources = Resources.LoadAll("Network Prefabs",Il2CppType.Of<NetworkPrefab>());
+#else
+                var resources = Resources.LoadAll<NetworkPrefab>("Network Prefabs");
+#endif
+                loadedFromFolder = resources.Length;
+                foreach (Object value in resources)
+                {
+                    var candidate = Cast<NetworkPrefab>(value);
+                    if (!IsPaper(candidate)) continue;
+                    if (selected == null || candidate.Hash < selected.Hash) selected = candidate;
+                }
+#if ARMOR_QUEST
+                var loadedPrefabs = Resources.FindObjectsOfTypeAll(Il2CppType.Of<NetworkPrefab>());
+#else
+                var loadedPrefabs = Resources.FindObjectsOfTypeAll<NetworkPrefab>();
+#endif
+                loadedPrefabCount = loadedPrefabs.Length;
+                foreach (Object value in loadedPrefabs)
+                {
+                    var candidate = Cast<NetworkPrefab>(value);
+                    // Only asset templates, never clone a live player's page.
+                    if (candidate == null || candidate.gameObject.scene.IsValid() || !IsPaper(candidate)) continue;
+                    if (selected == null || candidate.Hash < selected.Hash) selected = candidate;
+                }
+            }
             // Books hold the native paper asset directly. On Quest that asset
             // can be absent from prefabMap even though books already reference it.
             // Use this authored reference instead of fabricating a paper object.
@@ -353,6 +385,7 @@ namespace ArmorRestored
 #else
                 var books = Resources.FindObjectsOfTypeAll<Book>();
 #endif
+                loadedBookCount = books.Length;
                 foreach (Object value in books)
                 {
                     var book = Cast<Book>(value);
@@ -365,9 +398,29 @@ namespace ArmorRestored
             if (selected == null)
                 throw new InvalidOperationException("No native paper template with Pickup, Item and PageInstance; #37066=" +
                     (original == null ? "absent" : original.name + ", pickup=" + (ChildComponent<Pickup>(original.gameObject)!=null) +
-                     ", page=" + (ChildComponent<PageInstance>(original.gameObject)!=null) + ", item=" + (PaperItem(original)!=null)));
+                     ", page=" + (ChildComponent<PageInstance>(original.gameObject)!=null) + ", item=" + (PaperItem(original)!=null)) +
+                    "; folder=" + loadedFromFolder + ", loadedPrefabs=" + loadedPrefabCount + ", books=" + loadedBookCount +
+                    "; " + PaperDiagnostics());
             Mod.Log.Msg("armor crafting: native paper fallback " + selected.Hash + " (" + selected.name + ")");
             return selected;
+        }
+        private static string PaperDiagnostics()
+        {
+            // Bounded diagnostics identify whether the APK has actual paper
+            // components, rather than another round of guessed hash fallbacks.
+#if ARMOR_QUEST
+            var pages = Resources.FindObjectsOfTypeAll(Il2CppType.Of<PaperPageInstance>());
+#else
+            var pages = Resources.FindObjectsOfTypeAll<PaperPageInstance>();
+#endif
+            var details = new List<string>();
+            foreach (Object value in pages)
+            {
+                var page = Cast<PaperPageInstance>(value);
+                if (page == null || details.Count >= 6) continue;
+                details.Add(page.name);
+            }
+            return "loadedPaperPages=" + pages.Length + " [" + string.Join(", ",details.ToArray()) + "]";
         }
         private static void BuildPage(int index, GameObject holder, NetworkPrefab paper)
         {

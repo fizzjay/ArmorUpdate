@@ -171,3 +171,14 @@ both supplied Root assemblies. This does not read `Item.Prefab` or register an
 arbitrary original hash. The chosen native asset is cloned under the existing
 fixed armor-page IDs. If no loaded book supplies a valid paper asset, registration
 still stops safely; this fallback has not yet been confirmed in-game.
+
+### Explicit Quest resource discovery
+
+The book-reference fallback was reported insufficient on Quest. The resolver now
+explicitly requests NetworkPrefab assets from `Network Prefabs` (the resource
+folder read by PC native PrepareSpawnSetups), then inspects loaded prefab assets
+outside the map. Scene instances are excluded from that asset fallback. It does
+not clear or rebuild the native map or assume that an empty search means paper
+exists. Failure includes folder/prefab/book counts and up to six loaded native
+paper-page names. This patch cannot supply an asset missing from the APK, and
+its resource-loading fallback has not been verified in-game.

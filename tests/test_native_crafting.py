@@ -258,3 +258,18 @@ class BookPaperReferenceRegressionTests(unittest.TestCase):
         self.assertIn('Get(book,"paperPrefab") as NetworkPrefab',text)
         self.assertIn('if (!IsPaper(paper)) continue;',text)
         self.assertNotIn('new GameObject("Paper',text)
+
+
+class QuestPaperLoadingTests(unittest.TestCase):
+    def test_native_resource_folder_is_explicitly_loaded(self):
+        text=source('shared/ArmorCrafting.cs')
+        self.assertIn('Resources.LoadAll("Network Prefabs",Il2CppType.Of<NetworkPrefab>())',text)
+        self.assertIn('Resources.FindObjectsOfTypeAll(Il2CppType.Of<NetworkPrefab>())',text)
+        self.assertIn('candidate.gameObject.scene.IsValid()',text)
+
+    def test_missing_assets_produce_bounded_counts(self):
+        text=source('shared/ArmorCrafting.cs')
+        self.assertIn('loadedPaperPages=',text)
+        self.assertIn('details.Count >= 6',text)
+        self.assertIn('loadedPrefabCount',text)
+        self.assertIn('loadedBookCount',text)
