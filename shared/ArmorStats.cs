@@ -61,12 +61,160 @@ namespace ArmorRestored
             {
                 MethodInfo worn = AccessTools.Method(typeof(PlayerWeight), "GetInteractablesWeight");
                 if (worn == null) throw new MissingMethodException("PlayerWeight.GetInteractablesWeight");
+                harmony.Patch(AccessTools.Method(typeof(PhysicalMaterialPart), "Generate"), prefix: new HarmonyMethod(typeof(ArmorStats), nameof(ArmorLootMaterial)));
                 harmony.Patch(worn, postfix: new HarmonyMethod(typeof(ArmorStats), nameof(WornWeight)));
             }
 #endif
+            harmony.Patch(AccessTools.Method(typeof(DurabilityModule),"CheckBreak"), prefix: new HarmonyMethod(typeof(ArmorStats),nameof(KeepBrokenArmor)));
             Enabled = true;
-            Mod.Log.Msg("armor material stats: pickup weight enabled; balance defaults in material-stats.txt; loot policy not yet wired.");
+            Mod.Log.Msg("armor material stats: pickup weight enabled; balance defaults in material-stats.txt; metal loot Copper/Iron 50:50; other materials crafting/commands only.");
         }
+        internal static float Condition(float value) { return !Finite(value) ? 0f : Mathf.Clamp01(value); }
+        internal static float MaximumDurability(int piece)
+        {
+            float[] totals={600f,1400f,900f,1600f,800f,500f};
+            return totals[piece/8]*(piece%8==1 ? 3f : piece%8==0 ? 1.5f : piece%8<4 ? 1.25f : 1f)/11f;
+        }
+        internal static void ConfigureDurability(int piece,GameObject root)
+        {
+#if ARMOR_QUEST
+            var module=root.GetComponent(Il2CppType.Of<DurabilityModule>())?.TryCast<DurabilityModule>();
+            if(module==null) module=root.AddComponent(Il2CppType.Of<DurabilityModule>()).TryCast<DurabilityModule>();
+            var settings=ScriptableObject.CreateInstance(Il2CppType.Of<DurabilitySettings>()).TryCast<DurabilitySettings>();
+            var pickup=root.GetComponent(Il2CppType.Of<Pickup>())?.TryCast<Pickup>();
+            var entity=root.GetComponent(Il2CppType.Of<NetworkEntity>())?.TryCast<NetworkEntity>();
+#else
+            var module=root.GetComponent<DurabilityModule>();
+            if(module==null) module=root.AddComponent<DurabilityModule>();
+            var settings=ScriptableObject.CreateInstance<DurabilitySettings>();
+            var pickup=root.GetComponent<Pickup>();
+            var entity=root.GetComponent<NetworkEntity>();
+#endif
+            float maximum=MaximumDurability(piece);
+            settings.name="ArmorRestored durability "+Catalog.Id(piece);
+            ArmorCrafting.Set(settings,"isChanceBasedDurability",false);
+            ArmorCrafting.Set(settings,"durability",maximum);
+            ArmorCrafting.Set(settings,"damageConversion",1f);
+            ArmorCrafting.Set(module,"durabilitySettings",settings);
+#if ARMOR_QUEST
+            ArmorCrafting.Set(module,"stageVisuals",new Il2CppInterop.Runtime.InteropTypes.Arrays.Il2CppReferenceArray<DurabilityModule.DurabilityVisual>(0L));
+#else
+            ArmorCrafting.Set(module,"stageVisuals",new DurabilityModule.DurabilityVisual[0]);
+#endif
+            // Empty events are still required by native durability initialization.
+            ArmorCrafting.Set(module,"stateChangeEffect",new PickupEvent());
+            ArmorCrafting.Set(module,"brokeOnServer",new AltaEvent());
+            ArmorCrafting.Set(module,"canDockWhenDamaged",true);
+            ArmorCrafting.Set(module,"integrity",1f);
+            ArmorCrafting.Set(module,"baseDurability",maximum);
+            ArmorCrafting.Set(module,"currentDurability",maximum);
+            ArmorCrafting.Set(module,"entity",entity);
+            ArmorCrafting.Set(pickup,"durabilityModule",module);
+            var behaviours=new List<MonoBehaviour>();
+#if ARMOR_QUEST
+            if(entity.networkEntityBehaviours!=null) foreach(var item in entity.networkEntityBehaviours) behaviours.Add(item);
+            bool registered=false;foreach(var item in behaviours) if(item!=null && item.Pointer==module.Pointer) registered=true;
+            if(!registered) behaviours.Add(module);
+            entity.networkEntityBehaviours=new Il2CppInterop.Runtime.InteropTypes.Arrays.Il2CppReferenceArray<MonoBehaviour>(behaviours.ToArray());
+#else
+            var existing=ArmorCrafting.Get(entity,"networkEntityBehaviours") as MonoBehaviour[];
+            if(existing!=null) behaviours.AddRange(existing);
+            if(!behaviours.Contains(module)) behaviours.Add(module);
+            ArmorCrafting.Set(entity,"networkEntityBehaviours",behaviours.ToArray());
+#endif
+        }
+        private static bool KeepBrokenArmor(DurabilityModule __instance,ref bool __result)
+        {
+#if ARMOR_QUEST
+            var pickup=__instance.GetComponent(Il2CppType.Of<Pickup>())?.TryCast<Pickup>();
+#else
+            var pickup=__instance.GetComponent<Pickup>();
+#endif
+            if(Piece(pickup)<0 || __instance.Integrity>0f) return true;
+            __result=true;return false; // Depleted armor remains repairable; never destroys saved provenance.
+        }
+#if !ARMOR_QUEST
+        internal static float ReadCondition(NetworkEntity entity)
+        {
+            var module=entity==null ? null : entity.GetComponent<DurabilityModule>();
+            return module==null ? 1f : Condition(module.Integrity);
+        }
+        internal static void RestoreCondition(NetworkEntity entity,float condition)
+        {
+            var module=entity==null ? null : entity.GetComponent<DurabilityModule>();
+            if(module==null) return;
+            ArmorCrafting.Set(module,"integrity",Condition(condition));
+            if(ArmorCrafting.Get(module,"syncStage")!=null)
+                AccessTools.Method(typeof(DurabilityModule),"OnDurabilityChanged",new[] {typeof(bool)}).Invoke(module,new object[] {false});
+        }
+#endif
+        private sealed class PickupSurface
+        {
+            internal Material[] Original;
+            internal uint Hash;
+        }
+        private static readonly Dictionary<Renderer,PickupSurface> pickupSurfaces = new Dictionary<Renderer,PickupSurface>();
+        internal static void ClearPickupSurfaces() { pickupSurfaces.Clear(); }
+        private static void RefreshPickupSurfaces(Pickup pickup,int piece,uint hash)
+        {
+            if(piece/8!=0 && piece/8!=4) return;
+            if(piece/8==4 && hash==1U) hash=0U; // Uncrafted authored Wood default.
+#if ARMOR_QUEST
+            var renderers=pickup.GetComponentsInChildren(Il2CppType.Of<Renderer>(),true);
+#else
+            var renderers=pickup.GetComponentsInChildren<Renderer>(true);
+#endif
+            foreach(var raw in renderers)
+            {
+#if ARMOR_QUEST
+                Renderer renderer=raw==null ? null : raw.TryCast<Renderer>();
+#else
+                Renderer renderer=raw;
+#endif
+                if(renderer==null) continue;
+                PickupSurface entry;
+                if(!pickupSurfaces.TryGetValue(renderer,out entry))
+                {
+#if ARMOR_QUEST
+                    var originals=new Material[renderer.sharedMaterials.Length];renderer.sharedMaterials.CopyTo(originals,0);
+#else
+                    var originals=renderer.sharedMaterials;
+#endif
+                    entry=new PickupSurface {Original=originals,Hash=uint.MaxValue};pickupSurfaces.Add(renderer,entry);
+                }
+                if(entry.Hash==hash) continue;
+                var next=WornMaterials.Apply(piece,hash,entry.Original,renderer.gameObject.name);
+#if ARMOR_QUEST
+                renderer.sharedMaterials=new Il2CppInterop.Runtime.InteropTypes.Arrays.Il2CppReferenceArray<Material>(next);
+#else
+                renderer.sharedMaterials=next;
+#endif
+                entry.Hash=hash;
+            }
+        }
+#if !ARMOR_QUEST
+        private static PhysicalMaterial lootCopper,lootIron;
+        private static bool ArmorLootMaterial(PhysicalMaterialPart __instance)
+        {
+            if(!Mod.IsServer || __instance==null || __instance.Entity==null || __instance.Entity.Prefab==null ||
+                Catalog.PieceOf(__instance.Entity.Prefab.Hash)/8!=1 || Catalog.PieceOf(__instance.Entity.Prefab.Hash)<0) return true;
+            if(lootCopper==null || lootIron==null)
+                foreach(var material in Resources.FindObjectsOfTypeAll<PhysicalMaterial>())
+                {
+                    string name=Normalize(material.name);
+                    if(name=="copper" || name=="copperalloy") lootCopper=material;
+                    if(name=="iron" || name=="ironalloy") lootIron=material;
+                }
+            if(lootCopper==null || lootIron==null)
+            {
+                if(warned.Add("loot-material")) Mod.Log.Error("Metal loot requires native Copper and Iron materials; keeping native generation until both are available.");
+                return true;
+            }
+            var selected=UnityEngine.Random.Range(0,2)==0 ? lootCopper : lootIron;
+            AccessTools.Method(typeof(PhysicalMaterialPart),"SetMaterial",new[] {typeof(PhysicalMaterial)}).Invoke(__instance,new object[] {selected});
+            return false; // Only armor Generate, never global distributions or saved-item loads.
+        }
+#endif
         private static bool Finite(float value) { return !float.IsNaN(value) && !float.IsInfinity(value); }
         private static string Normalize(string value)
         { return (value ?? "").ToLowerInvariant().Replace(" ", "").Replace("_", "").Replace("-", "").Replace("(instance)", ""); }
@@ -128,7 +276,7 @@ namespace ArmorRestored
         {
             int set = piece / 8;
             int slot = piece % 8;
-            float total = set == 0 ? 6f : (set == 1 || set == 3) ? 14f : 9f;
+            float total = set == 0 ? 6f : set == 1 ? 14f : set == 3 ? 12f : set == 4 ? 8f : set == 5 ? 5f : 9f;
             // Original seven-slot hip share is split between our two tassets.
             float share = slot == 0 ? 1.5f : slot == 1 ? 3f : slot == 2 || slot == 3 ? 1.25f : 1f;
             float multiplier = (set == 1 || set == 3) ? WeightMultiplier(hash) : 1f;
@@ -159,6 +307,7 @@ namespace ArmorRestored
         {
             if (!Enabled || Time.unscaledTime < nextTick) return;
             nextTick = Time.unscaledTime + .5f;
+            foreach(var renderer in new List<Renderer>(pickupSurfaces.Keys)) if(renderer==null) pickupSurfaces.Remove(renderer);
 #if ARMOR_QUEST
             if (!Gate.IsOpen || !Registry.Done) return;
             var values = UnityEngine.Object.FindObjectsOfType(Il2CppType.Of<Pickup>());
@@ -180,7 +329,10 @@ namespace ArmorRestored
 #else
                 Rigidbody body = pickup.GetComponent<Rigidbody>();
 #endif
-                float mass = Weight(piece, MaterialHash(pickup));
+                uint materialHash=MaterialHash(pickup);
+                try { RefreshPickupSurfaces(pickup,piece,materialHash); }
+                catch(Exception error) {if(warned.Add("pickup-surface:"+piece)) Mod.Log.Warning("Pickup surface deferred: "+error.GetBaseException().Message);}
+                float mass = Weight(piece, materialHash);
                 if (body != null && Mathf.Abs(body.mass - mass) > .0001f)
                 {
                     body.mass = mass;

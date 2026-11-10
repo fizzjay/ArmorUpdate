@@ -74,7 +74,7 @@ class HebiosIntegrationTests(unittest.TestCase):
   self.assertEqual(2,code.count('if (!Craftable(i)) continue;'))
   self.assertIn('Catalog.Number((int)(hash-RecipeStart))',code)
   self.assertIn('if (recipe != null) bases.Add(recipe)',code)
-  self.assertIn('style < Catalog.Count / 8',(ROOT/'shared/ArmorStand.cs').read_text())
+  self.assertIn('i < items.Length',(ROOT/'shared/ArmorStand.cs').read_text())
  def test_native_sources_and_provenance_include_leather_closure(self):
   code=(ROOT/'shared/ArmorCraftingData.cs').read_text()
   self.assertIn('hash >= 52855U && hash <= 52870U',code)
@@ -175,7 +175,7 @@ class WoodMushroomIntegrationTests(unittest.TestCase):
  def test_loot_policy_and_icons_exclude_wood_from_random_loot(self):
   catalog=(ROOT/'pchost/Catalog.cs').read_text('utf-8-sig')
   self.assertIn('Id="wood", Title="Wood", LootRarity=null',catalog)
-  self.assertIn('Id="hebios", Title="Hebios", LootRarity="4. Epic"',catalog)
+  self.assertIn('Id="hebios", Title="Hebios", LootRarity="5. Legendary"',catalog)
   self.assertIn('Id="mushroom", Title="Mushroom", LootRarity="3. Rare"',catalog)
   craft=(ROOT/'shared/ArmorCrafting.cs').read_text()
   self.assertIn('if(i>=32 && i<40) continue;',craft)

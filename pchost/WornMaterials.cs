@@ -26,6 +26,8 @@ namespace ArmorRestored
 
         internal static Material Apply(int piece, uint hash, Material original, string meshName = null)
         {
+            if (piece / 8 == 0) return ApplyLeather(hash, original, meshName);
+            if (piece / 8 == 4) return ApplyWood(hash, original);
             if (piece / 8 != 1 && piece / 8 != 3 || hash == 0U || original == null) return original;
             // The flexible glove backing is fabric, not a metal plate. Keep its
             // original neutral atlas appearance even when the plates are colored.
@@ -65,7 +67,7 @@ namespace ArmorRestored
             if(hash==0U || original==null) return original;
             // Authored moss-hide and rope bindings are not wood surfaces.
             string name=original.name.ToLowerInvariant();
-            if(!name.Contains("gotera_oak_bark") && !name.Contains("heartwood") &&
+            if((original.mainTexture==null || original.mainTexture.name!="gotera_oak_LOD0_d") && !name.Contains("gotera_oak_bark") && !name.Contains("heartwood") &&
                !name.Contains("bark_edges") && !name.Contains("bark_ridges") && !name.Contains("cut_grain")) return original;
             Dictionary<int,WoodVariant> variants;
             if(!Woods.TryGetValue(hash,out variants)) {variants=new Dictionary<int,WoodVariant>();Woods.Add(hash,variants);}
@@ -332,6 +334,7 @@ namespace ArmorRestored
 
         internal static void Clear()
         {
+            ArmorStats.ClearPickupSurfaces();
             foreach (Dictionary<int, Material> variants in Tinted.Values)
                 foreach (Material material in variants.Values)
                     if (material != null) UnityEngine.Object.Destroy(material);

@@ -38,7 +38,7 @@ namespace ArmorRestored
         internal static byte[] Fingerprint;
         internal static string Status = "not registered";
         internal static bool Ready;
-        internal static string Signature { get { return Ready && Fingerprint != null ? BitConverter.ToString(Fingerprint).Replace("-", "") + ":glyphs-52830-v1-worn-sections1-benchup2-hebios1-surfaces2-wood1-loot-hebios-mushroom-ids2" : ""; } }
+        internal static string Signature { get { return Ready && Fingerprint != null ? BitConverter.ToString(Fingerprint).Replace("-", "") + ":glyphs-52830-v1-worn-sections1-benchup2-hebios1-surfaces2-wood1-loot-hebios-mushroom-ids2-durability1" : ""; } }
         private static bool hooks;
         private static PageCollection collection;
         private static readonly Glyph[] recipeGlyphs = new Glyph[48];
@@ -225,6 +225,10 @@ namespace ArmorRestored
 #endif
                 SetStatic(typeof(GenericCraftingRecipe), "mappedResult", null);
                 Ready = true;
+#if !ARMOR_QUEST
+                try { ArmorCommands.SyncKnownArmorBooks(); }
+                catch(Exception error) {Mod.Log.Warning("Known armor book replay deferred: "+error.GetBaseException().Message);}
+#endif
                 Status = "24 native recipes/pages; Leather, Metal and Wood";
                 Mod.Log.Msg("armor crafting: " + Status);
                 CraftLog("ready","registered signature="+Signature+" recipes="+Recipes.Length,0f);

@@ -473,3 +473,103 @@ reported collisions but are not certified free on every game/mod combination;
 native collision checks remain enabled. Deploy updated PC/server and Quest
 code together, then check `armor list` for refusals before use. Do not overwrite
 native garlic entries or migrate garlic saves into armor.
+
+## Release stabilization pass (in progress, not release-certified)
+
+Confirmed scope: Wood remains crafting-only. Debug recipe commands affect only
+this mod's 24 active Leather/Metal/Wood recipes, never vanilla/other-mod recipes.
+
+Implemented in existing source files (no new runtime source/project entries):
+
+- Loot rarity targets: Leather `2. Uncommon`, Mushroom `3. Rare`, Metal `4. Epic`,
+  Hebios `5. Legendary`. Wood/Wyrm remain excluded from global loot. Missing native
+  rarity lists are reported by `armor list`; these names/relative rates must be
+  checked in the running server. Existing already-generated loot is not changed.
+- Server-only native `PhysicalMaterialPart.Generate` interception rolls Copper or
+  Iron equally for newly generated Metal armor only. Other game material
+  distributions, saved items, and crafting inputs are untouched. Both native
+  materials must resolve; otherwise a diagnostic reports native fallback.
+  Explicit-material return spawns use DontGenerate to avoid rerolling saved gear.
+- Leather now has a native saved/synced material channel. Neither Leather nor Wood
+  passes renderer ownership to native material replacement: their authored maps
+  remain under the existing cached surface system. Pickup polling uses original
+  renderer materials rather than repeatedly cloning already-tinted variants.
+  Worn Wood no longer suppresses a valid command-selected wood species. Binding,
+  hardware and neutral hide exclusions remain. Mixed crafted loose-pickup section
+  palettes are not added by this pass.
+- Visibility eye bubbles are disabled, including stale local hidden-slot effects;
+  the preference file is preserved for a possible future UI restoration.
+- Stand registration requires a valid item for every slot, not every family.
+  Dock bounds and allowlists include only successfully registered items, so an
+  unrelated refused item no longer blocks an otherwise usable stand. No placement
+  offsets or accepted armor geometry are changed. This does not establish that
+  every native stand docking/spawning path works in-game.
+- Native durability modules are configured on both platform templates with
+  deterministic, non-chance-based settings. Broken armor remains a repairable
+  item rather than being destroyed. Default per-set durability totals are
+  Leather 600, Metal 1400, Wyrm 900, Hebios 1600, Wood 800, Mushroom 500, distributed
+  by existing slot shares. Native loose items use the game's durability saving.
+- The server carries worn condition in a backward-readable `~condition` suffix
+  in worn.txt (legacy entries default to full condition), captures incoming
+  condition before consuming equipment and restores it on returned items.
+  Successful damaging impacts wear the struck armor by estimated absorbed damage;
+  depleted pieces stop providing armor protection but retain identity, mass and
+  appearance. Zero-health-change hits currently do not wear worn armor. Condition
+  is saved on each damage event; high-load server profiling and native material
+  multiplier/repair-shop integration remain follow-up work.
+- Weight defaults now total Leather 6, Mushroom 5, Wood 8, Metal 14, Hebios 12,
+  Wyrm 9, retaining split hips. These are mod policy values, not official balance.
+
+### Debug/admin commands
+
+- `armor recipeunlock`: persistently unlock all 24 armor recipes in the native
+  server-wide GlobalPagesManager; replay learned armor pages into loaded native
+  books. Registration also replays already-known armor pages when ready.
+- `armor recipereset CONFIRM`: remove armor unlock keys and armor entries from
+  loaded, closed crafting books only. Close all books and wait for animations
+  first; back up the world. Reconnect clients afterward and save the world
+  normally. Loose paper and unloaded saved books are **not** deleted, and may
+  retain recipes. This is not a full-world recipe purge.
+- `armor repair <player>`: admin repair of that player's currently worn armor.
+
+### Still required before release
+
+Actual C# compilation and PC/Quest playtests are unavailable here. Source syntax
+and Python contract checks do not prove successful native component registration,
+network synchronization, book saving, durability saving or visuals. Deploy all
+platforms together and back up existing saves before testing this new behavior.
+The configurable per-input Wood strength/averaging API is **not yet ported**.
+The torso fabric fitting fallback is now implemented as described below. Existing
+authored compact-LOD cosmetic fitting remains preferred; there is no blanket
+hide/shrink workaround. Native surface-grip adaptation
+also remains unimplemented. This pass must not be described as release-ready.
+
+
+### Cosmetic fabric fitting fallback (PC and Quest)
+
+Consolidated into the two existing CosmeticCoverage files. When chest armor is
+shown, eligible two-color torso clothing without complete authored compact LODs
+is fitted during native MeshPacker.Pack. Skin, head parts, held accessories,
+texture-sharing-forced parts and natively impeded/disabled clothing are excluded.
+Existing complete compact LODs continue to use native impeded arguments first.
+
+The supplied reference envelope is adapted directly: torso-only z range
+0.995–1.355, feathered edges, 8 mm clearance and at most 65 mm radial compression.
+The 11-by-17 torso-radius table is retained. Fitting clones readable meshes and
+native CosmeticMeshPart assets, preserving skinning, UVs, textures, colors and
+other mesh channels. It substitutes a shallow copy of only this packing call's
+part map, never modifies saved cosmetics, never scales armor and never edits a
+shared source mesh. Removing armor, changing clothing or clearing coverage
+unmarks the per-handler inputs and requests native repacking with original parts.
+Quest uses native dictionary/interface/array conversions and pointer-keyed input
+ownership rather than implementing a managed native cosmetic interface.
+
+The cache is bounded to 96 cosmetic source assets. Cached clones deliberately
+remain alive for the process lifetime: native packing can be asynchronous, so
+LRU eviction/destruction could free a mesh still being read. At capacity,
+unreadable meshes or an unsupported native API, original cosmetics are retained;
+errors are diagnosed instead of hiding clothing. Temporary clones are destroyed
+if construction fails. This is a torso fallback, not a guarantee that every
+hat, sleeve, skirt or third-party cosmetic fits every armor piece. Test chest
+clipping, garment changes, remove/re-equip, dummy views, remote players and
+save/rejoin on both platforms. No in-game validation or C# build is claimed.

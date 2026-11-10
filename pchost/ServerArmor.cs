@@ -46,7 +46,10 @@ namespace ArmorRestored
 					int num = 0;
 					while (num < array3.Length && num < 8)
 					{
-						string[] originFields = array3[num].Split('#');
+						string[] conditionFields=array3[num].Split('~');
+                        float condition;
+                        if(conditionFields.Length>1) ConditionsFor(array2[0])[num]=float.TryParse(conditionFields[1],System.Globalization.NumberStyles.Float,System.Globalization.CultureInfo.InvariantCulture,out condition) ? ArmorStats.Condition(condition) : 0f;
+                        string[] originFields = conditionFields[0].Split('#');
                         string[] saved = originFields[0].Split('@');
 						array4[num] = ServerArmor.PieceById(saved[0]);
                         if (originFields.Length > 1 && array4[num] >= 0)
@@ -101,6 +104,7 @@ namespace ArmorRestored
 							stringBuilder.Append('@').Append(material);
                         string origin = OriginsFor(keyValuePair.Key)[j];
                         if (keyValuePair.Value[j] >= 0 && origin != null) stringBuilder.Append('#').Append(origin);
+                        if(keyValuePair.Value[j]>=0) stringBuilder.Append('~').Append(ConditionsFor(keyValuePair.Key)[j].ToString("R",System.Globalization.CultureInfo.InvariantCulture));
 					}
 					stringBuilder.Append('\n');
 				}
@@ -199,7 +203,7 @@ namespace ArmorRestored
 					{
 						Wiring w = Body.Wire(player2.PlayerCharacter.transform, true);
 						ServerArmor.Wired[instanceID] = w;
-						Body.Apply(w, ServerArmor.WornBy(player2), MaterialsFor(Players.Name(player2)));
+						Body.Apply(w, ServerArmor.WornBy(player2), MaterialsFor(Players.Name(player2)), ConditionsFor(Players.Name(player2)));
                             ArmorStats.RefreshWearer(player2);
 						HealthObject healthObject = Body.Health(w);
 						if (healthObject != null)
@@ -228,6 +232,7 @@ namespace ArmorRestored
 		// Token: 0x06000097 RID: 151 RVA: 0x000091AC File Offset: 0x000073AC
 		private static void Hurt(Wiring w, HealthObject h, float change, DamageData data)
 		{
+            WearDurability(w,h,change,data);
 			if (!Settings.Debug || change >= 0f)
 			{
 				return;
@@ -282,7 +287,7 @@ namespace ArmorRestored
                     for(int slot=0;slot<8;slot++)
                     {
                         // Uncrafted Hebios uses authored maps/colors, not its default material channel.
-                        uint appearance = (row[slot] / 8 == 3 || row[slot] / 8 == 4) ? 0U : materials[slot];
+                        uint appearance = (row[slot] / 8 == 3 || row[slot] / 8 == 4 && materials[slot] == 1U) ? 0U : materials[slot];
                         row[8+slot]=unchecked((int)appearance);
                         for(int group=0;group<32;group++) row[16+slot*32+group]=unchecked((int)appearance);
                         if(string.IsNullOrEmpty(origins[slot]) || origins[slot]=="!") continue;
@@ -307,7 +312,7 @@ namespace ArmorRestored
 		private static void Changed(Player p)
 		{
 			ServerArmor.Save();
-			Body.Apply(ServerArmor.WiringOf(p), ServerArmor.WornBy(p), MaterialsFor(Players.Name(p)));
+			Body.Apply(ServerArmor.WiringOf(p), ServerArmor.WornBy(p), MaterialsFor(Players.Name(p)), ConditionsFor(Players.Name(p)));
             ArmorStats.RefreshWearer(p);
 			ServerArmor._dirty = true;
 		}
@@ -367,17 +372,19 @@ namespace ArmorRestored
             }
             // Do not consume the incoming item if the replaced piece cannot be returned.
             NetworkEntity returned = null;
-            if (num3 >= 0 && (returned = ServerArmor.Spawn(num3, position, Quaternion.identity, materials[num2], origins[num2])) == null)
+            if (num3 >= 0 && (returned = ServerArmor.Spawn(num3, position, Quaternion.identity, materials[num2], origins[num2], ConditionsFor(Players.Name(p))[num2])) == null)
             {
                 Net.SendNote(p, "equip cancelled: could not return the previously worn piece");
                 return;
             }
+            float incomingCondition=ArmorStats.ReadCondition(networkEntity);
             networkEntity.SceneDestroy();
             if (networkEntity != null && !networkEntity.IsBeingDestroyed)
             {
                 if (returned != null) returned.SceneDestroy();
                 Net.SendNote(p,"equip cancelled: incoming item could not be consumed"); return;
             }
+            ConditionsFor(Players.Name(p))[num2]=incomingCondition;
             origins[num2] = incomingOrigin;
 			array[num2] = num;
 			materials[num2] = material;
@@ -405,7 +412,7 @@ namespace ArmorRestored
 				return;
 			}
 			Vector3 at = ServerArmor.Hand(p, hand);
-			NetworkEntity networkEntity = ServerArmor.Spawn(num, at, Quaternion.identity, MaterialsFor(Players.Name(p))[slot], OriginsFor(Players.Name(p))[slot]);
+			NetworkEntity networkEntity = ServerArmor.Spawn(num, at, Quaternion.identity, MaterialsFor(Players.Name(p))[slot], OriginsFor(Players.Name(p))[slot], ConditionsFor(Players.Name(p))[slot]);
 			if (networkEntity == null)
 			{
 				Net.SendNote(p, "could not spawn " + Catalog.Title(num));
@@ -420,7 +427,7 @@ namespace ArmorRestored
 		}
 
 		// Token: 0x0600009C RID: 156 RVA: 0x000096D4 File Offset: 0x000078D4
-		internal static NetworkEntity Spawn(int piece, Vector3 at, Quaternion rot, uint material = 0U, string origin = null)
+		internal static NetworkEntity Spawn(int piece, Vector3 at, Quaternion rot, uint material = 0U, string origin = null, float condition = 1f)
 		{
 			NetworkPrefab networkPrefab = Prefabs.ByPiece[piece];
 			if (networkPrefab == null)
@@ -438,10 +445,11 @@ namespace ArmorRestored
 			try
 			{
 				ArmorMaterials.Restore(template, material);
-				networkEntity = SpawnHelper.Spawn(networkPrefab, SpawnData.Default, null, at, rot, entity =>
+				networkEntity = SpawnHelper.Spawn(networkPrefab, material == 0U ? SpawnData.Default : SpawnData.DontGenerate, null, at, rot, entity =>
                 {
                     unpublished = entity;
                     ArmorMaterials.Restore(entity,material);
+                    ArmorStats.RestoreCondition(entity,condition);
                     if (savedOrigin != null)
                     {
                         var record = entity.GetComponent<ArmorCraftRecord>();
@@ -464,6 +472,7 @@ namespace ArmorRestored
                 // Spawn initialization can overwrite the cloned template's material.
                 // Restore the live entity too, rather than relying solely on the prefab.
                 ArmorMaterials.Restore(networkEntity, material);
+                ArmorStats.RestoreCondition(networkEntity,condition);
                 if (material != 0U && ArmorMaterials.Read(networkEntity) != material)
                     throw new InvalidOperationException("spawned armor did not retain material " + material);
 				networkEntity.Chunk = LocationChunkHelper.GetBestContaining(at, null);
@@ -477,6 +486,7 @@ namespace ArmorRestored
 			ServerArmor.WornBy(p)[piece % 8] = piece;
 			MaterialsFor(Players.Name(p))[piece % 8] = 0U;
             OriginsFor(Players.Name(p))[piece % 8] = null;
+            ConditionsFor(Players.Name(p))[piece%8]=1f;
 			ServerArmor.Changed(p);
 		}
 
@@ -492,7 +502,7 @@ namespace ArmorRestored
 				{
 					if (drop)
 					{
-						if (ServerArmor.Spawn(array[i], vector + Vector3.up * 0.15f * (float)num, Quaternion.identity, MaterialsFor(Players.Name(p))[i], OriginsFor(Players.Name(p))[i]) == null) continue;
+						if (ServerArmor.Spawn(array[i], vector + Vector3.up * 0.15f * (float)num, Quaternion.identity, MaterialsFor(Players.Name(p))[i], OriginsFor(Players.Name(p))[i], ConditionsFor(Players.Name(p))[i]) == null) continue;
 					}
 					OriginsFor(Players.Name(p))[i] = null;
                     MaterialsFor(Players.Name(p))[i] = 0U;
@@ -585,6 +595,48 @@ namespace ArmorRestored
 		}
 
 		private static readonly Dictionary<string,string[]> Origins = new Dictionary<string,string[]>(StringComparer.OrdinalIgnoreCase);
+        internal static string RepairWorn(Player player)
+        {
+            float[] values=ConditionsFor(Players.Name(player));int count=0;
+            for(int i=0;i<8;i++) if(WornBy(player)[i]>=0) {values[i]=1f;count++;}
+            Changed(player);return "Repaired "+count+" worn armor pieces.";
+        }
+        private static readonly Dictionary<string,float[]> Conditions=new Dictionary<string,float[]>(StringComparer.OrdinalIgnoreCase);
+        internal static float[] ConditionsFor(string player)
+        {
+            float[] values;
+            if(!Conditions.TryGetValue(player,out values)) {values=new float[] {1,1,1,1,1,1,1,1};Conditions[player]=values;}
+            return values;
+        }
+        private static void WearDurability(Wiring wiring,HealthObject health,float change,DamageData data)
+        {
+            if(!Mod.IsServer || change>=0f || float.IsNaN(change) || float.IsInfinity(change)) return;
+            var hit=data as ImpactHit;
+            if(hit==null || hit.ImpactDetector==null) return;
+            var armor=hit.ImpactDetector.CurrentArmor;
+            if(armor==null) return;
+            float multiplier=armor.GetMultiplier(hit.ImpactType);
+            if(multiplier<=0f || multiplier>=1f || float.IsNaN(multiplier)) return;
+            Player wearer=null;
+            foreach(IPlayer value in Player.AllPlayers)
+            {
+                var player=value as Player;
+                if(player!=null && player.PlayerCharacter!=null && player.PlayerCharacter.transform==wiring.Root) {wearer=player;break;}
+            }
+            if(wearer==null) return;
+            int zone=-1;
+            for(int i=0;i<wiring.ZoneDetectors.Length;i++)
+                if(wiring.ZoneDetectors[i]!=null && wiring.ZoneDetectors[i].Contains(hit.ImpactDetector)) {zone=i;break;}
+            int[] worn=WornBy(wearer);
+            int[] slots={0,1,worn[6]>=0 ? 6 : 7,2,3,4,5};
+            if(zone<0 || zone>=slots.Length) return;
+            int slot=slots[zone];if(worn[slot]<0) return;
+            float absorbed=(-change)*(1f/multiplier-1f);
+            if(float.IsNaN(absorbed) || float.IsInfinity(absorbed) || absorbed<=0f) return;
+            float[] conditions=ConditionsFor(Players.Name(wearer));
+            conditions[slot]=ArmorStats.Condition(conditions[slot]-absorbed/ArmorStats.MaximumDurability(worn[slot]));
+            Changed(wearer); // Persist condition with the existing worn identity/provenance.
+        }
         private static string[] OriginsFor(string player)
         {
             string[] values;

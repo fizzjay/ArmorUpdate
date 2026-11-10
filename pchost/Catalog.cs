@@ -228,7 +228,7 @@ namespace ArmorRestored
 			{
 				Id = "leather",
 				Title = "Leather",
-				LootRarity = "3. Rare",
+				LootRarity = "2. Uncommon",
 				Pierce = 0.7f,
 				Slash = 0.7f,
 				Blunt = 0.85f,
@@ -257,7 +257,7 @@ namespace ArmorRestored
 				Caustic = 0.1f,
 				Conductivity = 0.8f
 			},
-            new ArmorSet { Id="hebios", Title="Hebios", LootRarity="4. Epic", Pierce=.5f, Slash=.4f, Blunt=.9f, Caustic=.6f, Explosive=.4f, Conductivity=1.2f },
+            new ArmorSet { Id="hebios", Title="Hebios", LootRarity="5. Legendary", Pierce=.5f, Slash=.4f, Blunt=.9f, Caustic=.6f, Explosive=.4f, Conductivity=1.2f },
             new ArmorSet { Id="wood", Title="Wood", LootRarity=null, Pierce=.8f, Slash=.7f, Blunt=.85f, Conductivity=.2f },
             new ArmorSet { Id="mushroom", Title="Mushroom", LootRarity="3. Rare", Pierce=.85f, Slash=.75f, Blunt=.85f, Conductivity=.2f }
 		};

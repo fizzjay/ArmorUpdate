@@ -44,6 +44,7 @@ namespace ArmorRestoredQuest
                 List<ICustomizationHandler> handlers = new List<ICustomizationHandler>();
                 foreach (ICustomizationHandler handler in NativeEnumerable.Items(manager.Handlers))
                     if (handler != null && !handler.IsDestroyed) handlers.Add(handler);
+                UpdateFabric(current,handlers,mask);
                 foreach (CustomizationSlotEntry entry in new List<CustomizationSlotEntry>(owned.Keys))
                 {
                     if (!current.Contains(entry) || !Covered(entry, mask))
@@ -320,6 +321,7 @@ namespace ArmorRestoredQuest
 
         internal void Clear()
         {
+            ClearFabric();
             if (manager != null)
             {
                 try
@@ -339,5 +341,199 @@ namespace ArmorRestoredQuest
             warned = false;
             lastDiagnostic = null;
         }
+        // Fabric fallback owns pack-local cloned assets only. Saved parts and their LODs are never edited.
+        private sealed class FabricBinding { internal CosmeticPacker.Input Input; internal ICustomizationHandler Handler; }
+        private readonly Dictionary<long,FabricBinding> fabricOwned = new Dictionary<long,FabricBinding>();
+        private static readonly object fabricGate = new object();
+        private static readonly Dictionary<long,int> fabricUsers = new Dictionary<long,int>();
+        private static readonly Dictionary<int,CosmeticMeshPart> fabricCache = new Dictionary<int,CosmeticMeshPart>();
+        private static bool fabricInstalled, fabricAttempted, fabricWarning;
+        private static long FabricKey(CosmeticPacker.Input input) { return input.Pointer.ToInt64(); }
+        private static void InstallFabric()
+        {
+            if(fabricAttempted) return;
+            fabricAttempted=true;
+            try
+            {
+                var method=HarmonyLib.AccessTools.Method(typeof(MeshPacker),"Pack");
+                if(method==null || method.GetParameters().Length!=8)
+                    throw new MissingMethodException("Native MeshPacker.Pack layout changed");
+                new HarmonyLib.Harmony("armorrestored.fabric-fit").Patch(method,
+                    prefix:new HarmonyLib.HarmonyMethod(typeof(CosmeticCoverage),nameof(BeforeFabricPack)));
+                fabricInstalled=true;
+                Mod.Log.Msg("Cosmetic torso fabric fitting ready; authored compact LODs remain preferred.");
+            }
+            catch(Exception error) {Mod.Log.Warning("Cosmetic fabric fitting unavailable: "+error.GetBaseException().Message);}
+        }
+        private static bool FabricEligible(CustomizationSlotEntry entry,uint mask)
+        {
+            if((mask&2U)==0U || entry==null || entry.DisablerCount>0 || Covered(entry,mask) ||
+                Native<TwoColors>(entry.Arguments)==null || Native<SkinMeshPart>(entry.Part)!=null || entry.Part.Slots==null ||
+                entry.Visual==null || Native<PlayerCosmeticDefinition>(entry.Visual.Definition)==null) return false;
+            var part=Native<ICosmeticMeshPartBase>(entry.Part);
+            if(part==null || part.IsTextureSharingForced) return false;
+            bool torso=false;
+            foreach(int slot in entry.Part.Slots)
+            {
+                if(slot>=301 && slot!=331 && slot!=501 && slot!=511) return false;
+                if(Between(slot,21,45) || Between(slot,191,195)) torso=true;
+            }
+            return torso;
+        }
+        private void UpdateFabric(HashSet<CustomizationSlotEntry> current,List<ICustomizationHandler> handlers,uint mask)
+        {
+            InstallFabric();
+            if(!fabricInstalled) return;
+            var next=new Dictionary<long,FabricBinding>();
+            foreach(var entry in current)
+                if(FabricEligible(entry,mask)) foreach(var handler in handlers)
+                {
+                    var input=Input(entry,handler);
+                    if(input!=null && input.Arguments!=null && !input.Arguments.IsImpeded) next[FabricKey(input)]=new FabricBinding {Input=input,Handler=handler};
+                }
+            var repack=new HashSet<ICustomizationHandler>();
+            lock(fabricGate)
+            {
+                foreach(var pair in fabricOwned)
+                    if(!next.ContainsKey(pair.Key))
+                    {
+                        long key=pair.Key;int count;
+                        if(fabricUsers.TryGetValue(key,out count)) {if(count<=1) fabricUsers.Remove(key);else fabricUsers[key]=count-1;}
+                        if(handlers.Contains(pair.Value.Handler)) repack.Add(pair.Value.Handler);
+                    }
+                foreach(var pair in next)
+                    if(!fabricOwned.ContainsKey(pair.Key))
+                    {long key=pair.Key;int count;fabricUsers.TryGetValue(key,out count);fabricUsers[key]=count+1;repack.Add(pair.Value.Handler);}
+                fabricOwned.Clear();foreach(var pair in next) fabricOwned.Add(pair.Key,pair.Value);
+            }
+            foreach(var handler in repack) RepackFabric(handler);
+        }
+        private static void RepackFabric(ICustomizationHandler handler)
+        {
+            try {if(handler!=null && !handler.IsDestroyed && handler.CharacterDummy!=null && handler.CharacterDummy.CosmeticPacker!=null) handler.CharacterDummy.CosmeticPacker.PackAndApply();}
+            catch(Exception error) {if(!fabricWarning) {fabricWarning=true;Mod.Log.Warning("Cosmetic fabric repack deferred: "+error.GetBaseException().Message);}}
+        }
+        private void ClearFabric()
+        {
+            var repack=new HashSet<ICustomizationHandler>();
+            lock(fabricGate)
+            {
+                foreach(var pair in fabricOwned)
+                {
+                    long key=pair.Key;int count;
+                    if(fabricUsers.TryGetValue(key,out count)) {if(count<=1) fabricUsers.Remove(key);else fabricUsers[key]=count-1;}
+                    repack.Add(pair.Value.Handler);
+                }
+                fabricOwned.Clear();
+            }
+            foreach(var handler in repack) RepackFabric(handler);
+        }
+        private static void BeforeFabricPack(ref Il2CppSystem.Collections.Generic.Dictionary<CosmeticPacker.PartId,ICosmeticMeshPartBase> __0, Il2CppSystem.Collections.Generic.IEnumerable<CosmeticPacker.Input> __2)
+        {
+            var map=__0;var parts=__2;
+            if(map==null || parts==null) return;
+            // All modifications are staged. An unreadable/unsupported native part leaves this pack untouched.
+            try
+            {
+                Il2CppSystem.Collections.Generic.Dictionary<CosmeticPacker.PartId,ICosmeticMeshPartBase> copy=null;
+                lock(fabricGate)
+                {
+                    foreach(var input in NativeEnumerable.Items(parts))
+                    {
+                        if(input==null || input.Arguments==null || input.Arguments.IsImpeded || !fabricUsers.ContainsKey(FabricKey(input))) continue;
+                        ICosmeticMeshPartBase original;
+                        if(!map.TryGetValue(input.PartId,out original) || original==null) continue;
+                        var fitted=FittedFabric(original);
+                        if(fitted==null) continue;
+                        if(copy==null) copy=new Il2CppSystem.Collections.Generic.Dictionary<CosmeticPacker.PartId,ICosmeticMeshPartBase>(map.Cast<Il2CppSystem.Collections.Generic.IDictionary<CosmeticPacker.PartId,ICosmeticMeshPartBase>>());
+                        copy[input.PartId]=fitted.Cast<ICosmeticMeshPartBase>();
+                    }
+                }
+                if(copy!=null) __0=copy;
+            }
+            catch(Exception error)
+            {if(!fabricWarning) {fabricWarning=true;Mod.Log.Warning("Cosmetic fabric mesh deferred: "+error.GetBaseException().Message);}}
+        }
+        private static CosmeticMeshPart FittedFabric(ICosmeticMeshPartBase source)
+        {
+            var asset=source.TryCast<CosmeticMeshPart>();
+            if(asset==null) return null;
+            int key=asset.GetInstanceID();CosmeticMeshPart cached;
+            if(fabricCache.TryGetValue(key,out cached)) return cached;
+            // A bounded process-lifetime cache avoids destroying meshes still read by asynchronous native pack jobs.
+            if(fabricCache.Count>=96) return null;
+            var sourceLods=source.Lods;
+            if(sourceLods==null || sourceLods.Length==0) {fabricCache[key]=null;return null;}
+            var meshes=new Mesh[sourceLods.Length];var ownedMeshes=new List<Mesh>();CosmeticMeshPart clone=null;
+            try
+            {
+                for(int i=0;i<meshes.Length;i++)
+                {
+                    Mesh original=sourceLods[i];meshes[i]=original;
+                    if(original==null) continue;
+                    if(!original.isReadable) throw new InvalidOperationException("Unreadable cosmetic fabric LOD: "+original.name);
+                    var vertices=original.vertices;bool changed=false;
+                    for(int j=0;j<vertices.Length;j++) {Vector3 fitted;if(FitFabricVertex(vertices[j],out fitted)) {vertices[j]=fitted;changed=true;}}
+                    if(!changed) continue;
+                    Mesh mesh=UnityEngine.Object.Instantiate(original);
+                    ownedMeshes.Add(mesh);mesh.name=original.name+" (armor fabric fit)";mesh.hideFlags=HideFlags.HideAndDontSave;
+                    mesh.vertices=vertices;mesh.RecalculateBounds();meshes[i]=mesh;
+                }
+                if(ownedMeshes.Count==0) {fabricCache[key]=null;return null;}
+                clone=UnityEngine.Object.Instantiate(asset).TryCast<CosmeticMeshPart>();
+                clone.name=asset.name+" (armor fabric fit)";clone.hideFlags=HideFlags.HideAndDontSave;
+                // Both arrays point at the same active-platform fitted LODs; source compact arrays remain untouched.
+                ArmorCrafting.Set(clone,"lods",new Il2CppReferenceArray<Mesh>(meshes));
+                ArmorCrafting.Set(clone,"androidLods",new Il2CppReferenceArray<Mesh>(meshes));
+                fabricCache.Add(key,clone);
+                return clone;
+            }
+            catch
+            {
+                if(clone!=null) UnityEngine.Object.Destroy(clone);
+                foreach(var mesh in ownedMeshes) UnityEngine.Object.Destroy(mesh);
+                throw;
+            }
+        }
+        internal static bool FitFabricVertex(Vector3 source,out Vector3 fitted)
+        {
+            fitted=source;
+            float x=Mathf.Abs(source.x),z=source.z;
+            if(float.IsNaN(x) || float.IsInfinity(x) || float.IsNaN(z) || float.IsInfinity(z) ||
+                float.IsNaN(source.y) || float.IsInfinity(source.y) || z<=.995f || z>=1.355f || x>=.205f) return false;
+            float radiusSquared=source.x*source.x+source.y*source.y;
+            if(radiusSquared<=.0064f || radiusSquared>=.25f) return false;
+            float radius=Mathf.Sqrt(radiusSquared);
+            float target=FabricSkinRadius(z,Mathf.Atan2(source.y,x))+.008f;
+            if(radius<=target) return false;
+            float feather=FabricFeather((z-.995f)/.085f)*FabricFeather((1.355f-z)/.06f)*FabricFeather((.205f-x)/.052f);
+            float compression=Mathf.Min(radius-target,.065f)*feather;
+            if(compression<.0001f) return false;
+            float scale=(radius-compression)/radius;
+            fitted.x*=scale;fitted.y*=scale;return true;
+        }
+        private static float FabricFeather(float value) {value=Mathf.Clamp01(value);return value*value*(3f-2f*value);}
+        private static float FabricSkinRadius(float height,float angle)
+        {
+            float row=Mathf.Clamp((height-1.005f)/.035f,0f,10f);
+            float column=Mathf.Clamp((angle/Mathf.PI+.5f)*16f,0f,16f);
+            int r=Mathf.Min((int)row,9),c=Mathf.Min((int)column,15);
+            float a=Mathf.Lerp(FabricRadii[r,c],FabricRadii[r,c+1],column-c);
+            float b=Mathf.Lerp(FabricRadii[r+1,c],FabricRadii[r+1,c+1],column-c);
+            return Mathf.Lerp(a,b,row-r)*.001f;
+        }
+        private static readonly byte[,] FabricRadii = {
+            {137,138,143,148,155,159,161,163,158,155,146,144,138,135,131,128,128},
+            {121,122,127,132,137,144,149,152,150,150,142,140,134,132,128,125,126},
+            {107,108,112,116,122,129,135,138,139,142,136,135,131,128,126,124,124},
+            {99,101,106,111,117,123,130,132,133,135,132,132,129,129,126,124,124},
+            {98,100,106,111,118,125,132,134,135,137,134,135,133,133,130,129,129},
+            {101,104,111,116,124,132,140,142,142,143,139,141,137,137,135,133,134},
+            {110,114,122,127,135,144,151,151,149,149,145,145,140,139,136,134,135},
+            {118,124,132,138,147,156,162,162,158,157,149,147,141,138,134,131,131},
+            {125,132,142,149,159,169,174,172,167,166,158,157,149,141,133,127,125},
+            {130,139,150,160,171,183,185,182,178,178,175,171,156,144,132,125,123},
+            {136,145,156,167,180,198,209,205,196,192,188,171,150,135,124,117,114}
+        };
     }
 }
