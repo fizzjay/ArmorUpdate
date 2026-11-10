@@ -273,3 +273,26 @@ class QuestPaperLoadingTests(unittest.TestCase):
         self.assertIn('details.Count >= 6',text)
         self.assertIn('loadedPrefabCount',text)
         self.assertIn('loadedBookCount',text)
+
+
+class HeldIngredientRegressionTests(unittest.TestCase):
+    def test_native_auto_take_is_server_only_and_revalidates(self):
+        content = source('pchost/ArmorCraftingServer.cs')
+        self.assertIn('!Mod.IsServer', content)
+        self.assertIn('pickup.FinishInteraction(hand)', content)
+        self.assertIn('((IGenericCraftingComponent)__instance).Track(__0)', content)
+        self.assertIn('((IGenericCraftingComponent)__instance).Released(__0)', content)
+        self.assertIn('inserting.Contains(__instance)', content)
+
+    def test_preview_matches_server_material_rule(self):
+        content = source('shared/ArmorCrafting.cs')
+        self.assertIn('crafting-material-preview', content)
+        self.assertIn('private static void AcceptMaterial', content)
+        self.assertIn('other.Material.Hash) != incoming', content)
+
+    def test_nails_check_complete_assembly_and_hammer_width(self):
+        content = source('shared/ArmorCrafting.cs')
+        self.assertIn('AccessibleNail(plan,index)', content)
+        self.assertIn('j<plan.Ingredients.Length', content)
+        self.assertIn('tangent*.015f', content)
+        self.assertIn('RayHits(', content)

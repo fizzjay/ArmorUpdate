@@ -36,7 +36,7 @@ namespace ArmorRestored
         internal static byte[] Fingerprint;
         internal static string Status = "not registered";
         internal static bool Ready;
-        internal static string Signature { get { return Ready && Fingerprint != null ? BitConverter.ToString(Fingerprint).Replace("-", "") + ":glyphs-52830-v1" : ""; } }
+        internal static string Signature { get { return Ready && Fingerprint != null ? BitConverter.ToString(Fingerprint).Replace("-", "") + ":glyphs-52830-v1-interaction2" : ""; } }
         private static bool hooks;
         private static PageCollection collection;
         private static readonly Glyph[] recipeGlyphs = new Glyph[16];
@@ -153,7 +153,7 @@ namespace ArmorRestored
                     for (int j = 0; j < definitions.Length; j++)
                     {
                         stage = "building slot " + i + " ingredient " + j + " source " + Plans[i].Ingredients[j].Source;
-                        definitions[j] = BuildPiece(j, Plans[i].Ingredients[j], templates);
+                        definitions[j] = BuildPiece(j, Plans[i], templates);
                     }
                     stage = "configuring recipe for slot " + i;
 #if ARMOR_QUEST
@@ -205,8 +205,9 @@ namespace ArmorRestored
                 finally { Ready = false; Status = failure; }
             }
         }
-        private static GenericCraftingPieceDefinition BuildPiece(int index, ArmorConstructionData.Ingredient part, Dictionary<uint, GenericCraftingPieceDefinition> templates)
+        private static GenericCraftingPieceDefinition BuildPiece(int index, ArmorConstructionData.Plan plan, Dictionary<uint, GenericCraftingPieceDefinition> templates)
         {
+            var part = plan.Ingredients[index];
             var template = templates[part.Source];
             int count = part.Vertices.Length / 8;
             var vertices = new Vector3[count]; var normals = new Vector3[count]; var uv = new Vector2[count];
@@ -252,7 +253,7 @@ namespace ArmorRestored
                 Set(nails, field, Get(nativeNails, field));
             if (Get(nails, "nailDefinition") == null) Set(nails,"nailDefinition",GenericCraftingSettings.GenericNailDefaultDefinition);
             if (Get(nails,"nailDefinition") == null) throw new InvalidOperationException("Native nail definition unavailable");
-            var pose = part.NailPose;
+            var pose = part.RequiresNail ? AccessibleNail(plan,index) : part.NailPose;
             var positions = part.RequiresNail ? new[] { new SerializedTransform { position = new Vector3(pose[0],pose[1],pose[2]),
                 rotation = new Quaternion(pose[3],pose[4],pose[5],pose[6]), scale = Vector3.one } } : new SerializedTransform[0];
 #if ARMOR_QUEST
@@ -271,6 +272,68 @@ namespace ArmorRestored
             foreach (string field in new[] { "materialChannel", "defaultMaterial", "avoidsAtlasing" }) Set(result, field, Get(template, field));
             return result;
         }
+        private struct Surface
+        {
+            internal Vector3 A, B, C, Center, Normal;
+            internal float Area;
+            internal int Owner;
+        }
+        private static Vector3 Vertex(ArmorConstructionData.Ingredient part,int i)
+        { int n=i*8; return new Vector3(part.Vertices[n],part.Vertices[n+1],part.Vertices[n+2]); }
+        private static bool RayHits(Vector3 origin, Vector3 direction, Surface t)
+        {
+            Vector3 e1=t.B-t.A, e2=t.C-t.A, h=Vector3.Cross(direction,e2);
+            float determinant=Vector3.Dot(e1,h);
+            if (Math.Abs(determinant)<.00000001f) return false;
+            float inv=1f/determinant;
+            Vector3 s=origin-t.A; float u=inv*Vector3.Dot(s,h);
+            if (u<0f || u>1f) return false;
+            Vector3 q=Vector3.Cross(s,e1); float v=inv*Vector3.Dot(direction,q);
+            return v>=0f && u+v<=1f && inv*Vector3.Dot(e2,q)>.001f;
+        }
+        private static float[] AccessibleNail(ArmorConstructionData.Plan plan,int index)
+        {
+            var surfaces=new List<Surface>();
+            var bounds=new Bounds(); bool first=true;
+            for (int j=0;j<plan.Ingredients.Length;j++)
+            {
+                var part=plan.Ingredients[j];
+                foreach (var sub in part.Submeshes)
+                    for (int k=0;k<sub.Length;k+=3)
+                    {
+                        Vector3 a=Vertex(part,sub[k]),b=Vertex(part,sub[k+1]),c=Vertex(part,sub[k+2]);
+                        if (first) { bounds=new Bounds(a,Vector3.zero); first=false; }
+                        bounds.Encapsulate(a);bounds.Encapsulate(b);bounds.Encapsulate(c);
+                        Vector3 normal=Vector3.Cross(b-a,c-a); float area=normal.magnitude;
+                        if (area<.00000001f) continue;
+                        surfaces.Add(new Surface { A=a,B=b,C=c,Center=(a+b+c)/3f,Normal=normal/area,Area=area,Owner=j });
+                    }
+            }
+            var candidates=surfaces.FindAll(t=>t.Owner==index);
+            candidates.Sort((a,b)=>b.Area.CompareTo(a.Area));
+            foreach (var candidate in candidates)
+            {
+                // Reject inward-facing cavity surfaces even when a short ray
+                // would fit. Check the COMPLETE assembly, including later pieces.
+                if (Vector3.Dot(candidate.Normal,candidate.Center-bounds.center)<-.0001f) continue;
+                bool blocked=false;
+                Vector3 tangent=Vector3.Cross(candidate.Normal,Vector3.up);
+                if (tangent.sqrMagnitude<.01f) tangent=Vector3.Cross(candidate.Normal,Vector3.right);
+                tangent.Normalize(); Vector3 bitangent=Vector3.Cross(candidate.Normal,tangent);
+                foreach (Vector3 offset in new[] { Vector3.zero,tangent*.015f,-tangent*.015f,bitangent*.015f,-bitangent*.015f })
+                {
+                    foreach (var obstacle in surfaces)
+                        if (RayHits(candidate.Center+offset+candidate.Normal*.002f,candidate.Normal,obstacle))
+                        { blocked=true;break; }
+                    if (blocked) break;
+                }
+                if (blocked) continue;
+                Quaternion rotation=Quaternion.FromToRotation(Vector3.forward,candidate.Normal);
+                Vector3 at=candidate.Center;
+                return new[] {at.x,at.y,at.z,rotation.x,rotation.y,rotation.z,rotation.w};
+            }
+            throw new InvalidOperationException("No exterior hammer approach for " + plan.Id + " ingredient " + index);
+        }
         private static void InstallHooks()
         {
             if (hooks) return;
@@ -281,7 +344,32 @@ namespace ArmorRestored
                 prefix: new HarmonyMethod(typeof(ArmorCrafting), "GeneratePage"));
             new HarmonyLib.Harmony("armorrestored.crafting-bench-guard").Patch(addPiece,
                 prefix: new HarmonyMethod(typeof(ArmorCrafting), "AllowPiece"));
+            new HarmonyLib.Harmony("armorrestored.crafting-material-preview").Patch(
+                AccessTools.Method(typeof(GenericCraftingPiece),"AcceptsComponent"),
+                postfix: new HarmonyMethod(typeof(ArmorCrafting),"AcceptMaterial"));
             hooks = true;
+        }
+        private static void AcceptMaterial(GenericCraftingPiece __instance, GenericCraftingComponent __0, ref bool __result)
+        {
+            if (!__result || !Ready || __0 == null) return;
+            var project = Get(__instance,"project") as IProject;
+            int index = project == null ? -1 : Index(project.Recipe);
+            if (index < 0) return;
+            var definition = (GenericCraftingPieceDefinition)Get(__instance,"definition");
+            uint source = definition.source.Prefab.Hash;
+            if (source != 50988U && source != 47760U) return;
+            uint incoming = __0.Material == null ? 0U : __0.Material.Hash;
+            if (index >= 8 && incoming == 0) { __result = false; return; }
+            // Run the same rule on Quest previews and the authoritative server.
+            foreach (var otherDefinition in project.Recipe.Pieces)
+            {
+                GenericCraftingPiece other;
+                if (!project.MappedPieces.TryGetValue(otherDefinition.hash,out other) || other == null || !other.IsFilled) continue;
+                uint otherSource = otherDefinition.source.Prefab.Hash;
+                if ((otherSource == 50988U || otherSource == 47760U) &&
+                    (other.Material == null ? 0U : other.Material.Hash) != incoming)
+                { __result = false; return; }
+            }
         }
         private static bool AllowPiece(GenericCraftingStation __instance)
         {

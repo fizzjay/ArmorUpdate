@@ -37,8 +37,8 @@ namespace ArmorRestored
                 prefix: new HarmonyMethod(typeof(ArmorCraftingServer),"SpawnResult"));
             harmony.Patch(AccessTools.Method(typeof(GenericCraftingStation),"ComponentReleased"),
                 postfix: new HarmonyMethod(typeof(ArmorCraftingServer),"OnReleased"));
-            harmony.Patch(AccessTools.Method(typeof(GenericCraftingPiece),"AcceptsComponent"),
-                postfix: new HarmonyMethod(typeof(ArmorCraftingServer),"AcceptMaterial"));
+            harmony.Patch(AccessTools.Method(typeof(GenericCraftingComponent),"Alta.Crafting.IGenericCraftingComponent.Track"),
+                postfix: new HarmonyMethod(typeof(ArmorCraftingServer),"TakeValidHeldIngredient"));
             harmony.Patch(AccessTools.Method(typeof(GenericCraftingPiece),"Pop"),
                 prefix: new HarmonyMethod(typeof(ArmorCraftingServer),"BeforePop"),
                 postfix: new HarmonyMethod(typeof(ArmorCraftingServer),"AfterPop"));
@@ -77,22 +77,35 @@ namespace ArmorRestored
             if (material == null) throw new InvalidOperationException("Unknown ingredient material " + hash);
             return material;
         }
-        private static void AcceptMaterial(GenericCraftingPiece __instance, GenericCraftingComponent __0, ref bool __result)
+        private static readonly HashSet<GenericCraftingComponent> inserting = new HashSet<GenericCraftingComponent>();
+        private static void TakeValidHeldIngredient(GenericCraftingComponent __instance, GenericCraftingStation __0)
         {
-            if (!__result || !Mod.IsServer || !ArmorCrafting.Ready) return;
-            var project = ArmorCrafting.Get(__instance,"project") as IProject;
-            int index = project == null ? -1 : ArmorCrafting.Index(project.Recipe);
-            if (index < 0) return;
-            var definition = (GenericCraftingPieceDefinition)ArmorCrafting.Get(__instance,"definition");
-            if (!Primary(definition.source.Prefab.Hash)) return;
-            uint incoming = MaterialHash(__0.Material);
-            if (index >= 8 && incoming == 0) { __result = false; return; }
-            foreach (var piece in project.MappedPieces.Values)
+            if (!Mod.IsServer || !ArmorCrafting.Ready || __instance == null || !NativeBench(__0)) return;
+            var project = Project(__0);
+            if (project == null || ArmorCrafting.Index(project.Recipe) < 0 || inserting.Contains(__instance)) return;
+            var pickup = __instance.Pickup;
+            if (pickup == null || pickup.Entity == null || pickup.Entity.IsBeingDestroyed || pickup.IsDocked || !pickup.IsInteractedWith) return;
+            int key = (int)ArmorCrafting.Get(__instance,"bestPieceKey");
+            GenericCraftingPiece piece;
+            if (key <= 0 || !project.MappedPieces.TryGetValue(key,out piece) || piece == null || !piece.AcceptsComponent(__instance)) return;
+            // Native Track picks a generous preview radius. Only take the item
+            // when its center is actually at the target, not on a distant ghost.
+            if ((((Vector3)ArmorCrafting.Get(__instance,"ObjectCentrePoint"))-piece.CenterPosition).sqrMagnitude > .08f*.08f) return;
+            inserting.Add(__instance);
+            try
             {
-                var other = (GenericCraftingPieceDefinition)ArmorCrafting.Get(piece,"definition");
-                if (piece.IsFilled && Primary(other.source.Prefab.Hash) && MaterialHash(piece.Material) != incoming)
-                { __result = false; return; }
+                // Finish native interactions before the native insertion callback
+                // destroys the pickup. The normal delayed release coroutine may
+                // also run, but native TryAddPiece refuses an already-filled slot.
+                var hands = new List<Interactor>(pickup.Interactors);
+                foreach (var hand in hands) if (hand != null) pickup.FinishInteraction(hand);
+                if (pickup == null || pickup.Entity == null || pickup.Entity.IsBeingDestroyed || pickup.IsInteractedWith ||
+                    Project(__0) != project || !piece.AcceptsComponent(__instance)) return;
+                ((IGenericCraftingComponent)__instance).Track(__0);
+                ((IGenericCraftingComponent)__instance).Released(__0);
             }
+            catch (Exception error) { Mod.Log.Warning("Armor ingredient auto-place: " + error.GetBaseException().Message); }
+            finally { inserting.Remove(__instance); }
         }
         private static ArmorCraftOrigin Capture(IProject project, int index, out uint primaryMaterial)
         {

@@ -182,3 +182,24 @@ not clear or rebuild the native map or assume that an empty search means paper
 exists. Failure includes folder/prefab/book counts and up to six loaded native
 paper-page names. This patch cannot supply an asset missing from the APK, and
 its resource-loading fallback has not been verified in-game.
+
+### Held-input and nail-access patch
+
+- Server auto-places a held, undocked valid ingredient when its center comes within
+  8 cm of the native selected target. It ends native hand interactions, rechecks
+  the active project/ingredient, refreshes the native selection, then uses the
+  native insertion/destruction callback. Ordinary recipes are excluded.
+- Quest and PC now apply the same primary-material consistency preview rule.
+  Consecutive metal plates must have the same physical material; mismatched
+  plates should no longer show a misleading green preview.
+- Required nail transforms are derived from unchanged construction meshes using
+  the complete assembly as blockers, outward-facing normals and five approach
+  rays spanning 3 cm. Worn armor placement is unchanged. Run
+  `.venv/bin/python tools/check_crafting_nail_access.py` to audit all 34 nails.
+- Compatibility signature has an `interaction2` suffix: update both client and
+  server together. Existing construction binary and ingredient provenance remain
+  unchanged. Do not mix this build with the previous recipe descriptors.
+- Runtime checks still required: two matching plates consecutively; mismatched
+  plate rejection; held auto-take with both hands; metal chest fastener hammer
+  access; normal non-armor crafting; completion/save/reload/disassembly. Local
+  source tests and geometry checks are not a game runtime or compiled build.
