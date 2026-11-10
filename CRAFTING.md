@@ -203,3 +203,26 @@ its resource-loading fallback has not been verified in-game.
   plate rejection; held auto-take with both hands; metal chest fastener hammer
   access; normal non-armor crafting; completion/save/reload/disassembly. Local
   source tests and geometry checks are not a game runtime or compiled build.
+
+### Crafting diagnostic build `interaction2-diag1`
+
+Diagnostics are on automatically on both platforms; no configuration change is
+needed. Look for `armor craft diag` in both logs. Startup prints the patch ID,
+side, compatibility signature and hook installation. Each required nail prints
+its recipe/piece/source/level, original position, selected position and outward
+hammer direction (four decimal places).
+
+While an armor recipe is active, native station tracking prints its tracked
+pickup count every five seconds. Acceptance logs identify native rejection
+(enabled/filled/source), missing metal material, conflicting existing material,
+or acceptance. Server auto-placement logs the Track callback, held/docked state,
+cached target, target distance, attempt, post-release abort or native insertion
+result. Native drop/release callbacks are logged separately. Repeated per-item
+acceptance and waiting messages are throttled to three seconds; diagnostic
+throttle storage is capped at 256 keys.
+
+For a failure report, include startup through one attempt to insert the first
+and second plates, then one attempt at the chest nail, from BOTH Quest and PC.
+A station heartbeat without a server `held Track callback` is useful evidence
+that the auto-place hook is not being reached. No behavior fix is claimed by this
+diagnostic build; it instruments the previous patch's decision points.

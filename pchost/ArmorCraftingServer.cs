@@ -43,6 +43,7 @@ namespace ArmorRestored
                 prefix: new HarmonyMethod(typeof(ArmorCraftingServer),"BeforePop"),
                 postfix: new HarmonyMethod(typeof(ArmorCraftingServer),"AfterPop"));
             Installed = true;
+            ArmorCrafting.CraftLog("server-hooks","server auto-place Track hook and release hook installed",0f);
         }
         internal static void AddRecord(GameObject prefab)
         {
@@ -84,13 +85,21 @@ namespace ArmorRestored
             var project = Project(__0);
             if (project == null || ArmorCrafting.Index(project.Recipe) < 0 || inserting.Contains(__instance)) return;
             var pickup = __instance.Pickup;
+            string diagnosticKey="take-"+__instance.GetInstanceID();
+            ArmorCrafting.CraftLog(diagnosticKey+"-track","held Track callback station="+__0.GetInstanceID()+" recipe="+project.Recipe.Hash+
+                " component="+__instance.GetInstanceID()+" pickup="+(pickup!=null)+
+                " held="+(pickup!=null && pickup.IsInteractedWith)+" docked="+(pickup!=null && pickup.IsDocked));
             if (pickup == null || pickup.Entity == null || pickup.Entity.IsBeingDestroyed || pickup.IsDocked || !pickup.IsInteractedWith) return;
             int key = (int)ArmorCrafting.Get(__instance,"bestPieceKey");
             GenericCraftingPiece piece;
-            if (key <= 0 || !project.MappedPieces.TryGetValue(key,out piece) || piece == null || !piece.AcceptsComponent(__instance)) return;
+            if (key <= 0 || !project.MappedPieces.TryGetValue(key,out piece) || piece == null || !piece.AcceptsComponent(__instance))
+            { ArmorCrafting.CraftLog(diagnosticKey,"auto-place waiting: no valid native target; cachedKey="+key); return; }
             // Native Track picks a generous preview radius. Only take the item
             // when its center is actually at the target, not on a distant ghost.
-            if ((((Vector3)ArmorCrafting.Get(__instance,"ObjectCentrePoint"))-piece.CenterPosition).sqrMagnitude > .08f*.08f) return;
+            float distance=Vector3.Distance((Vector3)ArmorCrafting.Get(__instance,"ObjectCentrePoint"),piece.CenterPosition);
+            if (distance > .08f)
+            { ArmorCrafting.CraftLog(diagnosticKey,"auto-place waiting: target="+key+" distance="+distance.ToString("F3")+" threshold=0.080m"); return; }
+            ArmorCrafting.CraftLog(diagnosticKey+"-attempt","auto-place attempting target="+key+" distance="+distance.ToString("F3"),0f);
             inserting.Add(__instance);
             try
             {
@@ -100,9 +109,11 @@ namespace ArmorRestored
                 var hands = new List<Interactor>(pickup.Interactors);
                 foreach (var hand in hands) if (hand != null) pickup.FinishInteraction(hand);
                 if (pickup == null || pickup.Entity == null || pickup.Entity.IsBeingDestroyed || pickup.IsInteractedWith ||
-                    Project(__0) != project || !piece.AcceptsComponent(__instance)) return;
+                    Project(__0) != project || !piece.AcceptsComponent(__instance))
+                { ArmorCrafting.CraftLog(diagnosticKey+"-abort","auto-place aborted after native hand release: pickup/held/project/acceptance changed",0f); return; }
                 ((IGenericCraftingComponent)__instance).Track(__0);
                 ((IGenericCraftingComponent)__instance).Released(__0);
+                ArmorCrafting.CraftLog(diagnosticKey+"-result","auto-place native Released returned; originalTarget="+key+" filled="+piece.IsFilled,0f);
             }
             catch (Exception error) { Mod.Log.Warning("Armor ingredient auto-place: " + error.GetBaseException().Message); }
             finally { inserting.Remove(__instance); }
@@ -182,6 +193,9 @@ namespace ArmorRestored
         private static void OnReleased(GenericCraftingStation __instance, Interactable __0)
         {
             if (!Mod.IsServer || !ArmorCrafting.Ready || __0 == null || !NativeBench(__instance)) return;
+            var activeProject=Project(__instance);
+            if (activeProject!=null && ArmorCrafting.Index(activeProject.Recipe)>=0)
+                ArmorCrafting.CraftLog("release-"+__instance.GetInstanceID(),"native ComponentReleased station="+__instance.GetInstanceID()+" recipe="+activeProject.Recipe.Hash,0f);
             var pickup = __0.Entity == null ? null : __0.Entity.CommonPickup;
             if (pickup == null || pickup.Entity.Prefab == null || !ArmorConstructionData.AllowedResult(pickup.Entity.Prefab.Hash)) return;
             if (pending.Count >= 128) return;

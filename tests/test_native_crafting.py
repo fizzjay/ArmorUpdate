@@ -296,3 +296,26 @@ class HeldIngredientRegressionTests(unittest.TestCase):
         self.assertIn('j<plan.Ingredients.Length', content)
         self.assertIn('tangent*.015f', content)
         self.assertIn('RayHits(', content)
+
+class CraftingDiagnosticTests(unittest.TestCase):
+    def test_patch_identity_and_bounded_throttling(self):
+        code = source('shared/ArmorCrafting.cs')
+        self.assertIn('interaction2-diag1', code)
+        self.assertIn('diagnosticTimes.Count>=256', code)
+        self.assertIn('now-previous<interval', code)
+        self.assertIn('registered signature=', code)
+
+    def test_rejection_and_nail_evidence(self):
+        code = source('shared/ArmorCrafting.cs')
+        for marker in ('native reject ', 'existingMaterial=', 'incomingMaterial=',
+                       'enabled=', 'filled=', 'original=', 'selected=', 'outward=',
+                       'tracked=', 'TrackDiagnostic'):
+            self.assertIn(marker, code)
+
+    def test_auto_take_path_evidence(self):
+        code = source('pchost/ArmorCraftingServer.cs')
+        for marker in ('server auto-place Track hook', 'held Track callback',
+                       'cachedKey=', 'threshold=0.080m', 'auto-place attempting',
+                       'auto-place aborted', 'auto-place native Released returned',
+                       'native ComponentReleased'):
+            self.assertIn(marker, code)

@@ -195,6 +195,7 @@ namespace ArmorRestored
                 Ready = true;
                 Status = "16 native recipes/pages; Leather and Metal only";
                 Mod.Log.Msg("armor crafting: " + Status);
+                CraftLog("ready","registered signature="+Signature+" recipes="+Recipes.Length,0f);
             }
             catch (Exception error)
             {
@@ -254,6 +255,11 @@ namespace ArmorRestored
             if (Get(nails, "nailDefinition") == null) Set(nails,"nailDefinition",GenericCraftingSettings.GenericNailDefaultDefinition);
             if (Get(nails,"nailDefinition") == null) throw new InvalidOperationException("Native nail definition unavailable");
             var pose = part.RequiresNail ? AccessibleNail(plan,index) : part.NailPose;
+            if (part.RequiresNail)
+                CraftLog("nail-"+plan.Id+"-"+index,"nail recipe="+plan.Id+" piece="+(index+1)+" source="+part.Source+
+                    " level="+part.Level+" original="+new Vector3(part.NailPose[0],part.NailPose[1],part.NailPose[2]).ToString("F4")+
+                    " selected="+new Vector3(pose[0],pose[1],pose[2]).ToString("F4")+
+                    " outward="+(new Quaternion(pose[3],pose[4],pose[5],pose[6])*Vector3.forward).ToString("F4"),0f);
             var positions = part.RequiresNail ? new[] { new SerializedTransform { position = new Vector3(pose[0],pose[1],pose[2]),
                 rotation = new Quaternion(pose[3],pose[4],pose[5],pose[6]), scale = Vector3.one } } : new SerializedTransform[0];
 #if ARMOR_QUEST
@@ -334,6 +340,28 @@ namespace ArmorRestored
             }
             throw new InvalidOperationException("No exterior hammer approach for " + plan.Id + " ingredient " + index);
         }
+        internal const string CraftingPatch = "interaction2-diag1";
+        private static readonly Dictionary<string,float> diagnosticTimes = new Dictionary<string,float>();
+        internal static void CraftLog(string key,string message,float interval=3f)
+        {
+            float now=Time.realtimeSinceStartup, previous;
+            if (diagnosticTimes.TryGetValue(key,out previous) && now-previous<interval) return;
+            if (diagnosticTimes.Count>=256) diagnosticTimes.Clear();
+            diagnosticTimes[key]=now;
+            Mod.Log.Msg("armor craft diag ["+CraftingPatch+" " + (Mod.IsServer ? "server" : "client") + "] " + message);
+        }
+        private static void TrackDiagnostic(GenericCraftingStation __instance)
+        {
+            try
+            {
+                var project=Get(__instance,"currentProject") as IProject;
+                if (project==null || Index(project.Recipe)<0) return;
+                object tracked=Get(__instance,"trackedPickups");
+                CraftLog("station-"+__instance.GetInstanceID(),"station="+__instance.GetInstanceID()+" recipe="+project.Recipe.Hash+
+                    " tracked="+(tracked==null ? "null" : Convert.ToString(Get(tracked,"Count")))+" complete="+project.IsComplete,5f);
+            }
+            catch (Exception error) { CraftLog("track-diag-error","station diagnostic failed: "+error.GetBaseException().Message,10f); }
+        }
         private static void InstallHooks()
         {
             if (hooks) return;
@@ -347,19 +375,29 @@ namespace ArmorRestored
             new HarmonyLib.Harmony("armorrestored.crafting-material-preview").Patch(
                 AccessTools.Method(typeof(GenericCraftingPiece),"AcceptsComponent"),
                 postfix: new HarmonyMethod(typeof(ArmorCrafting),"AcceptMaterial"));
+            new HarmonyLib.Harmony("armorrestored.crafting-diagnostics").Patch(
+                AccessTools.Method(typeof(GenericCraftingStation),"TrackPickups"),
+                postfix: new HarmonyMethod(typeof(ArmorCrafting),"TrackDiagnostic"));
+            CraftLog("hooks","native acceptance + station tracking diagnostic hooks installed",0f);
             hooks = true;
         }
         private static void AcceptMaterial(GenericCraftingPiece __instance, GenericCraftingComponent __0, ref bool __result)
         {
-            if (!__result || !Ready || __0 == null) return;
+            if (!Ready || __0 == null) return;
             var project = Get(__instance,"project") as IProject;
             int index = project == null ? -1 : Index(project.Recipe);
             if (index < 0) return;
             var definition = (GenericCraftingPieceDefinition)Get(__instance,"definition");
             uint source = definition.source.Prefab.Hash;
+            string logKey="accept-"+__0.GetInstanceID()+"-"+definition.hash;
+            string details="recipe="+project.Recipe.Hash+" piece="+definition.hash+" expectedSource="+source+
+                " incomingSource="+(__0.Entity.Prefab==null ? 0U : __0.Entity.Prefab.Hash)+
+                " incomingMaterial="+(__0.Material==null ? 0U : __0.Material.Hash)+
+                " enabled="+__instance.IsEnabled+" filled="+__instance.IsFilled;
+            if (!__result) { CraftLog(logKey,"native reject "+details); return; }
             if (source != 50988U && source != 47760U) return;
             uint incoming = __0.Material == null ? 0U : __0.Material.Hash;
-            if (index >= 8 && incoming == 0) { __result = false; return; }
+            if (index >= 8 && incoming == 0) { __result = false; CraftLog(logKey,"material reject: missing metal material "+details); return; }
             // Run the same rule on Quest previews and the authoritative server.
             foreach (var otherDefinition in project.Recipe.Pieces)
             {
@@ -368,8 +406,10 @@ namespace ArmorRestored
                 uint otherSource = otherDefinition.source.Prefab.Hash;
                 if ((otherSource == 50988U || otherSource == 47760U) &&
                     (other.Material == null ? 0U : other.Material.Hash) != incoming)
-                { __result = false; return; }
+                { __result = false; CraftLog(logKey,"material reject: existing piece="+otherDefinition.hash+
+                    " existingMaterial="+(other.Material==null ? 0U : other.Material.Hash)+" "+details); return; }
             }
+            CraftLog(logKey,"accepted "+details);
         }
         private static bool AllowPiece(GenericCraftingStation __instance)
         {
