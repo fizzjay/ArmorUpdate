@@ -1,0 +1,2172 @@
+{
+  "status": "asset audit only; not registered in game",
+  "source": "user-supplied FBX with embedded textures",
+  "files": [
+    {
+      "file": "Armor_Chest.fbx",
+      "sha256": "89f492b023d03b9f6b15717231c00ef61e73d58a00aba365902fad814adf1b16",
+      "meshes": [
+        {
+          "models": [
+            "Hebios_inset_structural_front"
+          ],
+          "vertices": 90,
+          "polygons": 176,
+          "triangles": 176
+        },
+        {
+          "models": [
+            "Hebios_inset_structural_back"
+          ],
+          "vertices": 90,
+          "polygons": 176,
+          "triangles": 176
+        },
+        {
+          "models": [
+            "Front_broad_forged_lamellar_course_0"
+          ],
+          "vertices": 54,
+          "polygons": 104,
+          "triangles": 104
+        },
+        {
+          "models": [
+            "Front_flattened_course_return_0"
+          ],
+          "vertices": 45,
+          "polygons": 86,
+          "triangles": 86
+        },
+        {
+          "models": [
+            "Front_paired_course_lacing_0__1__0_007"
+          ],
+          "vertices": 20,
+          "polygons": 36,
+          "triangles": 36
+        },
+        {
+          "models": [
+            "Front_paired_course_lacing_0__1_0_007"
+          ],
+          "vertices": 20,
+          "polygons": 36,
+          "triangles": 36
+        },
+        {
+          "models": [
+            "Front_paired_course_lacing_0_1__0_007"
+          ],
+          "vertices": 20,
+          "polygons": 36,
+          "triangles": 36
+        },
+        {
+          "models": [
+            "Front_paired_course_lacing_0_1_0_007"
+          ],
+          "vertices": 20,
+          "polygons": 36,
+          "triangles": 36
+        },
+        {
+          "models": [
+            "Front_broad_forged_lamellar_course_1"
+          ],
+          "vertices": 54,
+          "polygons": 104,
+          "triangles": 104
+        },
+        {
+          "models": [
+            "Front_flattened_course_return_1"
+          ],
+          "vertices": 45,
+          "polygons": 86,
+          "triangles": 86
+        },
+        {
+          "models": [
+            "Front_paired_course_lacing_1__1__0_007"
+          ],
+          "vertices": 20,
+          "polygons": 36,
+          "triangles": 36
+        },
+        {
+          "models": [
+            "Front_paired_course_lacing_1__1_0_007"
+          ],
+          "vertices": 20,
+          "polygons": 36,
+          "triangles": 36
+        },
+        {
+          "models": [
+            "Front_paired_course_lacing_1_1__0_007"
+          ],
+          "vertices": 20,
+          "polygons": 36,
+          "triangles": 36
+        },
+        {
+          "models": [
+            "Front_paired_course_lacing_1_1_0_007"
+          ],
+          "vertices": 20,
+          "polygons": 36,
+          "triangles": 36
+        },
+        {
+          "models": [
+            "Front_broad_forged_lamellar_course_2"
+          ],
+          "vertices": 54,
+          "polygons": 104,
+          "triangles": 104
+        },
+        {
+          "models": [
+            "Front_flattened_course_return_2"
+          ],
+          "vertices": 45,
+          "polygons": 86,
+          "triangles": 86
+        },
+        {
+          "models": [
+            "Front_shaped_lamellar_collar"
+          ],
+          "vertices": 45,
+          "polygons": 86,
+          "triangles": 86
+        },
+        {
+          "models": [
+            "Back_broad_forged_lamellar_course_0"
+          ],
+          "vertices": 54,
+          "polygons": 104,
+          "triangles": 104
+        },
+        {
+          "models": [
+            "Back_flattened_course_return_0"
+          ],
+          "vertices": 45,
+          "polygons": 86,
+          "triangles": 86
+        },
+        {
+          "models": [
+            "Rear_paired_course_lacing_0__1__0_007"
+          ],
+          "vertices": 20,
+          "polygons": 36,
+          "triangles": 36
+        },
+        {
+          "models": [
+            "Rear_paired_course_lacing_0__1_0_007"
+          ],
+          "vertices": 20,
+          "polygons": 36,
+          "triangles": 36
+        },
+        {
+          "models": [
+            "Rear_paired_course_lacing_0_1__0_007"
+          ],
+          "vertices": 20,
+          "polygons": 36,
+          "triangles": 36
+        },
+        {
+          "models": [
+            "Rear_paired_course_lacing_0_1_0_007"
+          ],
+          "vertices": 20,
+          "polygons": 36,
+          "triangles": 36
+        },
+        {
+          "models": [
+            "Back_broad_forged_lamellar_course_1"
+          ],
+          "vertices": 54,
+          "polygons": 104,
+          "triangles": 104
+        },
+        {
+          "models": [
+            "Back_flattened_course_return_1"
+          ],
+          "vertices": 45,
+          "polygons": 86,
+          "triangles": 86
+        },
+        {
+          "models": [
+            "Rear_paired_course_lacing_1__1__0_007"
+          ],
+          "vertices": 20,
+          "polygons": 36,
+          "triangles": 36
+        },
+        {
+          "models": [
+            "Rear_paired_course_lacing_1__1_0_007"
+          ],
+          "vertices": 20,
+          "polygons": 36,
+          "triangles": 36
+        },
+        {
+          "models": [
+            "Rear_paired_course_lacing_1_1__0_007"
+          ],
+          "vertices": 20,
+          "polygons": 36,
+          "triangles": 36
+        },
+        {
+          "models": [
+            "Rear_paired_course_lacing_1_1_0_007"
+          ],
+          "vertices": 20,
+          "polygons": 36,
+          "triangles": 36
+        },
+        {
+          "models": [
+            "Back_broad_forged_lamellar_course_2"
+          ],
+          "vertices": 54,
+          "polygons": 104,
+          "triangles": 104
+        },
+        {
+          "models": [
+            "Back_flattened_course_return_2"
+          ],
+          "vertices": 45,
+          "polygons": 86,
+          "triangles": 86
+        },
+        {
+          "models": [
+            "Back_shaped_lamellar_collar"
+          ],
+          "vertices": 45,
+          "polygons": 86,
+          "triangles": 86
+        },
+        {
+          "models": [
+            "Articulated_belly_lame_0"
+          ],
+          "vertices": 36,
+          "polygons": 68,
+          "triangles": 68
+        },
+        {
+          "models": [
+            "Belly_formed_hem_0"
+          ],
+          "vertices": 45,
+          "polygons": 86,
+          "triangles": 86
+        },
+        {
+          "models": [
+            "Articulated_back_lame_0"
+          ],
+          "vertices": 36,
+          "polygons": 68,
+          "triangles": 68
+        },
+        {
+          "models": [
+            "Back_formed_hem_0"
+          ],
+          "vertices": 45,
+          "polygons": 86,
+          "triangles": 86
+        },
+        {
+          "models": [
+            "Belly_lame_hinge_0__1"
+          ],
+          "vertices": 32,
+          "polygons": 60,
+          "triangles": 60
+        },
+        {
+          "models": [
+            "Belly_lame_hinge_0_1"
+          ],
+          "vertices": 32,
+          "polygons": 60,
+          "triangles": 60
+        },
+        {
+          "models": [
+            "Articulated_belly_lame_1"
+          ],
+          "vertices": 36,
+          "polygons": 68,
+          "triangles": 68
+        },
+        {
+          "models": [
+            "Belly_formed_hem_1"
+          ],
+          "vertices": 45,
+          "polygons": 86,
+          "triangles": 86
+        },
+        {
+          "models": [
+            "Articulated_back_lame_1"
+          ],
+          "vertices": 36,
+          "polygons": 68,
+          "triangles": 68
+        },
+        {
+          "models": [
+            "Back_formed_hem_1"
+          ],
+          "vertices": 45,
+          "polygons": 86,
+          "triangles": 86
+        },
+        {
+          "models": [
+            "Belly_lame_hinge_1__1"
+          ],
+          "vertices": 32,
+          "polygons": 60,
+          "triangles": 60
+        },
+        {
+          "models": [
+            "Belly_lame_hinge_1_1"
+          ],
+          "vertices": 32,
+          "polygons": 60,
+          "triangles": 60
+        },
+        {
+          "models": [
+            "Front_burgundy_leather_underlay"
+          ],
+          "vertices": 90,
+          "polygons": 176,
+          "triangles": 176
+        },
+        {
+          "models": [
+            "Back_dark_leather_underlay"
+          ],
+          "vertices": 90,
+          "polygons": 176,
+          "triangles": 176
+        },
+        {
+          "models": [
+            "Front_suspension_strap__1"
+          ],
+          "vertices": 12,
+          "polygons": 20,
+          "triangles": 20
+        },
+        {
+          "models": [
+            "Rear_suspension_strap__1"
+          ],
+          "vertices": 12,
+          "polygons": 20,
+          "triangles": 20
+        },
+        {
+          "models": [
+            "Broad_side_closure__1_0"
+          ],
+          "vertices": 16,
+          "polygons": 28,
+          "triangles": 28
+        },
+        {
+          "models": [
+            "Side_closure_front_pin__1_0"
+          ],
+          "vertices": 32,
+          "polygons": 60,
+          "triangles": 60
+        },
+        {
+          "models": [
+            "Broad_side_closure__1_1"
+          ],
+          "vertices": 16,
+          "polygons": 28,
+          "triangles": 28
+        },
+        {
+          "models": [
+            "Side_closure_front_pin__1_1"
+          ],
+          "vertices": 32,
+          "polygons": 60,
+          "triangles": 60
+        },
+        {
+          "models": [
+            "Front_suspension_strap_1"
+          ],
+          "vertices": 12,
+          "polygons": 20,
+          "triangles": 20
+        },
+        {
+          "models": [
+            "Rear_suspension_strap_1"
+          ],
+          "vertices": 12,
+          "polygons": 20,
+          "triangles": 20
+        },
+        {
+          "models": [
+            "Broad_side_closure_1_0"
+          ],
+          "vertices": 16,
+          "polygons": 28,
+          "triangles": 28
+        },
+        {
+          "models": [
+            "Side_closure_front_pin_1_0"
+          ],
+          "vertices": 32,
+          "polygons": 60,
+          "triangles": 60
+        },
+        {
+          "models": [
+            "Broad_side_closure_1_1"
+          ],
+          "vertices": 16,
+          "polygons": 28,
+          "triangles": 28
+        },
+        {
+          "models": [
+            "Side_closure_front_pin_1_1"
+          ],
+          "vertices": 32,
+          "polygons": 60,
+          "triangles": 60
+        },
+        {
+          "models": [
+            "Native_fitting___Shoulder_suspension_clasp__1___rolled_eyelets"
+          ],
+          "vertices": 168,
+          "polygons": 336,
+          "triangles": 336
+        },
+        {
+          "models": [
+            "Native_fitting___Shoulder_suspension_clasp__1___oxblood_stitching"
+          ],
+          "vertices": 78,
+          "polygons": 144,
+          "triangles": 144
+        },
+        {
+          "models": [
+            "Native_fitting___Shoulder_suspension_clasp_1___rolled_eyelets"
+          ],
+          "vertices": 168,
+          "polygons": 336,
+          "triangles": 336
+        },
+        {
+          "models": [
+            "Native_fitting___Shoulder_suspension_clasp_1___oxblood_stitching"
+          ],
+          "vertices": 78,
+          "polygons": 144,
+          "triangles": 144
+        },
+        {
+          "models": [
+            "Hebios_final_chased_breast_channel"
+          ],
+          "vertices": 18,
+          "polygons": 16,
+          "triangles": 16
+        },
+        {
+          "models": [
+            "Hebios_final_inlaid_breast_chevron"
+          ],
+          "vertices": 27,
+          "polygons": 32,
+          "triangles": 32
+        }
+      ],
+      "mesh_count": 64,
+      "triangles": 4888,
+      "attachment_helpers": [
+        "ATTBone_chest_jnt"
+      ],
+      "materials": [
+        "Hebios_V2_recessed_iron",
+        "Hebios_V2_forged_gunmetal",
+        "Hebios_V2_formed_steel",
+        "Hebios_V2_oxblood_bindings",
+        "Hebios_V2_aged_clasp_metal",
+        "Hebios_V2_padded_backing"
+      ],
+      "embedded_textures": [
+        {
+          "name": "DiffuseColor_Texture",
+          "sha256": "dd44bc384d3b553a1822072e051433b40c105a648242fb5034da26cb218ba664",
+          "width": 512,
+          "height": 512,
+          "bytes": 107862
+        },
+        {
+          "name": "DiffuseColor_Texture_1",
+          "sha256": "c49b30b4c23ce1f7a6162f0b31ea68a14e242368cf9ad1bcda46b1d52b2f95a1",
+          "width": 256,
+          "height": 256,
+          "bytes": 21627
+        }
+      ],
+      "skin_deformers": 0
+    },
+    {
+      "file": "Armor_Head.fbx",
+      "sha256": "cadf6745f1dd16cd609ee0c7df22bd47c3ed72c33245c7eb418c288fc2afcef2",
+      "meshes": [
+        {
+          "models": [
+            "Hebios_faceted_kabuto_crown"
+          ],
+          "vertices": 102,
+          "polygons": 204,
+          "triangles": 204
+        },
+        {
+          "models": [
+            "Left_forged_cheek_guard"
+          ],
+          "vertices": 17,
+          "polygons": 30,
+          "triangles": 30
+        },
+        {
+          "models": [
+            "Temple_hinge_shield__1"
+          ],
+          "vertices": 32,
+          "polygons": 60,
+          "triangles": 60
+        },
+        {
+          "models": [
+            "Temple_hinge_pin__1"
+          ],
+          "vertices": 32,
+          "polygons": 60,
+          "triangles": 60
+        },
+        {
+          "models": [
+            "Helmet_chin_side_leather__1"
+          ],
+          "vertices": 12,
+          "polygons": 20,
+          "triangles": 20
+        },
+        {
+          "models": [
+            "Right_forged_cheek_guard"
+          ],
+          "vertices": 17,
+          "polygons": 30,
+          "triangles": 30
+        },
+        {
+          "models": [
+            "Temple_hinge_shield_1"
+          ],
+          "vertices": 32,
+          "polygons": 60,
+          "triangles": 60
+        },
+        {
+          "models": [
+            "Temple_hinge_pin_1"
+          ],
+          "vertices": 32,
+          "polygons": 60,
+          "triangles": 60
+        },
+        {
+          "models": [
+            "Helmet_chin_side_leather_1"
+          ],
+          "vertices": 12,
+          "polygons": 20,
+          "triangles": 20
+        },
+        {
+          "models": [
+            "Articulated_flared_shikoro_0"
+          ],
+          "vertices": 40,
+          "polygons": 76,
+          "triangles": 76
+        },
+        {
+          "models": [
+            "Nape_broad_formed_return_0"
+          ],
+          "vertices": 40,
+          "polygons": 76,
+          "triangles": 76
+        },
+        {
+          "models": [
+            "Articulated_flared_shikoro_1"
+          ],
+          "vertices": 40,
+          "polygons": 76,
+          "triangles": 76
+        },
+        {
+          "models": [
+            "Nape_broad_formed_return_1"
+          ],
+          "vertices": 40,
+          "polygons": 76,
+          "triangles": 76
+        },
+        {
+          "models": [
+            "Articulated_flared_shikoro_2"
+          ],
+          "vertices": 40,
+          "polygons": 76,
+          "triangles": 76
+        },
+        {
+          "models": [
+            "Nape_broad_formed_return_2"
+          ],
+          "vertices": 40,
+          "polygons": 76,
+          "triangles": 76
+        },
+        {
+          "models": [
+            "Helmet_burgundy_inner_brow"
+          ],
+          "vertices": 52,
+          "polygons": 100,
+          "triangles": 100
+        },
+        {
+          "models": [
+            "Hebios_final_low_twelve_sided_summit"
+          ],
+          "vertices": 38,
+          "polygons": 72,
+          "triangles": 72
+        },
+        {
+          "models": [
+            "Hebios_final_aligned_brow_band"
+          ],
+          "vertices": 51,
+          "polygons": 98,
+          "triangles": 98
+        },
+        {
+          "models": [
+            "Hebios_final_turned_visor"
+          ],
+          "vertices": 128,
+          "polygons": 252,
+          "triangles": 252
+        },
+        {
+          "models": [
+            "Hebios_final_brow_socket"
+          ],
+          "vertices": 51,
+          "polygons": 98,
+          "triangles": 98
+        },
+        {
+          "models": [
+            "Hebios_final_peened_socket_rivets"
+          ],
+          "vertices": 50,
+          "polygons": 80,
+          "triangles": 80
+        },
+        {
+          "models": [
+            "Hebios_final_raised_brass_crescent"
+          ],
+          "vertices": 219,
+          "polygons": 434,
+          "triangles": 434
+        }
+      ],
+      "mesh_count": 22,
+      "triangles": 2134,
+      "attachment_helpers": [
+        "ATTBone_head_jnt"
+      ],
+      "materials": [
+        "Hebios_V2_forged_gunmetal",
+        "Hebios_V2_recessed_iron",
+        "Hebios_V2_aged_clasp_metal",
+        "Hebios_V2_oxblood_bindings",
+        "Hebios_V2_formed_steel"
+      ],
+      "embedded_textures": [
+        {
+          "name": "DiffuseColor_Texture",
+          "sha256": "dd44bc384d3b553a1822072e051433b40c105a648242fb5034da26cb218ba664",
+          "width": 512,
+          "height": 512,
+          "bytes": 107862
+        },
+        {
+          "name": "DiffuseColor_Texture_1",
+          "sha256": "c49b30b4c23ce1f7a6162f0b31ea68a14e242368cf9ad1bcda46b1d52b2f95a1",
+          "width": 256,
+          "height": 256,
+          "bytes": 21627
+        }
+      ],
+      "skin_deformers": 0
+    },
+    {
+      "file": "Armor_Hips.fbx",
+      "sha256": "56fabcc30f800b9ac15fa02afa227c8f7f64c6384bb6a302a36f0c610e43f1a8",
+      "meshes": [
+        {
+          "models": [
+            "Front_left_suspended_leather_panel"
+          ],
+          "vertices": 24,
+          "polygons": 44,
+          "triangles": 44
+        },
+        {
+          "models": [
+            "Front_left_convex_hanging_lame_0"
+          ],
+          "vertices": 20,
+          "polygons": 36,
+          "triangles": 36
+        },
+        {
+          "models": [
+            "Front_left_hinge_0__1"
+          ],
+          "vertices": 32,
+          "polygons": 60,
+          "triangles": 60
+        },
+        {
+          "models": [
+            "Front_left_hinge_0_1"
+          ],
+          "vertices": 32,
+          "polygons": 60,
+          "triangles": 60
+        },
+        {
+          "models": [
+            "Front_left_convex_hanging_lame_1"
+          ],
+          "vertices": 20,
+          "polygons": 36,
+          "triangles": 36
+        },
+        {
+          "models": [
+            "Front_left_hinge_1__1"
+          ],
+          "vertices": 32,
+          "polygons": 60,
+          "triangles": 60
+        },
+        {
+          "models": [
+            "Front_left_hinge_1_1"
+          ],
+          "vertices": 32,
+          "polygons": 60,
+          "triangles": 60
+        },
+        {
+          "models": [
+            "Front_left_load_bearing_hanger_0"
+          ],
+          "vertices": 12,
+          "polygons": 20,
+          "triangles": 20
+        },
+        {
+          "models": [
+            "Front_left_hanger_fastener_0"
+          ],
+          "vertices": 32,
+          "polygons": 60,
+          "triangles": 60
+        },
+        {
+          "models": [
+            "Front_right_suspended_leather_panel"
+          ],
+          "vertices": 24,
+          "polygons": 44,
+          "triangles": 44
+        },
+        {
+          "models": [
+            "Front_right_convex_hanging_lame_0"
+          ],
+          "vertices": 20,
+          "polygons": 36,
+          "triangles": 36
+        },
+        {
+          "models": [
+            "Front_right_hinge_0__1"
+          ],
+          "vertices": 32,
+          "polygons": 60,
+          "triangles": 60
+        },
+        {
+          "models": [
+            "Front_right_hinge_0_1"
+          ],
+          "vertices": 32,
+          "polygons": 60,
+          "triangles": 60
+        },
+        {
+          "models": [
+            "Front_right_convex_hanging_lame_1"
+          ],
+          "vertices": 20,
+          "polygons": 36,
+          "triangles": 36
+        },
+        {
+          "models": [
+            "Front_right_hinge_1__1"
+          ],
+          "vertices": 32,
+          "polygons": 60,
+          "triangles": 60
+        },
+        {
+          "models": [
+            "Front_right_hinge_1_1"
+          ],
+          "vertices": 32,
+          "polygons": 60,
+          "triangles": 60
+        },
+        {
+          "models": [
+            "Front_right_load_bearing_hanger_0"
+          ],
+          "vertices": 12,
+          "polygons": 20,
+          "triangles": 20
+        },
+        {
+          "models": [
+            "Front_right_hanger_fastener_0"
+          ],
+          "vertices": 32,
+          "polygons": 60,
+          "triangles": 60
+        },
+        {
+          "models": [
+            "Rear_left_suspended_leather_panel"
+          ],
+          "vertices": 24,
+          "polygons": 44,
+          "triangles": 44
+        },
+        {
+          "models": [
+            "Rear_left_convex_hanging_lame_0"
+          ],
+          "vertices": 20,
+          "polygons": 36,
+          "triangles": 36
+        },
+        {
+          "models": [
+            "Rear_left_hinge_0__1"
+          ],
+          "vertices": 32,
+          "polygons": 60,
+          "triangles": 60
+        },
+        {
+          "models": [
+            "Rear_left_hinge_0_1"
+          ],
+          "vertices": 32,
+          "polygons": 60,
+          "triangles": 60
+        },
+        {
+          "models": [
+            "Rear_left_convex_hanging_lame_1"
+          ],
+          "vertices": 20,
+          "polygons": 36,
+          "triangles": 36
+        },
+        {
+          "models": [
+            "Rear_left_hinge_1__1"
+          ],
+          "vertices": 32,
+          "polygons": 60,
+          "triangles": 60
+        },
+        {
+          "models": [
+            "Rear_left_hinge_1_1"
+          ],
+          "vertices": 32,
+          "polygons": 60,
+          "triangles": 60
+        },
+        {
+          "models": [
+            "Rear_left_load_bearing_hanger_0"
+          ],
+          "vertices": 12,
+          "polygons": 20,
+          "triangles": 20
+        },
+        {
+          "models": [
+            "Rear_left_hanger_fastener_0"
+          ],
+          "vertices": 32,
+          "polygons": 60,
+          "triangles": 60
+        },
+        {
+          "models": [
+            "Rear_right_suspended_leather_panel"
+          ],
+          "vertices": 24,
+          "polygons": 44,
+          "triangles": 44
+        },
+        {
+          "models": [
+            "Rear_right_convex_hanging_lame_0"
+          ],
+          "vertices": 20,
+          "polygons": 36,
+          "triangles": 36
+        },
+        {
+          "models": [
+            "Rear_right_hinge_0__1"
+          ],
+          "vertices": 32,
+          "polygons": 60,
+          "triangles": 60
+        },
+        {
+          "models": [
+            "Rear_right_hinge_0_1"
+          ],
+          "vertices": 32,
+          "polygons": 60,
+          "triangles": 60
+        },
+        {
+          "models": [
+            "Rear_right_convex_hanging_lame_1"
+          ],
+          "vertices": 20,
+          "polygons": 36,
+          "triangles": 36
+        },
+        {
+          "models": [
+            "Rear_right_hinge_1__1"
+          ],
+          "vertices": 32,
+          "polygons": 60,
+          "triangles": 60
+        },
+        {
+          "models": [
+            "Rear_right_hinge_1_1"
+          ],
+          "vertices": 32,
+          "polygons": 60,
+          "triangles": 60
+        },
+        {
+          "models": [
+            "Rear_right_load_bearing_hanger_0"
+          ],
+          "vertices": 12,
+          "polygons": 20,
+          "triangles": 20
+        },
+        {
+          "models": [
+            "Rear_right_hanger_fastener_0"
+          ],
+          "vertices": 32,
+          "polygons": 60,
+          "triangles": 60
+        },
+        {
+          "models": [
+            "Native_Hebios_heraldry_pennant"
+          ],
+          "vertices": 20,
+          "polygons": 36,
+          "triangles": 36
+        },
+        {
+          "models": [
+            "Heraldry_upper_pin"
+          ],
+          "vertices": 32,
+          "polygons": 60,
+          "triangles": 60
+        },
+        {
+          "models": [
+            "Broad_oxblood_leather_waist_belt"
+          ],
+          "vertices": 180,
+          "polygons": 320,
+          "triangles": 320
+        },
+        {
+          "models": [
+            "Native_fitting___Waist_forged_clasp___rolled_eyelets"
+          ],
+          "vertices": 358,
+          "polygons": 672,
+          "triangles": 672
+        },
+        {
+          "models": [
+            "Native_fitting___Waist_forged_clasp___oxblood_stitching"
+          ],
+          "vertices": 312,
+          "polygons": 576,
+          "triangles": 576
+        }
+      ],
+      "mesh_count": 41,
+      "triangles": 3408,
+      "attachment_helpers": [
+        "ATTBone_hipBase_jnt"
+      ],
+      "materials": [
+        "Hebios_V2_padded_backing",
+        "Hebios_V2_forged_gunmetal",
+        "Hebios_V2_aged_clasp_metal",
+        "Hebios_V2_formed_steel",
+        "Hebios_V2_oxblood_bindings",
+        "Native_Hebios_cloth_crest"
+      ],
+      "embedded_textures": [
+        {
+          "name": "DiffuseColor_Texture",
+          "sha256": "c49b30b4c23ce1f7a6162f0b31ea68a14e242368cf9ad1bcda46b1d52b2f95a1",
+          "width": 256,
+          "height": 256,
+          "bytes": 21627
+        },
+        {
+          "name": "DiffuseColor_Texture_1",
+          "sha256": "dd44bc384d3b553a1822072e051433b40c105a648242fb5034da26cb218ba664",
+          "width": 512,
+          "height": 512,
+          "bytes": 107862
+        },
+        {
+          "name": "DiffuseColor_Texture_2",
+          "sha256": "18e38a44141a50c04aa16b5897068233b7291593cfdd96846bae2919a24af8eb",
+          "width": 512,
+          "height": 1024,
+          "bytes": 524288
+        }
+      ],
+      "skin_deformers": 0
+    },
+    {
+      "file": "Armor_LeftForearm.fbx",
+      "sha256": "3b620e7c8ab0fd5647d3ea1bb789f035ee0b8252d399396464bb9ac7f22430e0",
+      "meshes": [
+        {
+          "models": [
+            "Left_open_inner_arm_leather_seat"
+          ],
+          "vertices": 54,
+          "polygons": 104,
+          "triangles": 104
+        },
+        {
+          "models": [
+            "Left_sculpted_open_vambrace"
+          ],
+          "vertices": 64,
+          "polygons": 124,
+          "triangles": 124
+        },
+        {
+          "models": [
+            "Left_flared_elbow_guard"
+          ],
+          "vertices": 48,
+          "polygons": 92,
+          "triangles": 92
+        },
+        {
+          "models": [
+            "Left_convex_forged_dorsal_reinforcement"
+          ],
+          "vertices": 23,
+          "polygons": 42,
+          "triangles": 42
+        },
+        {
+          "models": [
+            "Left_dorsal_plate_fastening"
+          ],
+          "vertices": 32,
+          "polygons": 60,
+          "triangles": 60
+        },
+        {
+          "models": [
+            "Left_fitted_broad_fastening_strap_0_097"
+          ],
+          "vertices": 60,
+          "polygons": 116,
+          "triangles": 116
+        },
+        {
+          "models": [
+            "Left_fitted_broad_fastening_strap_0_2486187"
+          ],
+          "vertices": 60,
+          "polygons": 116,
+          "triangles": 116
+        },
+        {
+          "models": [
+            "Left_wide_formed_cuff_return_0_061"
+          ],
+          "vertices": 32,
+          "polygons": 60,
+          "triangles": 60
+        },
+        {
+          "models": [
+            "Left_wide_formed_cuff_return_0_2646187"
+          ],
+          "vertices": 32,
+          "polygons": 60,
+          "triangles": 60
+        },
+        {
+          "models": [
+            "Native_fitting___Left_working_arm_buckle_0_097___rolled_eyelets"
+          ],
+          "vertices": 169,
+          "polygons": 336,
+          "triangles": 336
+        },
+        {
+          "models": [
+            "Native_fitting___Left_working_arm_buckle_0_097___oxblood_stitching"
+          ],
+          "vertices": 78,
+          "polygons": 144,
+          "triangles": 144
+        },
+        {
+          "models": [
+            "Native_fitting___Left_working_arm_buckle_0_2486187___rolled_eyelets"
+          ],
+          "vertices": 168,
+          "polygons": 336,
+          "triangles": 336
+        },
+        {
+          "models": [
+            "Native_fitting___Left_working_arm_buckle_0_2486187___oxblood_stitching"
+          ],
+          "vertices": 78,
+          "polygons": 144,
+          "triangles": 144
+        },
+        {
+          "models": [
+            "glove_L_01"
+          ],
+          "vertices": 1114,
+          "polygons": 2214,
+          "triangles": 2214
+        },
+        {
+          "models": [
+            "knuckle_L_index3"
+          ],
+          "vertices": 40,
+          "polygons": 76,
+          "triangles": 76
+        },
+        {
+          "models": [
+            "knuckle_L_index2"
+          ],
+          "vertices": 30,
+          "polygons": 56,
+          "triangles": 56
+        },
+        {
+          "models": [
+            "Original_combined_plates"
+          ],
+          "vertices": 60,
+          "polygons": 112,
+          "triangles": 112
+        },
+        {
+          "models": [
+            "Original_combined_plates_1"
+          ],
+          "vertices": 60,
+          "polygons": 112,
+          "triangles": 112
+        },
+        {
+          "models": [
+            "knuckle_L_little2"
+          ],
+          "vertices": 30,
+          "polygons": 56,
+          "triangles": 56
+        },
+        {
+          "models": [
+            "knuckle_L_little3"
+          ],
+          "vertices": 40,
+          "polygons": 76,
+          "triangles": 76
+        },
+        {
+          "models": [
+            "Original_combined_plates_2"
+          ],
+          "vertices": 60,
+          "polygons": 112,
+          "triangles": 112
+        },
+        {
+          "models": [
+            "knuckle_L_index2_1"
+          ],
+          "vertices": 30,
+          "polygons": 56,
+          "triangles": 56
+        },
+        {
+          "models": [
+            "knuckle_L_index3_1"
+          ],
+          "vertices": 40,
+          "polygons": 76,
+          "triangles": 76
+        },
+        {
+          "models": [
+            "Hebios_hand_lame_1"
+          ],
+          "vertices": 89,
+          "polygons": 110,
+          "triangles": 110
+        },
+        {
+          "models": [
+            "Hebios_hand_lame_2"
+          ],
+          "vertices": 101,
+          "polygons": 84,
+          "triangles": 84
+        },
+        {
+          "models": [
+            "Hebios_hand_lame_3"
+          ],
+          "vertices": 52,
+          "polygons": 54,
+          "triangles": 54
+        },
+        {
+          "models": [
+            "Original_combined_plates_3"
+          ],
+          "vertices": 60,
+          "polygons": 112,
+          "triangles": 112
+        },
+        {
+          "models": [
+            "knuckle_L_index2_2"
+          ],
+          "vertices": 30,
+          "polygons": 56,
+          "triangles": 56
+        },
+        {
+          "models": [
+            "knuckle_L_index3_2"
+          ],
+          "vertices": 40,
+          "polygons": 76,
+          "triangles": 76
+        },
+        {
+          "models": [
+            "Original_combined_plates_4"
+          ],
+          "vertices": 60,
+          "polygons": 112,
+          "triangles": 112
+        },
+        {
+          "models": [
+            "knuckle_L_index2_3"
+          ],
+          "vertices": 30,
+          "polygons": 56,
+          "triangles": 56
+        },
+        {
+          "models": [
+            "knuckle_L_index3_3"
+          ],
+          "vertices": 40,
+          "polygons": 76,
+          "triangles": 76
+        }
+      ],
+      "mesh_count": 32,
+      "triangles": 5416,
+      "attachment_helpers": [
+        "ATTBone_elbow_L_jnt",
+        "ATTBone_index_02_L_jnt",
+        "ATTBone_index_01_L_jnt",
+        "ATTBone_indexRoot_L_jnt",
+        "ATTBone_littleRoot_L_jnt",
+        "ATTBone_little_01_L_jnt",
+        "ATTBone_little_02_L_jnt",
+        "ATTBone_middleRoot_L_jnt",
+        "ATTBone_middle_01_L_jnt",
+        "ATTBone_middle_02_L_jnt",
+        "ATTBone_wrist_L_jnt",
+        "ATTBone_ringRoot_L_jnt",
+        "ATTBone_ring_01_L_jnt",
+        "ATTBone_ring_02_L_jnt",
+        "ATTBone_thumbRoot_L_jnt",
+        "ATTBone_thumb_01_L_jnt",
+        "ATTBone_thumb_02_L_jnt"
+      ],
+      "materials": [
+        "Hebios_V2_padded_backing",
+        "Hebios_V2_forged_gunmetal",
+        "Hebios_V2_formed_steel",
+        "Hebios_V2_aged_clasp_metal",
+        "Hebios_V2_oxblood_bindings"
+      ],
+      "embedded_textures": [
+        {
+          "name": "DiffuseColor_Texture",
+          "sha256": "c49b30b4c23ce1f7a6162f0b31ea68a14e242368cf9ad1bcda46b1d52b2f95a1",
+          "width": 256,
+          "height": 256,
+          "bytes": 21627
+        },
+        {
+          "name": "DiffuseColor_Texture_1",
+          "sha256": "dd44bc384d3b553a1822072e051433b40c105a648242fb5034da26cb218ba664",
+          "width": 512,
+          "height": 512,
+          "bytes": 107862
+        }
+      ],
+      "skin_deformers": 24
+    },
+    {
+      "file": "Armor_LeftShoulder.fbx",
+      "sha256": "4f9f1c84f5f17e7e8a077489c8d8d2d8ee3410aef0a16f412597b754891d5439",
+      "meshes": [
+        {
+          "models": [
+            "Left_compact_protective_joint_cap"
+          ],
+          "vertices": 48,
+          "polygons": 92,
+          "triangles": 92
+        },
+        {
+          "models": [
+            "Left_bowed_sode_course_0"
+          ],
+          "vertices": 72,
+          "polygons": 140,
+          "triangles": 140
+        },
+        {
+          "models": [
+            "Left_broad_sode_edge_0"
+          ],
+          "vertices": 45,
+          "polygons": 86,
+          "triangles": 86
+        },
+        {
+          "models": [
+            "Left_bowed_sode_course_1"
+          ],
+          "vertices": 72,
+          "polygons": 140,
+          "triangles": 140
+        },
+        {
+          "models": [
+            "Left_broad_sode_edge_1"
+          ],
+          "vertices": 45,
+          "polygons": 86,
+          "triangles": 86
+        },
+        {
+          "models": [
+            "Left_bowed_sode_course_2"
+          ],
+          "vertices": 72,
+          "polygons": 140,
+          "triangles": 140
+        },
+        {
+          "models": [
+            "Left_broad_sode_edge_2"
+          ],
+          "vertices": 45,
+          "polygons": 86,
+          "triangles": 86
+        },
+        {
+          "models": [
+            "Left_short_leather_course_stitch__0_047_0"
+          ],
+          "vertices": 20,
+          "polygons": 36,
+          "triangles": 36
+        },
+        {
+          "models": [
+            "Left_short_leather_course_stitch__0_047_1"
+          ],
+          "vertices": 20,
+          "polygons": 36,
+          "triangles": 36
+        },
+        {
+          "models": [
+            "Left_short_leather_course_stitch__0_047_2"
+          ],
+          "vertices": 20,
+          "polygons": 36,
+          "triangles": 36
+        },
+        {
+          "models": [
+            "Left_short_leather_course_stitch_0_047_0"
+          ],
+          "vertices": 20,
+          "polygons": 36,
+          "triangles": 36
+        },
+        {
+          "models": [
+            "Left_short_leather_course_stitch_0_047_1"
+          ],
+          "vertices": 20,
+          "polygons": 36,
+          "triangles": 36
+        },
+        {
+          "models": [
+            "Left_short_leather_course_stitch_0_047_2"
+          ],
+          "vertices": 20,
+          "polygons": 36,
+          "triangles": 36
+        },
+        {
+          "models": [
+            "Left_sode_suspension_hinge"
+          ],
+          "vertices": 32,
+          "polygons": 60,
+          "triangles": 60
+        },
+        {
+          "models": [
+            "Left_hinge_bronze_cover"
+          ],
+          "vertices": 32,
+          "polygons": 60,
+          "triangles": 60
+        },
+        {
+          "models": [
+            "Left_hinge_center"
+          ],
+          "vertices": 32,
+          "polygons": 60,
+          "triangles": 60
+        },
+        {
+          "models": [
+            "Left_load_bearing_sode_hanger__0_051"
+          ],
+          "vertices": 12,
+          "polygons": 20,
+          "triangles": 20
+        },
+        {
+          "models": [
+            "Left_cap_hanger_anchor__0_051"
+          ],
+          "vertices": 32,
+          "polygons": 60,
+          "triangles": 60
+        },
+        {
+          "models": [
+            "Left_board_hanger_anchor__0_051"
+          ],
+          "vertices": 32,
+          "polygons": 60,
+          "triangles": 60
+        },
+        {
+          "models": [
+            "Left_load_bearing_sode_hanger_0_051"
+          ],
+          "vertices": 12,
+          "polygons": 20,
+          "triangles": 20
+        },
+        {
+          "models": [
+            "Left_cap_hanger_anchor_0_051"
+          ],
+          "vertices": 32,
+          "polygons": 60,
+          "triangles": 60
+        },
+        {
+          "models": [
+            "Left_board_hanger_anchor_0_051"
+          ],
+          "vertices": 32,
+          "polygons": 60,
+          "triangles": 60
+        }
+      ],
+      "mesh_count": 22,
+      "triangles": 1446,
+      "attachment_helpers": [
+        "ATTBone_shoulder_L_jnt"
+      ],
+      "materials": [
+        "Hebios_V2_forged_gunmetal",
+        "Hebios_V2_formed_steel",
+        "Hebios_V2_oxblood_bindings",
+        "Hebios_V2_recessed_iron",
+        "Hebios_V2_aged_clasp_metal"
+      ],
+      "embedded_textures": [
+        {
+          "name": "DiffuseColor_Texture",
+          "sha256": "dd44bc384d3b553a1822072e051433b40c105a648242fb5034da26cb218ba664",
+          "width": 512,
+          "height": 512,
+          "bytes": 107862
+        },
+        {
+          "name": "DiffuseColor_Texture_1",
+          "sha256": "c49b30b4c23ce1f7a6162f0b31ea68a14e242368cf9ad1bcda46b1d52b2f95a1",
+          "width": 256,
+          "height": 256,
+          "bytes": 21627
+        }
+      ],
+      "skin_deformers": 0
+    },
+    {
+      "file": "Armor_RightForearm.fbx",
+      "sha256": "4634ab52500fa761835cdcf14374400029330a3f7c436e4c13a8d5f9de04abd2",
+      "meshes": [
+        {
+          "models": [
+            "Right_open_inner_arm_leather_seat"
+          ],
+          "vertices": 54,
+          "polygons": 104,
+          "triangles": 104
+        },
+        {
+          "models": [
+            "Right_sculpted_open_vambrace"
+          ],
+          "vertices": 64,
+          "polygons": 124,
+          "triangles": 124
+        },
+        {
+          "models": [
+            "Right_flared_elbow_guard"
+          ],
+          "vertices": 48,
+          "polygons": 92,
+          "triangles": 92
+        },
+        {
+          "models": [
+            "Right_convex_forged_dorsal_reinforcement"
+          ],
+          "vertices": 23,
+          "polygons": 42,
+          "triangles": 42
+        },
+        {
+          "models": [
+            "Right_dorsal_plate_fastening"
+          ],
+          "vertices": 32,
+          "polygons": 60,
+          "triangles": 60
+        },
+        {
+          "models": [
+            "Right_fitted_broad_fastening_strap_0_097"
+          ],
+          "vertices": 60,
+          "polygons": 116,
+          "triangles": 116
+        },
+        {
+          "models": [
+            "Right_fitted_broad_fastening_strap_0_2486175"
+          ],
+          "vertices": 60,
+          "polygons": 116,
+          "triangles": 116
+        },
+        {
+          "models": [
+            "Right_wide_formed_cuff_return_0_061"
+          ],
+          "vertices": 32,
+          "polygons": 60,
+          "triangles": 60
+        },
+        {
+          "models": [
+            "Right_wide_formed_cuff_return_0_2646175"
+          ],
+          "vertices": 32,
+          "polygons": 60,
+          "triangles": 60
+        },
+        {
+          "models": [
+            "Native_fitting___Right_working_arm_buckle_0_097___rolled_eyelets"
+          ],
+          "vertices": 170,
+          "polygons": 336,
+          "triangles": 336
+        },
+        {
+          "models": [
+            "Native_fitting___Right_working_arm_buckle_0_097___oxblood_stitching"
+          ],
+          "vertices": 78,
+          "polygons": 144,
+          "triangles": 144
+        },
+        {
+          "models": [
+            "Native_fitting___Right_working_arm_buckle_0_2486175___rolled_eyelets"
+          ],
+          "vertices": 169,
+          "polygons": 336,
+          "triangles": 336
+        },
+        {
+          "models": [
+            "Native_fitting___Right_working_arm_buckle_0_2486175___oxblood_stitching"
+          ],
+          "vertices": 78,
+          "polygons": 144,
+          "triangles": 144
+        },
+        {
+          "models": [
+            "glove_R_01"
+          ],
+          "vertices": 1114,
+          "polygons": 2214,
+          "triangles": 2214
+        },
+        {
+          "models": [
+            "knuckle_R_index3"
+          ],
+          "vertices": 40,
+          "polygons": 76,
+          "triangles": 76
+        },
+        {
+          "models": [
+            "knuckle_R_index2"
+          ],
+          "vertices": 30,
+          "polygons": 56,
+          "triangles": 56
+        },
+        {
+          "models": [
+            "Original_combined_plates"
+          ],
+          "vertices": 60,
+          "polygons": 112,
+          "triangles": 112
+        },
+        {
+          "models": [
+            "Original_combined_plates_1"
+          ],
+          "vertices": 60,
+          "polygons": 112,
+          "triangles": 112
+        },
+        {
+          "models": [
+            "knuckle_R_little2"
+          ],
+          "vertices": 30,
+          "polygons": 56,
+          "triangles": 56
+        },
+        {
+          "models": [
+            "knuckle_R_little3"
+          ],
+          "vertices": 40,
+          "polygons": 76,
+          "triangles": 76
+        },
+        {
+          "models": [
+            "Original_combined_plates_2"
+          ],
+          "vertices": 60,
+          "polygons": 112,
+          "triangles": 112
+        },
+        {
+          "models": [
+            "knuckle_R_index2_1"
+          ],
+          "vertices": 30,
+          "polygons": 56,
+          "triangles": 56
+        },
+        {
+          "models": [
+            "knuckle_R_index3_1"
+          ],
+          "vertices": 40,
+          "polygons": 76,
+          "triangles": 76
+        },
+        {
+          "models": [
+            "Hebios_hand_lame_1"
+          ],
+          "vertices": 83,
+          "polygons": 110,
+          "triangles": 110
+        },
+        {
+          "models": [
+            "Hebios_hand_lame_2"
+          ],
+          "vertices": 101,
+          "polygons": 84,
+          "triangles": 84
+        },
+        {
+          "models": [
+            "Hebios_hand_lame_3"
+          ],
+          "vertices": 57,
+          "polygons": 54,
+          "triangles": 54
+        },
+        {
+          "models": [
+            "Original_combined_plates_3"
+          ],
+          "vertices": 60,
+          "polygons": 112,
+          "triangles": 112
+        },
+        {
+          "models": [
+            "knuckle_R_index2_2"
+          ],
+          "vertices": 30,
+          "polygons": 56,
+          "triangles": 56
+        },
+        {
+          "models": [
+            "knuckle_R_index3_2"
+          ],
+          "vertices": 40,
+          "polygons": 76,
+          "triangles": 76
+        },
+        {
+          "models": [
+            "Original_combined_plates_4"
+          ],
+          "vertices": 60,
+          "polygons": 112,
+          "triangles": 112
+        },
+        {
+          "models": [
+            "knuckle_R_index2_3"
+          ],
+          "vertices": 30,
+          "polygons": 56,
+          "triangles": 56
+        },
+        {
+          "models": [
+            "knuckle_R_index3_3"
+          ],
+          "vertices": 40,
+          "polygons": 76,
+          "triangles": 76
+        }
+      ],
+      "mesh_count": 32,
+      "triangles": 5416,
+      "attachment_helpers": [
+        "ATTBone_elbow_R_jnt",
+        "ATTBone_index_02_R_jnt",
+        "ATTBone_index_01_R_jnt",
+        "ATTBone_indexRoot_R_jnt",
+        "ATTBone_littleRoot_R_jnt",
+        "ATTBone_little_01_R_jnt",
+        "ATTBone_little_02_R_jnt",
+        "ATTBone_middleRoot_R_jnt",
+        "ATTBone_middle_01_R_jnt",
+        "ATTBone_middle_02_R_jnt",
+        "ATTBone_wrist_R_jnt",
+        "ATTBone_ringRoot_R_jnt",
+        "ATTBone_ring_01_R_jnt",
+        "ATTBone_ring_02_R_jnt",
+        "ATTBone_thumbRoot_R_jnt",
+        "ATTBone_thumb_01_R_jnt",
+        "ATTBone_thumb_02_R_jnt"
+      ],
+      "materials": [
+        "Hebios_V2_padded_backing",
+        "Hebios_V2_forged_gunmetal",
+        "Hebios_V2_formed_steel",
+        "Hebios_V2_aged_clasp_metal",
+        "Hebios_V2_oxblood_bindings"
+      ],
+      "embedded_textures": [
+        {
+          "name": "DiffuseColor_Texture",
+          "sha256": "c49b30b4c23ce1f7a6162f0b31ea68a14e242368cf9ad1bcda46b1d52b2f95a1",
+          "width": 256,
+          "height": 256,
+          "bytes": 21627
+        },
+        {
+          "name": "DiffuseColor_Texture_1",
+          "sha256": "dd44bc384d3b553a1822072e051433b40c105a648242fb5034da26cb218ba664",
+          "width": 512,
+          "height": 512,
+          "bytes": 107862
+        }
+      ],
+      "skin_deformers": 24
+    },
+    {
+      "file": "Armor_RightShoulder.fbx",
+      "sha256": "d82f021746bf4c1ec45147b4968b72a90bb4d782ad9d0aa495be6d881f23268d",
+      "meshes": [
+        {
+          "models": [
+            "Right_compact_protective_joint_cap"
+          ],
+          "vertices": 48,
+          "polygons": 92,
+          "triangles": 92
+        },
+        {
+          "models": [
+            "Right_bowed_sode_course_0"
+          ],
+          "vertices": 72,
+          "polygons": 140,
+          "triangles": 140
+        },
+        {
+          "models": [
+            "Right_broad_sode_edge_0"
+          ],
+          "vertices": 45,
+          "polygons": 86,
+          "triangles": 86
+        },
+        {
+          "models": [
+            "Right_bowed_sode_course_1"
+          ],
+          "vertices": 72,
+          "polygons": 140,
+          "triangles": 140
+        },
+        {
+          "models": [
+            "Right_broad_sode_edge_1"
+          ],
+          "vertices": 45,
+          "polygons": 86,
+          "triangles": 86
+        },
+        {
+          "models": [
+            "Right_bowed_sode_course_2"
+          ],
+          "vertices": 72,
+          "polygons": 140,
+          "triangles": 140
+        },
+        {
+          "models": [
+            "Right_broad_sode_edge_2"
+          ],
+          "vertices": 45,
+          "polygons": 86,
+          "triangles": 86
+        },
+        {
+          "models": [
+            "Right_short_leather_course_stitch__0_047_0"
+          ],
+          "vertices": 20,
+          "polygons": 36,
+          "triangles": 36
+        },
+        {
+          "models": [
+            "Right_short_leather_course_stitch__0_047_1"
+          ],
+          "vertices": 20,
+          "polygons": 36,
+          "triangles": 36
+        },
+        {
+          "models": [
+            "Right_short_leather_course_stitch__0_047_2"
+          ],
+          "vertices": 20,
+          "polygons": 36,
+          "triangles": 36
+        },
+        {
+          "models": [
+            "Right_short_leather_course_stitch_0_047_0"
+          ],
+          "vertices": 20,
+          "polygons": 36,
+          "triangles": 36
+        },
+        {
+          "models": [
+            "Right_short_leather_course_stitch_0_047_1"
+          ],
+          "vertices": 20,
+          "polygons": 36,
+          "triangles": 36
+        },
+        {
+          "models": [
+            "Right_short_leather_course_stitch_0_047_2"
+          ],
+          "vertices": 20,
+          "polygons": 36,
+          "triangles": 36
+        },
+        {
+          "models": [
+            "Right_sode_suspension_hinge"
+          ],
+          "vertices": 32,
+          "polygons": 60,
+          "triangles": 60
+        },
+        {
+          "models": [
+            "Right_hinge_bronze_cover"
+          ],
+          "vertices": 32,
+          "polygons": 60,
+          "triangles": 60
+        },
+        {
+          "models": [
+            "Right_hinge_center"
+          ],
+          "vertices": 32,
+          "polygons": 60,
+          "triangles": 60
+        },
+        {
+          "models": [
+            "Right_load_bearing_sode_hanger__0_051"
+          ],
+          "vertices": 12,
+          "polygons": 20,
+          "triangles": 20
+        },
+        {
+          "models": [
+            "Right_cap_hanger_anchor__0_051"
+          ],
+          "vertices": 32,
+          "polygons": 60,
+          "triangles": 60
+        },
+        {
+          "models": [
+            "Right_board_hanger_anchor__0_051"
+          ],
+          "vertices": 32,
+          "polygons": 60,
+          "triangles": 60
+        },
+        {
+          "models": [
+            "Right_load_bearing_sode_hanger_0_051"
+          ],
+          "vertices": 12,
+          "polygons": 20,
+          "triangles": 20
+        },
+        {
+          "models": [
+            "Right_cap_hanger_anchor_0_051"
+          ],
+          "vertices": 32,
+          "polygons": 60,
+          "triangles": 60
+        },
+        {
+          "models": [
+            "Right_board_hanger_anchor_0_051"
+          ],
+          "vertices": 32,
+          "polygons": 60,
+          "triangles": 60
+        }
+      ],
+      "mesh_count": 22,
+      "triangles": 1446,
+      "attachment_helpers": [
+        "ATTBone_shoulder_R_jnt"
+      ],
+      "materials": [
+        "Hebios_V2_forged_gunmetal",
+        "Hebios_V2_formed_steel",
+        "Hebios_V2_oxblood_bindings",
+        "Hebios_V2_recessed_iron",
+        "Hebios_V2_aged_clasp_metal"
+      ],
+      "embedded_textures": [
+        {
+          "name": "DiffuseColor_Texture",
+          "sha256": "dd44bc384d3b553a1822072e051433b40c105a648242fb5034da26cb218ba664",
+          "width": 512,
+          "height": 512,
+          "bytes": 107862
+        },
+        {
+          "name": "DiffuseColor_Texture_1",
+          "sha256": "c49b30b4c23ce1f7a6162f0b31ea68a14e242368cf9ad1bcda46b1d52b2f95a1",
+          "width": 256,
+          "height": 256,
+          "bytes": 21627
+        }
+      ],
+      "skin_deformers": 0
+    }
+  ]
+}

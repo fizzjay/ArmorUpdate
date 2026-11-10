@@ -195,7 +195,7 @@ its resource-loading fallback has not been verified in-game.
 - Required nail transforms are derived from unchanged construction meshes using
   the complete assembly as blockers, outward-facing normals and five approach
   rays spanning 3 cm. Worn armor placement is unchanged. Run
-  `.venv/bin/python tools/check_crafting_nail_access.py` to audit all 34 nails.
+  `.venv/bin/python tools/check_crafting_nail_access.py` to audit all 33 nails.
 - Compatibility signature has an `interaction2` suffix: update both client and
   server together. Existing construction binary and ingredient provenance remain
   unchanged. Do not mix this build with the previous recipe descriptors.
@@ -286,3 +286,34 @@ third-metal buckle on the dummy and player, other player visibility, same-primar
 secondary-metal-only swaps, save/rejoin, dismantle refunds, and neutral glove
 backing. Pickup rendering remains native single-channel; this patch adds worn
 section rendering, not a replacement pickup material system.
+
+### Paired-side table clearance (`benchup2`)
+
+The previous surface-ray check did not include the bench approach direction. Nail
+selection now requires the exposed head direction to have at least 0.25 upward
+projection in the oriented jig frame. Full-assembly blockers and the five hammer
+clearance rays still apply. Three assemblies (metal left glove and both metal hip
+halves) turn their COMPLETE construction by a quarter turn; other jigs retain
+their orientation. Every input mesh, normal and nail pose receives the same jig
+transform. The lowest construction point is raised to 6 cm above local jig y=0.
+This affects construction only, never the accepted worn fit or original pack.
+Run `tools/check_crafting_nail_access.py` for all 33 nails. The compatibility
+signature now ends with `worn-sections1-benchup2`; update both sides together.
+Actual table collider/hammer reach still needs confirmation in-game.
+
+### Hebios asset preparation (not yet registered armor)
+
+The supplied `hebios armor/*.fbx` files have been synchronized from the user's
+branch. `tools/inspect_hebios.py` verifies ASCII FBX object connections, geometry
+indices/polygon counts, bone-attachment helper names and embedded PNG payloads.
+The reproducible inventory is `crafting/hebios-import-audit.json`. All seven
+files include embedded textures; no additional texture upload is needed.
+
+This is an asset audit, NOT a completed Hebios implementation. Remaining work:
+convert FBX transforms/UVs/material textures into the runtime pack, split combined
+hips into existing left/right slots, map named helpers to native avatar bones,
+allocate nonconflicting result/page/recipe/glyph IDs, extend bounded catalogs and
+protocol validation beyond 24 armor results, and build ingredient provenance and
+worn material-section mappings using the existing native crafting pipeline.
+No Hebios results or recipes are published by this patch. Wyrm stays kill-only;
+existing working Leather/Metal assets and mixed-metal rendering are preserved.

@@ -38,7 +38,7 @@ namespace ArmorRestored
         internal static byte[] Fingerprint;
         internal static string Status = "not registered";
         internal static bool Ready;
-        internal static string Signature { get { return Ready && Fingerprint != null ? BitConverter.ToString(Fingerprint).Replace("-", "") + ":glyphs-52830-v1-worn-sections1" : ""; } }
+        internal static string Signature { get { return Ready && Fingerprint != null ? BitConverter.ToString(Fingerprint).Replace("-", "") + ":glyphs-52830-v1-worn-sections1-benchup2" : ""; } }
         private static bool hooks;
         private static PageCollection collection;
         private static readonly Glyph[] recipeGlyphs = new Glyph[16];
@@ -214,14 +214,16 @@ namespace ArmorRestored
         private static GenericCraftingPieceDefinition BuildPiece(int index, ArmorConstructionData.Plan plan, Dictionary<uint, GenericCraftingPieceDefinition> templates)
         {
             var part = plan.Ingredients[index];
+            Quaternion jigRotation; Vector3 jigLift;
+            JigTransform(plan,out jigRotation,out jigLift);
             var template = templates[part.Source];
             int count = part.Vertices.Length / 8;
             var vertices = new Vector3[count]; var normals = new Vector3[count]; var uv = new Vector2[count];
             for (int i = 0; i < count; i++)
             {
                 int n = i * 8;
-                vertices[i] = new Vector3(part.Vertices[n], part.Vertices[n+1], part.Vertices[n+2]);
-                normals[i] = new Vector3(part.Vertices[n+3], part.Vertices[n+4], part.Vertices[n+5]);
+                vertices[i] = jigRotation*new Vector3(part.Vertices[n], part.Vertices[n+1], part.Vertices[n+2])+jigLift;
+                normals[i] = jigRotation*new Vector3(part.Vertices[n+3], part.Vertices[n+4], part.Vertices[n+5]);
                 uv[i] = new Vector2(part.Vertices[n+6], part.Vertices[n+7]);
             }
             var mesh = new Mesh(); owned.Add(mesh); mesh.name = "Armor construction ingredient " + index;
@@ -260,6 +262,12 @@ namespace ArmorRestored
             if (Get(nails, "nailDefinition") == null) Set(nails,"nailDefinition",GenericCraftingSettings.GenericNailDefaultDefinition);
             if (Get(nails,"nailDefinition") == null) throw new InvalidOperationException("Native nail definition unavailable");
             var pose = part.RequiresNail ? AccessibleNail(plan,index) : part.NailPose;
+            if(part.RequiresNail)
+            {
+                Vector3 point=jigRotation*new Vector3(pose[0],pose[1],pose[2])+jigLift;
+                Quaternion turn=jigRotation*new Quaternion(pose[3],pose[4],pose[5],pose[6]);
+                pose=new[] {point.x,point.y,point.z,turn.x,turn.y,turn.z,turn.w};
+            }
             if (part.RequiresNail)
                 CraftLog("nail-"+plan.Id+"-"+index,"nail recipe="+plan.Id+" piece="+(index+1)+" source="+part.Source+
                     " level="+part.Level+" original="+new Vector3(part.NailPose[0],part.NailPose[1],part.NailPose[2]).ToString("F4")+
@@ -282,6 +290,24 @@ namespace ArmorRestored
             Set(result, "minChiselHitDamageToFall", .5f); Set(result, "nailSettings", nails);
             foreach (string field in new[] { "materialChannel", "defaultMaterial", "avoidsAtlasing" }) Set(result, field, Get(template, field));
             return result;
+        }
+        private static Vector3 JigUp(ArmorConstructionData.Plan plan)
+        {
+            // Verified against every nail of each complete assembly. Most jigs
+            // keep their orientation; these need a quarter turn for upper access.
+            return plan.Id=="metal.gauntlet_l" || plan.Id=="metal.tasset_l" || plan.Id=="metal.tasset_r"
+                ? Vector3.forward : Vector3.up;
+        }
+        private static void JigTransform(ArmorConstructionData.Plan plan,out Quaternion rotation,out Vector3 lift)
+        {
+            rotation=Quaternion.FromToRotation(JigUp(plan),Vector3.up);
+            float minY=float.PositiveInfinity;
+            foreach(var input in plan.Ingredients)
+                for(int i=0;i<input.Vertices.Length;i+=8)
+                    minY=Math.Min(minY,(rotation*new Vector3(input.Vertices[i],input.Vertices[i+1],input.Vertices[i+2])).y);
+            // Native piecesParent is the workbench jig frame. Keep the complete
+            // construction AND the unhammered heads above its local table plane.
+            lift=new Vector3(0f,.06f-minY,0f);
         }
         private struct Surface
         {
@@ -324,6 +350,7 @@ namespace ArmorRestored
             candidates.Sort((a,b)=>b.Area.CompareTo(a.Area));
             foreach (var candidate in candidates)
             {
+                if(Vector3.Dot(candidate.Normal,JigUp(plan))<.25f) continue;
                 // Reject inward-facing cavity surfaces even when a short ray
                 // would fit. Check the COMPLETE assembly, including later pieces.
                 if (Vector3.Dot(candidate.Normal,candidate.Center-bounds.center)<-.0001f) continue;
