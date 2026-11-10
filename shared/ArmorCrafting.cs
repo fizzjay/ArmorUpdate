@@ -401,6 +401,14 @@ namespace ArmorRestored
             }
             return split.Mesh;
         }
+        private static void ConfigureDarksteelChannel(object channel,Material forging,Material cold)
+        {
+            Set(channel,"material",forging);
+            Set(channel,"nonDeformingMaterial",cold);
+            Set(channel,"atlasedMaterial",cold);
+            Set(channel,"needsFixing",false);
+            Set(channel,"offsetScale",new Vector4(0,0,1,1));
+        }
         private static void RepairDarksteel()
         {
             // Repair native rendering channels, not distribution/loot weights.
@@ -418,20 +426,29 @@ namespace ArmorRestored
                 }
                 if (forging==null || cold==null)
                 { CraftLog("darksteel-assets","Darksteel channels not replaced: forging="+(forging!=null)+" cold="+(cold!=null),0f); return; }
+#if ARMOR_QUEST
                 var channels=new PhysicalMaterial.MaterialChannel[6];
                 for(int i=0;i<channels.Length;i++)
                 {
                     channels[i]=new PhysicalMaterial.MaterialChannel();
-                    Set(channels[i],"material",forging);
-                    Set(channels[i],"nonDeformingMaterial",cold);
-                    Set(channels[i],"atlasedMaterial",cold);
-                    Set(channels[i],"needsFixing",false);
-                    Set(channels[i],"offsetScale",new Vector4(0,0,1,1));
+                    ConfigureDarksteelChannel(channels[i],forging,cold);
                 }
-#if ARMOR_QUEST
                 dark.androidMaterialChannels=new Il2CppReferenceArray<PhysicalMaterial.MaterialChannel>(channels);
 #else
-                Set(dark,"materialChannels",channels);
+                // PC's nested MaterialChannel is private. Derive the actual
+                // array element type from its field; never name it in PC code.
+                var channelField=AccessTools.Field(typeof(PhysicalMaterial),"materialChannels");
+                if(channelField==null || !channelField.FieldType.IsArray)
+                    throw new MissingFieldException("PhysicalMaterial.materialChannels array unavailable");
+                Type channelType=channelField.FieldType.GetElementType();
+                Array channels=Array.CreateInstance(channelType,6);
+                for(int i=0;i<channels.Length;i++)
+                {
+                    object channel=Activator.CreateInstance(channelType,true);
+                    ConfigureDarksteelChannel(channel,forging,cold);
+                    channels.SetValue(channel,i);
+                }
+                channelField.SetValue(dark,channels);
 #endif
                 Set(dark,"material",forging); Set(dark,"nonDeformingMaterial",cold); Set(dark,"isShowingInList",true);
                 var recipe=HashedGeneralValue<SmeltingRecipe>.Get(60118U);

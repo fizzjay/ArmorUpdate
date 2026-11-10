@@ -363,3 +363,16 @@ class CreativeCraftingFixTests(unittest.TestCase):
         self.assertIn('materials[i] = MaterialHash(piece.Material)',code)
         self.assertIn('if (!found) primaryMaterial = materials[i]',code)
         self.assertNotIn('primaryMaterial != materials[i]',code)
+
+
+class DarksteelPrivateChannelTests(unittest.TestCase):
+    def test_pc_never_names_private_nested_channel_type(self):
+        code=source('shared/ArmorCrafting.cs')
+        start=code.index('var channels=new PhysicalMaterial.MaterialChannel[6]')
+        end=code.index('Set(dark,"material",forging)',start)
+        pc=code[start:end].split('#else',1)[1]
+        self.assertNotIn('PhysicalMaterial.MaterialChannel',pc)
+        self.assertIn('channelField.FieldType.GetElementType()',pc)
+        self.assertIn('Array.CreateInstance(channelType,6)',pc)
+        self.assertIn('Activator.CreateInstance(channelType,true)',pc)
+        self.assertIn('channelField.SetValue(dark,channels)',pc)
