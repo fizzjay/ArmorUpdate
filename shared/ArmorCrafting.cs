@@ -322,7 +322,11 @@ namespace ArmorRestored
             NetworkPrefab selected = null;
             bool selectedNamedPaper = false;
 #if ARMOR_QUEST
-            var nativePrefabs = NativeEnumerable.Items<NetworkPrefab>(PrefabManager.prefabMap.Values);
+            // Generated ValueCollection does not implicitly implement the
+            // managed-looking IEnumerable wrapper. Copy directly, no bridge.
+            var prefabValues = PrefabManager.prefabMap.Values;
+            var nativePrefabs = new Il2CppReferenceArray<NetworkPrefab>(prefabValues.Count);
+            prefabValues.CopyTo(nativePrefabs,0);
 #else
             var map = (Dictionary<uint,NetworkPrefab>)AccessTools.Field(typeof(PrefabManager),"prefabMap").GetValue(null);
             var nativePrefabs = new List<NetworkPrefab>(map.Values);

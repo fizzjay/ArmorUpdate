@@ -223,7 +223,7 @@ class NativePaperResolutionTests(unittest.TestCase):
         text=source('shared/ArmorCrafting.cs')
         self.assertIn('ChildComponent<PageInstance>(prefab.gameObject)',text)
         self.assertNotIn('originalItem.Prefab',text)
-        self.assertIn('NativeEnumerable.Items<NetworkPrefab>(PrefabManager.prefabMap.Values)',text)
+        self.assertIn('prefabValues.CopyTo(nativePrefabs,0)',text)
         self.assertIn('!IsPaper(prefab)',text)
         self.assertIn('Object.Instantiate(PaperItem(paper))',text)
 
@@ -241,3 +241,11 @@ class QuestPaperPrefabGetterRegressionTests(unittest.TestCase):
         self.assertIn('PrefabManager.prefabMap.Values',body)
         self.assertIn('!IsPaper(prefab)',body)
         self.assertIn('prefab.Hash < selected.Hash',body)
+
+
+class QuestPrefabValueCollectionBuildTests(unittest.TestCase):
+    def test_value_collection_is_copied_without_interface_conversion(self):
+        text=source('shared/ArmorCrafting.cs')
+        self.assertNotIn('NativeEnumerable.Items<NetworkPrefab>(PrefabManager.prefabMap.Values)',text)
+        self.assertIn('new Il2CppReferenceArray<NetworkPrefab>(prefabValues.Count)',text)
+        self.assertIn('prefabValues.CopyTo(nativePrefabs,0)',text)
