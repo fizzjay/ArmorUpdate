@@ -64,7 +64,20 @@ namespace ArmorRestored
                 if (Mod.IsServer && !ArmorCraftingServer.Installed) ArmorCraftingServer.Install();
                 if (Mod.IsServer && !ArmorCraftingServer.Installed) throw new InvalidOperationException("Crafting save/transaction backend unavailable");
 #endif
+                if (armor == null || items == null || armor.Length < 16 || items.Length < 16)
+                    throw new InvalidOperationException("Crafting requires 16 armor prefabs and result items");
+#if !ARMOR_QUEST
+                // Install may have succeeded on this later registration attempt.
+                // Existing staged armor still needs the server save component.
+                if (Mod.IsServer)
+                    for (int i = 0; i < armor.Length; i++)
+                        if (armor[i] != null) ArmorCraftingServer.AddRecord(armor[i].gameObject);
+#endif
                 resultItems = items;
+                stage = "initializing native value registries";
+                // Get/All initialize the lazy native maps. Accessing items directly
+                // before this (especially Glyph on dedicated servers) sees null.
+                InitializeRegistries();
                 stage = "installing crafting hooks";
                 InstallHooks();
                 stage = "reading native ingredient templates";
@@ -74,13 +87,21 @@ namespace ArmorRestored
 #else
                 foreach (GenericCraftingRecipe recipe in HashedGeneralValue<GenericCraftingRecipe>.All)
 #endif
+                {
+                    if (recipe == null || recipe.Pieces == null) continue;
                     foreach (GenericCraftingPieceDefinition piece in recipe.Pieces)
-                        if (piece != null && piece.source != null && piece.source.Prefab != null && !templates.ContainsKey(piece.source.Prefab.Hash))
-                            templates.Add(piece.source.Prefab.Hash, piece);
+                    {
+                        if (piece == null || piece.source == null || piece.source.Prefab == null) continue;
+                        uint hash = piece.source.Prefab.Hash;
+                        GenericCraftingPieceDefinition previous;
+                        if (!templates.TryGetValue(hash,out previous)) templates.Add(hash,piece);
+                        else if (previous.nailSettings == null && piece.nailSettings != null) templates[hash] = piece;
+                    }
+                }
                 foreach (uint source in new uint[] { 47760U, 63204U, 50988U, 62594U })
                     if (!templates.ContainsKey(source)) throw new InvalidOperationException("Missing native ingredient template " + source);
-                var paper = PrefabManager.GetPrefab(37066U);
-                if (paper == null || Component<Pickup>(paper.gameObject) == null || Component<PageInstance>(paper.gameObject) == null)
+                var paper = FindPrefab(37066U);
+                if (paper == null || Component<Pickup>(paper.gameObject) == null || Component<PageInstance>(paper.gameObject) == null || Component<Pickup>(paper.gameObject).Item == null)
                     throw new InvalidOperationException("Original Paper #37066 unavailable");
                 collection = HashedGeneralValue<PageCollection>.Get(57634U);
                 if (collection == null || collection.PreferredProvider != 2 || collection.Size + 16 > 255)
@@ -99,6 +120,7 @@ namespace ArmorRestored
                 }
                 stage = "loading glyph textures";
                 LoadGlyphs();
+                if (collection.PageBases == null) throw new InvalidOperationException("Native crafting book has no page bases");
                 // Preflight every namespace before mutating native registries.
                 for (int i = 0; i < 16; i++)
                 {
@@ -123,6 +145,7 @@ namespace ArmorRestored
                 {
                     stage = "creating recipe for slot " + i;
                     var recipe = New<GenericCraftingRecipe>();
+                    if (recipe == null) throw new InvalidOperationException("Native recipe allocation returned null");
                     owned.Add(recipe); Recipes[i] = recipe;
                     recipe.name = "ArmorRestored fixed-v1 " + Catalog.Id(i);
                     Set(recipe, "hash", (int)(RecipeStart + (uint)i));
@@ -145,7 +168,9 @@ namespace ArmorRestored
 #else
                     Set(recipe, "uniqueGlyphs", new Glyph.Positioning[0]);
 #endif
-                    var glyph = New<Glyph>(); owned.Add(glyph); recipeGlyphs[i] = glyph; previousGlyphs[i] = items[i].Glyph;
+                    var glyph = New<Glyph>();
+                    if (glyph == null) throw new InvalidOperationException("Native glyph allocation returned null");
+                    owned.Add(glyph); recipeGlyphs[i] = glyph; previousGlyphs[i] = items[i].Glyph;
                     glyph.name = "ArmorRestored " + Catalog.Id(i);
                     Set(glyph, "hash", (int)(GlyphStart + (uint)i));
                     Sprite sprite;
@@ -153,6 +178,8 @@ namespace ArmorRestored
                     PublishGlyph(glyph);
                     Set(items[i], "glyph", glyph);
                     PublishRecipe(recipe);
+                    if (!Same(FindGlyph(GlyphStart + (uint)i),glyph) || !Same(FindGenericCraftingRecipe(RecipeStart + (uint)i),recipe))
+                        throw new InvalidOperationException("Native registry did not retain armor recipe/glyph " + i);
                     stage = "building page for slot " + i;
                     BuildPage(i, holder, paper);
                 }
@@ -172,10 +199,11 @@ namespace ArmorRestored
             }
             catch (Exception error)
             {
-                Status = "disabled at " + stage + ": " + error.GetBaseException().Message;
-                Mod.Log.Error("armor crafting " + Status + "\n" + error);
+                string failure = "disabled at " + stage + ": " + error.GetBaseException().Message;
+                Mod.Log.Error("armor crafting " + failure + "\n" + error);
                 try { Unregister(); }
                 catch (Exception cleanupError) { Mod.Log.Error("armor crafting rollback failed: " + cleanupError); }
+                finally { Ready = false; Status = failure; }
             }
         }
         private static GenericCraftingPieceDefinition BuildPiece(int index, ArmorConstructionData.Ingredient part, Dictionary<uint, GenericCraftingPieceDefinition> templates)
@@ -210,9 +238,15 @@ namespace ArmorRestored
             // Prefer this source's settings, otherwise use another native template.
             var nativeNails = template.nailSettings;
             if (nativeNails == null)
-                foreach (var candidate in templates.Values)
+            {
+                var sourceHashes = new List<uint>(templates.Keys); sourceHashes.Sort();
+                foreach (uint sourceHash in sourceHashes)
+                {
+                    var candidate = templates[sourceHash];
                     if (candidate != null && candidate.nailSettings != null)
                     { nativeNails = candidate.nailSettings; break; }
+                }
+            }
             if (nativeNails == null)
                 throw new InvalidOperationException("No native nail settings template for source " + part.Source);
             foreach (string field in new[] { "devianceToDamage", "progressToDevianceMultiplier", "damageSplitPerDot", "damageOverflowMultiplier", "devianceMultiplier", "nailDefinition" })
@@ -241,9 +275,12 @@ namespace ArmorRestored
         private static void InstallHooks()
         {
             if (hooks) return;
-            new HarmonyLib.Harmony("armorrestored.crafting-pages").Patch(AccessTools.Method(typeof(PageInstance), "Generate"),
+            var generate = AccessTools.Method(typeof(PageInstance), "Generate");
+            var addPiece = AccessTools.Method(typeof(GenericCraftingStation), "TryAddPiece");
+            if (generate == null || addPiece == null) throw new MissingMethodException("Native crafting page/bench hooks unavailable");
+            new HarmonyLib.Harmony("armorrestored.crafting-pages").Patch(generate,
                 prefix: new HarmonyMethod(typeof(ArmorCrafting), "GeneratePage"));
-            new HarmonyLib.Harmony("armorrestored.crafting-bench-guard").Patch(AccessTools.Method(typeof(GenericCraftingStation), "TryAddPiece"),
+            new HarmonyLib.Harmony("armorrestored.crafting-bench-guard").Patch(addPiece,
                 prefix: new HarmonyMethod(typeof(ArmorCrafting), "AllowPiece"));
             hooks = true;
         }
@@ -269,19 +306,26 @@ namespace ArmorRestored
         private static void BuildPage(int index, GameObject holder, NetworkPrefab paper)
         {
             GameObject root = Cast<GameObject>(Object.Instantiate(paper.gameObject, holder.transform));
+            if (root == null) throw new InvalidOperationException("Could not clone recipe paper");
             owned.Add(root); root.name = "Armor recipe " + Catalog.Title(index);
-            var prefab = Component<NetworkPrefab>(root); Pages[index] = prefab;
+            var prefab = Component<NetworkPrefab>(root);
+            if (prefab == null || Component<PageInstance>(root) == null)
+                throw new InvalidOperationException("Cloned paper is missing native prefab/page component");
+            Pages[index] = prefab;
             Set(prefab, "hash", (int)(PageStart + (uint)index)); Set(prefab, "SaveMode", 0);
             var item = Cast<Item>(Object.Instantiate(Component<Pickup>(paper.gameObject).Item));
+            if (item == null) throw new InvalidOperationException("Could not clone recipe paper item");
             owned.Add(item); pageItems[index] = item; item.name = root.name; Set(item, "hash", (int)(PageStart + (uint)index)); item.Prefab = prefab;
-            foreach (Pickup pickup in Pickups(root)) pickup.Item = item;
+            foreach (Pickup pickup in Pickups(root)) if (pickup != null) pickup.Item = item;
             PublishPage(prefab, item);
+            if (!Same(FindPrefab(PageStart + (uint)index),prefab) || !Same(FindItem(PageStart + (uint)index),item))
+                throw new InvalidOperationException("Native registry did not retain armor recipe page " + index);
             root.SetActive(true); // inactive staging prevents initialization until spawn
         }
         internal static void Unregister()
         {
             Ready = false;
-            if (collection != null)
+            if (collection != null && collection.PageBases != null)
             {
                 var bases = new List<Object>();
                 foreach (Object value in collection.PageBases)
@@ -359,7 +403,22 @@ namespace ArmorRestored
         private static T Cast<T>(Object value) where T : class { return value as T; }
         private static T Component<T>(GameObject root) where T : UnityEngine.Component { return root.GetComponent<T>(); }
         private static IEnumerable<Pickup> Pickups(GameObject root) { return root.GetComponentsInChildren<Pickup>(true); }
-        private static Dictionary<uint,T> Values<T>() { return (Dictionary<uint,T>)AccessTools.Field(typeof(HashedGeneralValue<>).MakeGenericType(typeof(T)),"items").GetValue(null); }
+        private static Dictionary<uint,T> Values<T>()
+        {
+            Type type = typeof(HashedGeneralValue<>).MakeGenericType(typeof(T));
+            var field = AccessTools.Field(type,"items");
+            if (field == null) throw new MissingMemberException(type.FullName,"items");
+            var values = (Dictionary<uint,T>)field.GetValue(null);
+            if (values == null)
+            {
+                var all = AccessTools.Property(type,"All");
+                if (all == null) throw new MissingMemberException(type.FullName,"All");
+                all.GetValue(null,null); // initialize through the native loader
+                values = (Dictionary<uint,T>)field.GetValue(null);
+            }
+            if (values == null) throw new InvalidOperationException("Native registry remains unavailable: " + typeof(T).FullName);
+            return values;
+        }
         private static void PublishGlyph(Glyph glyph) { Values<Glyph>().Add(glyph.Hash,glyph); SetStatic(typeof(HashedGeneralValue<Glyph>),"itemsByName",null); }
         private static void PublishRecipe(GenericCraftingRecipe recipe) { Values<GenericCraftingRecipe>().Add(recipe.Hash,recipe); SetStatic(typeof(HashedGeneralValue<GenericCraftingRecipe>),"itemsByName",null); }
         private static void PublishPage(NetworkPrefab prefab, Item item)
@@ -384,6 +443,19 @@ namespace ArmorRestored
             SetStatic(typeof(HashedGeneralValue<GenericCraftingRecipe>),"itemsByName",null); SetStatic(typeof(HashedGeneralValue<Item>),"itemsByName",null);
         }
 #endif
+        private static void InitializeRegistries()
+        {
+            if (HashedGeneralValue<Glyph>.All == null || HashedGeneralValue<Item>.All == null ||
+                HashedGeneralValue<GenericCraftingRecipe>.All == null)
+                throw new InvalidOperationException("Native crafting registries are not available");
+#if ARMOR_QUEST
+            if (HashedGeneralValue<Glyph>.items == null || HashedGeneralValue<Item>.items == null ||
+                HashedGeneralValue<GenericCraftingRecipe>.items == null || PrefabManager.prefabMap == null)
+                throw new InvalidOperationException("Native crafting registry initialization did not populate maps");
+#else
+            Values<Glyph>(); Values<Item>(); Values<GenericCraftingRecipe>();
+#endif
+        }
         // GetPrefab/Get may index dictionaries and throw on Quest for free IDs.
         private static NetworkPrefab FindPrefab(uint hash)
         {
@@ -444,6 +516,8 @@ namespace ArmorRestored
                 Type type = field != null ? field.FieldType : property == null ? null : property.PropertyType;
                 if (type == null) continue;
                 if (type.IsEnum && value is int) value = Enum.ToObject(type,value);
+                else if (value != null && type.IsPrimitive && value is IConvertible && !type.IsInstanceOfType(value))
+                    value = Convert.ChangeType(value,type,System.Globalization.CultureInfo.InvariantCulture);
                 if (field != null) field.SetValue(target,value); else property.SetValue(target,value,null);
                 return;
             }

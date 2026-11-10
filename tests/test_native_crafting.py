@@ -63,7 +63,7 @@ class NativeIntegrationContracts(unittest.TestCase):
         code=source('shared/ArmorCrafting.cs')
         for text in ('New<GenericCraftingRecipe>()','new GenericCraftingPieceDefinition()',
                      'New<Glyph>()','new NailSettings()','collection.PageBases','collection.Size + 16 > 255',
-                     'PrefabManager.GetPrefab(37066U)','CreatePage(2)','PublishRecipe(recipe)',
+                     'FindPrefab(37066U)','CreatePage(2)','PublishRecipe(recipe)',
                      'PublishGlyph(glyph)','BuildPage(i, holder, paper)', 'GenericCraftingSettings.GenericNailDefaultDefinition'):
             self.assertIn(text,code)
         self.assertIn('ArmorCrafting.Register(',source('pchost/Prefabs.cs'))
@@ -183,7 +183,7 @@ class CraftingRegistrationDiagnosticsTests(unittest.TestCase):
     def test_registration_preserves_stage_and_stack(self):
         text=source('shared/ArmorCrafting.cs')
         self.assertIn('"disabled at " + stage', text)
-        self.assertIn('Status + "\\n" + error', text)
+        self.assertIn('failure + "\\n" + error', text)
         self.assertIn('building slot ', text)
 
     def test_missing_native_nails_are_checked(self):
@@ -191,3 +191,28 @@ class CraftingRegistrationDiagnosticsTests(unittest.TestCase):
         self.assertNotIn('Get(template.nailSettings, field)', text)
         self.assertIn('if (nativeNails == null)', text)
         self.assertIn('Get(nativeNails, field)', text)
+
+
+class CraftingLazyRegistryTests(unittest.TestCase):
+    def test_native_registries_are_initialized_before_preflight(self):
+        text=source('shared/ArmorCrafting.cs')
+        self.assertLess(text.index('InitializeRegistries();'),text.index('var existingGlyph ='))
+        self.assertIn('HashedGeneralValue<Glyph>.All == null',text)
+        self.assertIn('Native registry remains unavailable:',text)
+        self.assertNotIn('items = new ',text)
+
+    def test_rollback_preserves_registration_error(self):
+        text=source('shared/ArmorCrafting.cs')
+        self.assertIn('finally { Ready = false; Status = failure; }',text)
+
+    def test_templates_are_checked_and_nail_fallback_is_sorted(self):
+        text=source('shared/ArmorCrafting.cs')
+        self.assertIn('if (recipe == null || recipe.Pieces == null) continue;',text)
+        self.assertIn('sourceHashes.Sort()',text)
+        self.assertIn('previous.nailSettings == null && piece.nailSettings != null',text)
+
+    def test_page_and_result_preflight_checks(self):
+        text=source('shared/ArmorCrafting.cs')
+        self.assertIn('armor.Length < 16 || items.Length < 16',text)
+        self.assertIn('Component<Pickup>(paper.gameObject).Item == null',text)
+        self.assertIn('Cloned paper is missing native prefab/page component',text)

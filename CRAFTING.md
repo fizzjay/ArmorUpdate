@@ -147,3 +147,17 @@ kept in ignored reference folders, not redistributed as new loose dependencies.
 - Test simultaneous grabs/releases, repeated completion, failed output spawn,
   busy/docked/held inputs, corrupt origins, mismatched clients, and disconnects.
 - Confirm old native equipment/visibility/stand behavior and Wyrm kill-only drops.
+
+### Registration hardening after runtime reports
+
+The PC/Quest `FindGlyph` null-reference report exposed direct access to the lazy
+native glyph dictionary before its public loader had run. Registration now calls
+native `All` getters before reading or publishing registry entries, checks that
+maps were populated, and never substitutes empty dictionaries. Failures retain
+the stage and full exception after rollback instead of resetting to "not
+registered". Template scanning skips incomplete native entries and prefers nail
+settings where present, with a sorted-source fallback. Paper/result validation,
+late server provenance-component attachment, and publication identity checks
+are also performed. These changes have source/syntax/API-name checks, but still
+require a PC/Quest restart and runtime crafting test; native loader behavior is
+not simulated by the Python suite.
