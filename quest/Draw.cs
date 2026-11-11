@@ -204,6 +204,14 @@ namespace ArmorRestoredQuest
 							Draw.Wire(dressed);
 							Draw.Bodies[transform2.Pointer] = dressed;
 						}
+                        // A newly opened equipment preview can exist before its
+                        // baked skeleton. Never skin armor against placeholder joints.
+                        if(dressed.BakedBindings==0)
+                        {
+                            if(Time.unscaledTime>=dressed.NextBindingRetry)
+                            {dressed.NextBindingRetry=Time.unscaledTime+1f;Draw.Wire(dressed);}
+                            if(dressed.BakedBindings==0) continue;
+                        }
 						bool flag = player2.Pointer == intPtr;
 						if (flag)
 						{
@@ -355,7 +363,8 @@ namespace ArmorRestoredQuest
                     bound++;
                 }
             }
-            Mod.Log.Msg("armor rig on " + d.Name + ": " + bound + " bone bindings from baked avatar renderers");
+            d.BakedBindings=bound;
+            if(bound>0) Mod.Log.Msg("armor rig on " + d.Name + ": " + bound + " bone bindings from baked avatar renderers");
 			foreach (Component component2 in d.Root.GetComponentsInChildren(Il2CppType.Of<SkinnedMeshRenderer>(), true))
 			{
 				if (!(component2 == null) && !(component2.transform.parent == null) && !(component2.transform.parent.name != "Baked"))

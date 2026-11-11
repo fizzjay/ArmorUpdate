@@ -30,3 +30,13 @@ class QuestLoadBudget(unittest.TestCase):
         self.assertLess(text.index('if(!VisualsReady()) return;'),text.index('WornMaterials.Tick();'))
         self.assertIn('visualsReady=waitingLogged=false;',text)
         self.assertIn('!Draw.VisualsReady()',source('shared/ArmorStats.cs'))
+    def test_experimental_quest_fabric_is_held_off(self):
+        text=source('quest/CosmeticCoverage.cs')
+        self.assertIn('readonly bool QuestFabricEnabled = false;',text)
+        text=text[text.index('private void UpdateFabric('):]
+        self.assertLess(text.index('if(!QuestFabricEnabled) return;'),text.index('InstallFabric();'))
+    def test_unbaked_preview_cannot_build_armor(self):
+        text=source('quest/Draw.cs')
+        self.assertIn('d.BakedBindings=bound;',text)
+        self.assertIn('if(dressed.BakedBindings==0) continue;',text)
+        self.assertIn('dressed.NextBindingRetry=Time.unscaledTime+1f;',text)

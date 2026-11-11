@@ -596,3 +596,12 @@ heuristic, not proof that the loading screen has gone away. No armor renderers o
 worn tint ticks are created by Draw during that window. Native prefab/recipe
 registration still runs before join approval; postponing it until after admission
 would break the existing handshake and risk unresolved network prefabs.
+
+Quest crash-isolation safety hold: experimental fabric packing is disabled on
+Quest (PC unchanged). Native ImpededLods coverage remains active; outfits without
+compact LODs may clip through armor. A supplied log ended at fabric hook install,
+which is a lead, not proof of causation. Equipment previews with zero baked bone
+bindings now wait and retry once per second instead of building against fallback
+joints. These guards require headset validation. If the process still exits,
+capture Android logcat (including crash/system buffers) to distinguish a native
+fault from Android low-memory termination; the managed log alone cannot do so.

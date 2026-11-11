@@ -351,6 +351,7 @@ namespace ArmorRestoredQuest
         private static readonly object fabricGate = new object();
         private static readonly Dictionary<long,int> fabricUsers = new Dictionary<long,int>();
         private static readonly Dictionary<int,CosmeticMeshPart> fabricCache = new Dictionary<int,CosmeticMeshPart>();
+        private static readonly bool QuestFabricEnabled = false;
         private static bool fabricInstalled, fabricAttempted, fabricWarning;
         private static long FabricKey(CosmeticPacker.Input input) { return input.Pointer.ToInt64(); }
         private static void InstallFabric()
@@ -386,6 +387,10 @@ namespace ArmorRestoredQuest
         }
         private void UpdateFabric(HashSet<CustomizationSlotEntry> current,List<ICustomizationHandler> handlers,uint mask)
         {
+            // Quest safety hold: the native packing detour is experimental and
+            // was installed immediately before a reported process exit.
+            // Keep native ImpededLods coverage; do not hook/repack fabric here.
+            if(!QuestFabricEnabled) return;
             if(Time.unscaledTime<fabricWarmupUntil && fabricOwned.Count==0) return;
             var next=new Dictionary<long,FabricBinding>();
             foreach(var entry in current)
