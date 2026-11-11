@@ -74,7 +74,7 @@ class HebiosIntegrationTests(unittest.TestCase):
   self.assertEqual(2,code.count('if (!Craftable(i)) continue;'))
   self.assertIn('Catalog.Number((int)(hash-RecipeStart))',code)
   self.assertIn('if (recipe != null) bases.Add(recipe)',code)
-  self.assertIn('style < Catalog.Count / 8',(ROOT/'shared/ArmorStand.cs').read_text())
+  self.assertIn('i < items.Length',(ROOT/'shared/ArmorStand.cs').read_text())
  def test_native_sources_and_provenance_include_leather_closure(self):
   code=(ROOT/'shared/ArmorCraftingData.cs').read_text()
   self.assertIn('hash >= 52855U && hash <= 52870U',code)
@@ -137,7 +137,10 @@ class WoodMushroomIntegrationTests(unittest.TestCase):
   self.assertIn('new Il2CppReferenceArray<Object>(bases.ToArray())',craft)
   active=[i for i in range(48) if i<16 or 32<=i<40]
   self.assertEqual(24,len(active))
-  self.assertEqual(list(range(60064,60072)),[60032+i for i in active if i>=32])
+  self.assertEqual(list(range(62032,62040)),[62032+i-32 for i in active if i>=32])
+  self.assertIn('uint pageHash = PageHash(i)',craft)
+  self.assertIn('int index = PageIndex(hash)',craft)
+  self.assertIn('FindPrefab(PageHash(index))',craft)
   self.assertIn('CreatePage(2)',craft)
  def test_wood_recipe_graphs_match_native_metadata(self):
   metadata={p['prefabName']:p for p in json.loads((ROOT/'crafting/hebios-jig-plans.json').read_text())['entries']}
@@ -172,7 +175,7 @@ class WoodMushroomIntegrationTests(unittest.TestCase):
  def test_loot_policy_and_icons_exclude_wood_from_random_loot(self):
   catalog=(ROOT/'pchost/Catalog.cs').read_text('utf-8-sig')
   self.assertIn('Id="wood", Title="Wood", LootRarity=null',catalog)
-  self.assertIn('Id="hebios", Title="Hebios", LootRarity="4. Epic"',catalog)
+  self.assertIn('Id="hebios", Title="Hebios", LootRarity="5. Legendary"',catalog)
   self.assertIn('Id="mushroom", Title="Mushroom", LootRarity="3. Rare"',catalog)
   craft=(ROOT/'shared/ArmorCrafting.cs').read_text()
   self.assertIn('if(i>=32 && i<40) continue;',craft)
@@ -200,3 +203,15 @@ class WoodMushroomIntegrationTests(unittest.TestCase):
    project=(ROOT/platform/'ArmorRestored.csproj').read_text('utf-8-sig')
    self.assertNotIn('WoodSurface.cs',project)
    self.assertNotIn('Mushroom.cs',project)
+
+ def test_native_garlic_ids_are_not_armor(self):
+  for platform in ('pchost','quest'):
+   source=(ROOT/platform/'Catalog.cs').read_text('utf-8-sig')
+   self.assertIn('piece == 45 ? 62076',source)
+   self.assertIn('if (number == 62076U) return 45;',source)
+   self.assertIn('if (number == 52876U) return -1;',source)
+  craft=(ROOT/'shared/ArmorCrafting.cs').read_text()
+  self.assertIn('index>=32 && index<40 ? 62032U',craft)
+  self.assertIn('if(hash>=62032U && hash<62040U)',craft)
+  self.assertIn('if(hash>=PageStart && hash<PageStart+16U)',craft)
+  self.assertIn('FindItem(pageHash)',craft)

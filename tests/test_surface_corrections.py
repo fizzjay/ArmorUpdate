@@ -9,14 +9,14 @@ def code(path):return (ROOT/path).read_text('utf-8-sig')
 class SurfaceCorrections(unittest.TestCase):
  def test_uncrafted_hebios_palette_is_zero_and_crafted_overrides_it(self):
   text=code('pchost/ServerArmor.cs')
-  start=text.index('uint appearance = (row[slot] / 8 == 3 || row[slot] / 8 == 4) ? 0U : materials[slot];')
+  start=text.index('uint appearance = (row[slot] / 8 == 3 || row[slot] / 8 == 4 && materials[slot] == 1U) ? 0U : materials[slot];')
   end=text.index('origin.MaterialAt(group)',start)
   self.assertIn('row[8+slot]=unchecked((int)appearance)',text[start:end])
   self.assertIn('origin.Result!=(uint)Catalog.Number(row[slot])',text[start:end])
   self.assertIn('string.IsNullOrEmpty(origins[slot])',text[start:end])
  def test_native_material_cannot_replace_default_hebios_atlas(self):
-  self.assertIn('piece / 8 >= 3 ? new Renderer[0]',code('pchost/ArmorMaterials.cs'))
-  self.assertIn('renderer != null && piece / 8 < 3',code('quest/ArmorMaterials.cs'))
+  self.assertIn('piece / 8 != 1 ? new Renderer[0]',code('pchost/ArmorMaterials.cs'))
+  self.assertIn('renderer != null && piece / 8 == 1',code('quest/ArmorMaterials.cs'))
  def test_grace_starts_before_pop_and_blocks_both_insert_paths(self):
   text=code('pchost/ArmorCraftingServer.cs')
   self.assertIn('if (__instance.IsFilled) ArmorCrafting.BeginRemoval(__state.Station)',text)

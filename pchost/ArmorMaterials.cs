@@ -14,21 +14,21 @@ namespace ArmorRestored
     {
         internal static void Configure(int piece, GameObject armor)
         {
-            if (Catalog.SetOf(piece).Id != "metal" && Catalog.SetOf(piece).Id != "hebios" && piece / 8 != 4) return;
+            if (piece / 8 != 0 && piece / 8 != 1 && piece / 8 != 3 && piece / 8 != 4) return;
             NetworkEntity entity = armor.GetComponent<NetworkEntity>();
             if (entity == null) throw new InvalidOperationException("armor has no NetworkEntity");
             Distribution distribution = Resources.Load<Distribution>("distributions/Metal Material Distribution");
             if (distribution == null) throw new InvalidOperationException("Metal Material Distribution is missing");
             PhysicalMaterialPart part = armor.GetComponent<PhysicalMaterialPart>();
             if (part == null) part = armor.AddComponent<PhysicalMaterialPart>();
-            Set(part, "physicalMaterial", HashedGeneralValue<PhysicalMaterial>.Get(1U));
+            Set(part, "physicalMaterial", HashedGeneralValue<PhysicalMaterial>.Get(piece / 8 == 0 ? 33384U : 1U));
             Set(part, "materialChannel", 0);
             Set(part, "impactors", new ImpactGenerator[0]);
             Set(part, "listenToPhysicalMaterial", new MonoBehaviour[0]);
             Set(part, "durabilityModule", armor.GetComponent<DurabilityModule>());
-            Set(part, "renderers", piece / 8 >= 3 ? new Renderer[0] : armor.GetComponentsInChildren<Renderer>(true));
+            Set(part, "renderers", piece / 8 != 1 ? new Renderer[0] : armor.GetComponentsInChildren<Renderer>(true));
             Set(part, "entity", entity);
-            Set(part, "materialDistribution", piece / 8 == 4 ? null : distribution);
+            Set(part, "materialDistribution", piece / 8 == 0 || piece / 8 == 4 ? null : distribution);
             object registered = Get(entity, "networkEntityBehaviours");
             MonoBehaviour[] existing = registered as MonoBehaviour[];
             if (registered != null && existing == null)

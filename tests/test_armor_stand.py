@@ -108,8 +108,8 @@ class ArmorStandContracts(unittest.TestCase):
         code = source('shared/ArmorStand.cs')
         self.assertIn('Number = 52854U', code)
         self.assertIn('slot < 8', code)
-        self.assertIn('style * 8 + slot', code)
-        self.assertIn('config.IncludedItems.Add(items[style * 8 + slot])', code)
+        self.assertIn('i += 8', code)
+        self.assertIn('config.IncludedItems.Add(items[i])', code)
         self.assertIn('Set(entity, "hash", slot + 1)', code)
         self.assertIn('prefab.Embedded.Add(entity)', code)
         self.assertIn('Bind(entity, new MonoBehaviour[] { dock })', code)
@@ -189,10 +189,10 @@ class ArmorStandContracts(unittest.TestCase):
         self.assertIn('field.GetValue(entity)', code)
 
     def test_new_prefab_requires_updated_clients(self):
-        self.assertIn('hello.Wire < 5', source('pchost/Net.cs'))
-        self.assertIn('hello.Wire > 5', source('pchost/Net.cs'))
-        self.assertIn('wire != 5', source('pchost/Gate.cs'))
-        self.assertIn('_heardWire != 5', source('quest/Gate.cs'))
+        self.assertIn('hello.Wire < 6', source('pchost/Net.cs'))
+        self.assertIn('hello.Wire > 6', source('pchost/Net.cs'))
+        self.assertIn('wire != 6', source('pchost/Gate.cs'))
+        self.assertIn('_heardWire != 6', source('quest/Gate.cs'))
         for platform in ('pchost', 'quest'):
             self.assertIn('"0.5.0"', source(platform + '/Mod.cs'))
 

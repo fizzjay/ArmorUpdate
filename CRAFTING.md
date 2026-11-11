@@ -32,7 +32,7 @@ before deploying to a live server.
   page generation; it does not force every existing book to unlock all pages.
 - For immediate testing, run **`armor recipes <player>`** on the server. It spawns
   all 24 physical pages near that player. Pages are 60032–60047 (Leather/Metal)
-  and 60064–60071 (Wood); Wyrm, Hebios and Mushroom page indices remain unused.
+  and 62032–62039 (Wood); Wyrm, Hebios and Mushroom page indices remain unused.
 - Put a recipe page on the workbench, add the displayed ingredients, hammer the
   native nails, then grab the completed armor. Primary ingredients may use different physical materials. Every input retains
   its own material provenance.
@@ -413,8 +413,8 @@ stand, save and packet paths use the expanded catalog; no new runtime `.cs` file
 or `.csproj` entry is required. Updates are consolidated into existing importer,
 material, crafting and catalog files instead of introducing a file per feature.
 
-- Wood result IDs: **52863–52870**, recipes **60032–60039**, pages **60064–60071**.
-- Mushroom result IDs: **52871–52878**. The stand remains **52854**.
+- Wood result IDs: **52863–52870**, recipes **60032–60039**, pages **62032–62039**.
+- Mushroom result IDs: **52871–52875, 62076, 52877–52878**. The stand remains **52854**.
 - `armor recipes <player>` creates all 24 Leather/Metal/Wood pages. All 24
   recipes are published and appended to native collection **57634**, provider 2.
   This registers them for the book; it does not force-unlock every saved book.
@@ -452,3 +452,236 @@ completion/dismantling, mixed wood species on worn pieces, dummy fitting, stand
 slots, loot generation and save/rejoin on both platforms before live deployment.
 Update server and both clients together; the shared signature now identifies
 Wood recipes and loot-only Hebios/Mushroom.
+
+### Deployment correction: stale packs and native garlic collisions
+
+A Quest log reporting `armor.pack has 32 pieces, expected 48` means an old
+binary was embedded in the rebuilt DLL. Replace the local pack from
+`quest/ArmorRestored.armor.pack` (PC: `pchost/armor.pack`), not just its build action.
+Both current files are 44,493,907 bytes and have SHA256
+`cccdcf42bc28fe9067aeaac5073e803ee750510e0ce69a6f9e0702bc7a5f6f1f`.
+Use logical name `ArmorRestored.armor.pack`, remove local bin/obj build outputs,
+and rebuild/redeploy. External file replacement alone cannot update an embedded
+resource in an already-built DLL.
+
+Native registry collisions observed in game: 52876 is Garlic Full Burnt and
+60064 is Garlic Half Ripe. Mushroom right gauntlet now uses **62076**, and Wood
+page items use **62032–62039**. Leather/Metal IDs and pages are unchanged. Old
+52876 must not be interpreted as armor by either catalog. All page publication,
+lookup and cleanup paths share the new mapping. These replacement IDs avoid the
+reported collisions but are not certified free on every game/mod combination;
+native collision checks remain enabled. Deploy updated PC/server and Quest
+code together, then check `armor list` for refusals before use. Do not overwrite
+native garlic entries or migrate garlic saves into armor.
+
+## Release stabilization pass (in progress, not release-certified)
+
+Confirmed scope: Wood remains crafting-only. Debug recipe commands affect only
+this mod's 24 active Leather/Metal/Wood recipes, never vanilla/other-mod recipes.
+
+Implemented in existing source files (no new runtime source/project entries):
+
+- Loot rarity targets: Leather `2. Uncommon`, Mushroom `3. Rare`, Metal `4. Epic`,
+  Hebios `5. Legendary`. Wood/Wyrm remain excluded from global loot. Missing native
+  rarity lists are reported by `armor list`; these names/relative rates must be
+  checked in the running server. Existing already-generated loot is not changed.
+- Server-only native `PhysicalMaterialPart.Generate` interception rolls Copper or
+  Iron equally for newly generated Metal armor only. Other game material
+  distributions, saved items, and crafting inputs are untouched. Both native
+  materials must resolve; otherwise a diagnostic reports native fallback.
+  Explicit-material return spawns use DontGenerate to avoid rerolling saved gear.
+- Leather now has a native saved/synced material channel. Neither Leather nor Wood
+  passes renderer ownership to native material replacement: their authored maps
+  remain under the existing cached surface system. Pickup polling uses original
+  renderer materials rather than repeatedly cloning already-tinted variants.
+  Worn Wood no longer suppresses a valid command-selected wood species. Binding,
+  hardware and neutral hide exclusions remain. Mixed crafted loose-pickup section
+  palettes are not added by this pass.
+- Visibility eye bubbles are disabled, including stale local hidden-slot effects;
+  the preference file is preserved for a possible future UI restoration.
+- Stand registration requires a valid item for every slot, not every family.
+  Dock bounds and allowlists include only successfully registered items, so an
+  unrelated refused item no longer blocks an otherwise usable stand. No placement
+  offsets or accepted armor geometry are changed. This does not establish that
+  every native stand docking/spawning path works in-game.
+- Native durability modules are configured on both platform templates with
+  deterministic, non-chance-based settings. Broken armor remains a repairable
+  item rather than being destroyed. Default per-set durability totals are
+  Leather 600, Metal 1400, Wyrm 900, Hebios 1600, Wood 800, Mushroom 500, distributed
+  by existing slot shares. Native loose items use the game's durability saving.
+- The server carries worn condition in a backward-readable `~condition` suffix
+  in worn.txt (legacy entries default to full condition), captures incoming
+  condition before consuming equipment and restores it on returned items.
+  Successful damaging impacts wear the struck armor by estimated absorbed damage;
+  depleted pieces stop providing armor protection but retain identity, mass and
+  appearance. Zero-health-change hits currently do not wear worn armor. Condition
+  is saved on each damage event; high-load server profiling and native material
+  multiplier/repair-shop integration remain follow-up work.
+- Weight defaults now total Leather 6, Mushroom 5, Wood 8, Metal 14, Hebios 12,
+  Wyrm 9, retaining split hips. These are mod policy values, not official balance.
+
+### Debug/admin commands
+
+- `armor recipeunlock`: persistently unlock all 24 armor recipes in the native
+  server-wide GlobalPagesManager; replay learned armor pages into loaded native
+  books. Registration also replays already-known armor pages when ready.
+- `armor recipereset CONFIRM`: remove armor unlock keys and armor entries from
+  loaded, closed crafting books only. Close all books and wait for animations
+  first; back up the world. Reconnect clients afterward and save the world
+  normally. Loose paper and unloaded saved books are **not** deleted, and may
+  retain recipes. This is not a full-world recipe purge.
+- `armor repair <player>`: admin repair of that player's currently worn armor.
+
+### Still required before release
+
+Actual C# compilation and PC/Quest playtests are unavailable here. Source syntax
+and Python contract checks do not prove successful native component registration,
+network synchronization, book saving, durability saving or visuals. Deploy all
+platforms together and back up existing saves before testing this new behavior.
+The configurable per-input Wood strength/averaging API is **not yet ported**.
+The torso fabric fitting fallback is now implemented as described below. Existing
+authored compact-LOD cosmetic fitting remains preferred; there is no blanket
+hide/shrink workaround. Native surface-grip adaptation
+also remains unimplemented. This pass must not be described as release-ready.
+
+
+### Cosmetic fabric fitting fallback (PC and Quest)
+
+Consolidated into the two existing CosmeticCoverage files. When chest armor is
+shown, eligible two-color torso clothing without complete authored compact LODs
+is fitted during native MeshPacker.Pack. Skin, head parts, held accessories,
+texture-sharing-forced parts and natively impeded/disabled clothing are excluded.
+Existing complete compact LODs continue to use native impeded arguments first.
+
+The supplied reference envelope is adapted directly: torso-only z range
+0.995–1.355, feathered edges, 8 mm clearance and at most 65 mm radial compression.
+The 11-by-17 torso-radius table is retained. Fitting clones readable meshes and
+native CosmeticMeshPart assets, preserving skinning, UVs, textures, colors and
+other mesh channels. It substitutes a shallow copy of only this packing call's
+part map, never modifies saved cosmetics, never scales armor and never edits a
+shared source mesh. Removing armor, changing clothing or clearing coverage
+unmarks the per-handler inputs and requests native repacking with original parts.
+Quest uses native dictionary/interface/array conversions and pointer-keyed input
+ownership rather than implementing a managed native cosmetic interface.
+
+The cache is bounded to 96 cosmetic source assets. Cached clones deliberately
+remain alive for the process lifetime: native packing can be asynchronous, so
+LRU eviction/destruction could free a mesh still being read. At capacity,
+unreadable meshes or an unsupported native API, original cosmetics are retained;
+errors are diagnosed instead of hiding clothing. Temporary clones are destroyed
+if construction fails. This is a torso fallback, not a guarantee that every
+hat, sleeve, skirt or third-party cosmetic fits every armor piece. Test chest
+clipping, garment changes, remove/re-equip, dummy views, remote players and
+save/rejoin on both platforms. No in-game validation or C# build is claimed.
+
+### Quest join-load mitigation
+
+Quest now caps decoded armor maps and leather tint readbacks at 512 pixels on
+both axes, budgets worn builds to one slot per frame across players/dummies,
+and scans scene pickups every two seconds instead of twice per second. Empty
+slots still remove immediately. Crafting registration is not skipped. Fabric
+fallback waits eight seconds after finding a new customization manager and
+installs its packing hook only when an eligible input exists. Detailed worn-map
+and nail diagnostics require debug mode; lifecycle/errors remain logged.
+
+These reduce texture memory/readback and avatar build spikes; they do not prove
+that a reported native headset crash is fixed. Registration is still synchronous
+and renderer counts are unchanged. The provided managed log contained no fatal
+stack or OOM report; Android logcat/tombstone is needed to identify that cause.
+
+Quest worn rendering and armor pickup-stat discovery now also wait for an active
+local character/rig, followed by a ten-second settling window. The window resets
+if that rig disappears or changes, and on disconnect. This is an avatar-readiness
+heuristic, not proof that the loading screen has gone away. No armor renderers or
+worn tint ticks are created by Draw during that window. Native prefab/recipe
+registration still runs before join approval; postponing it until after admission
+would break the existing handshake and risk unresolved network prefabs.
+
+Quest crash-isolation safety hold: experimental fabric packing is disabled on
+Quest (PC unchanged). Native ImpededLods coverage remains active; outfits without
+compact LODs may clip through armor. A supplied log ended at fabric hook install,
+which is a lead, not proof of causation. Equipment previews with zero baked bone
+bindings now wait and retry once per second instead of building against fallback
+joints. These guards require headset validation. If the process still exits,
+capture Android logcat (including crash/system buffers) to distinguish a native
+fault from Android low-memory termination; the managed log alone cannot do so.
+
+### Reduced armor loot frequency
+
+Global chest pools keep all eight slots and the existing rarity tiers, but repeat
+only pre-existing non-armor entry tickets. With equal entry-ticket selection this
+targets at least 2x rarer Leather/Metal/Mushroom and 4x rarer Hebios selections
+within their respective pools. It is not a fixed per-chest guarantee: native
+category/dock filtering, prosperity, and multiple chest rolls affect final rates.
+The original pool is retained so re-registering does not compound dilution. No
+vanilla rarity asset/category weights are edited. Pools without ordinary entries
+log a warning rather than deleting loot. Wyrm remains kill-only, now 2.5% per kill
+(previously 5%). Wood remains crafting-only. Existing generated chest contents
+and saved armor are not removed; test newly generated/refilled loot after restart.
+
+Resolved worn-material tints are now written once per cached material instead of
+reapplying shader colors every second on both PC and Quest. Cache cleanup resets
+the write markers. Quest's fabric safety hold and avatar settling guards remain.
+
+### Network message budget (wire 6)
+
+Worn snapshots no longer send all players in one message. Message kind 14 sends
+four slots per chunk (initial fixed-layout implementation: 553 bytes including its mod header),
+leaving headroom under the reported 1,100-byte transport limit. Mixed-material
+palettes retain all 32 full-width inputs per slot. Receivers assemble a bounded
+snapshot before replacing the visible table; duplicates and older snapshots are
+ignored, partial state expires on subsequent traffic after ten seconds, and
+connection changes reset assembly. Empty tables have an explicit chunk. Hello
+and diagnostic text are ASCII/length bounded. Server, PC client, and Quest client
+must all update to wire 6 together; wire 5 is no longer accepted. Native transport
+framing/serialization and multiplayer delivery still require runtime validation.
+
+### Incremental sync and Quest crowd performance
+
+Wire 6 now includes a full/delta mode byte and sparse material palettes (update all
+server/PC/Quest builds together). Each connection receives an initial full table;
+subsequent dirty broadcasts compare full player rows against that recipient's last
+accepted send and transmit only changed/new players. A full refresh occurs every
+30 seconds per recipient, and removals force a full table so departed players are
+pruned. Unchanged dirty broadcasts send nothing. A failed Send invalidates that
+recipient's baseline for retry. Disconnected recipients are pruned at broadcast.
+A successful Send is not an application-level acknowledgement: missing/overlapping
+snapshots can leave state stale until the periodic full refresh. Initial/full
+snapshots are chunked but not yet paced across server frames.
+
+Four-slot messages now use a 32-bit override mask per slot: uniform palettes need
+58 bytes including mod headers; the all-overrides worst case is 570 bytes. Values
+remain full-width and all 32 material inputs round-trip. Native framing overhead
+and multiplayer packet delivery require runtime verification.
+
+Quest now caches player discovery for one second rather than scanning the scene
+on every staged build frame. Remote armor becomes invisible past 35 m and returns
+inside 30 m (hysteresis); new distant armor builds are deferred. Local/dummy armor
+is exempt. Existing distant visuals are retained rather than repeatedly rebuilt,
+so this reduces rendering/skinning work, not their resident asset memory. This
+is a visual optimization only: server protection and stats are unchanged. Worn
+renderers no longer cast/receive shadows or use light/reflection probes or motion
+vectors. Offscreen skinning is disabled with conservative four-metre local bounds;
+test animation, camera-edge visibility, and equipment previews on headset. Close
+crowds still retain the authored renderer counts; mesh consolidation/true LODs
+remain future work, not a completed or measured FPS improvement. Cosmetic manager
+lookup is throttled before hierarchy traversal. Existing fabric safety hold and
+avatar settling/binding guards remain enabled.
+
+Quest equipment regression correction: publish the resolved local interaction
+rig before checking baked-renderer readiness. The native equipment dummy may
+have no renderer directly beneath a transform named `Baked`; withholding
+`Draw.Local` in that case prevented Hands from tracking releases or submitting
+equip/remove requests. Rendering still waits for baked bindings, but interaction
+uses the native dummy's joint map. The native room/ownership and no-direct-self-
+equip checks are unchanged. Preview armor may remain absent when baked bindings
+are unavailable; verify actual equip/remove behavior on headset.
+
+Quest dummy preview follow-up: native equipment dummies may render armor using
+their own active joint hierarchy without a `Baked`-parent renderer. All catalog
+anchors must resolve to active descendants of the native dummy root; live avatars
+still require baked bindings. Dummy skinned parts with missing required bones are
+skipped rather than collapsed onto a placeholder root. The dummy root's layer is
+used when no baked renderer supplies one. Interaction publication stays ahead of
+render readiness, and the existing one-slot build budget and safety hold remain.
+Headset validation is required for visibility, pose, and equipment transitions.

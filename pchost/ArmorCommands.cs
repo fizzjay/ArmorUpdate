@@ -1,4 +1,7 @@
 ﻿using System;
+using HarmonyLib;
+using Alta.Pages;
+using Alta.Crafting;
 using System.Collections;
 using System.Collections.Generic;
 using System.Reflection;
@@ -82,6 +85,89 @@ namespace ArmorRestored
             });
         }
 
+        [Command("repair", "ADMIN: fully repair a player's worn armor: armor repair <player>")]
+        public static string Repair(string player)
+        {
+            return Run(delegate {string error;var target=Players.Find(player,out error);return target==null ? error : ServerArmor.RepairWorn(target);});
+        }
+        // Only this mod's active recipes; never vanilla or other mods' global pages.
+        private static bool ArmorPage(object page)
+        {
+            var data = page == null ? null : AccessTools.Property(page.GetType(), "ProviderData")?.GetValue(page, null);
+            return ArmorCrafting.Index(data as GenericCraftingRecipe) >= 0;
+        }
+        internal static void SyncKnownArmorBooks()
+        {
+            if (!Mod.IsServer || !ArmorCrafting.Ready || GlobalPagesManager.Instance == null) return;
+            var known = AccessTools.Field(typeof(GlobalPagesManager), "addedPages").GetValue(GlobalPagesManager.Instance) as System.Collections.IEnumerable;
+            if (known == null) return;
+            var replay = AccessTools.Method(typeof(Book), "CheckGlobalPage");
+            foreach (Book book in UnityEngine.Object.FindObjectsOfType<Book>())
+                if (book.Collection != null && book.Collection.Hash == 57634U)
+                    foreach (object key in known)
+                    {
+                        int provider=(int)key.GetType().GetField("Item1").GetValue(key);
+                        uint hash=(uint)key.GetType().GetField("Item2").GetValue(key);
+                        int index=hash>=ArmorCrafting.RecipeStart && hash<ArmorCrafting.RecipeStart+48U ? (int)(hash-ArmorCrafting.RecipeStart) : -1;
+                        if(provider==2 && ArmorCrafting.Craftable(index)) replay.Invoke(book,new[] {key});
+                    }
+        }
+        [Command("recipeunlock", "DEBUG: unlock only all 24 armor recipes server-wide: armor recipeunlock")]
+        public static string RecipeUnlock()
+        {
+            return Run(delegate {
+                if (!Mod.IsServer || !ArmorCrafting.Ready || GlobalPagesManager.Instance == null)
+                    return "Armor crafting/global page manager is not ready; nothing changed.";
+                var add = AccessTools.Method(typeof(GlobalPagesManager), "AddPage", new[] { typeof(int), typeof(uint) });
+                int count = 0;
+                for (int i=0;i<Catalog.Count;i++)
+                    if (ArmorCrafting.Craftable(i) && ArmorCrafting.Recipes[i] != null)
+                    { add.Invoke(GlobalPagesManager.Instance, new object[] { 2, ArmorCrafting.RecipeStart+(uint)i }); count++; }
+                SyncKnownArmorBooks();
+                Mod.Log.Warning("DEBUG armor recipes unlocked server-wide: " + count);
+                return "Unlocked " + count + " armor recipes server-wide (Leather/Metal/Wood only). Native global-page saving persists this change.";
+            });
+        }
+        [Command("recipereset", "DEBUG destructive: remove only armor recipe unlocks: armor recipereset CONFIRM")]
+        public static string RecipeReset(string confirmation)
+        {
+            return Run(delegate {
+                if (confirmation != "CONFIRM") return "Use armor recipereset CONFIRM. Back up your world first; only armor recipes are removed. Close all crafting books first; reconnect clients after reset.";
+                if (!Mod.IsServer || !ArmorCrafting.Ready || GlobalPagesManager.Instance == null) return "Armor/global pages not ready; nothing changed.";
+                var books = new List<Book>();
+                foreach (Book book in UnityEngine.Object.FindObjectsOfType<Book>())
+                    if (book.Collection != null && book.Collection.Hash == 57634U)
+                    {
+                        var spawned=AccessTools.Field(typeof(Book),"spawnedPages").GetValue(book) as System.Collections.IList;
+                        if (book.IsOpen || book.IsInserting || spawned==null || spawned.Count!=0)
+                            return "Close all crafting books and let page animations finish before reset; nothing changed.";
+                        books.Add(book);
+                    }
+                object global=AccessTools.Field(typeof(GlobalPagesManager),"addedPages").GetValue(GlobalPagesManager.Instance);
+                var keys=new List<object>();
+                foreach(object key in (System.Collections.IEnumerable)global)
+                {
+                    int provider=(int)key.GetType().GetField("Item1").GetValue(key);
+                    uint hash=(uint)key.GetType().GetField("Item2").GetValue(key);
+                    int index=hash>=ArmorCrafting.RecipeStart && hash<ArmorCrafting.RecipeStart+48U ? (int)(hash-ArmorCrafting.RecipeStart) : -1;
+                    if(provider==2 && ArmorCrafting.Craftable(index)) keys.Add(key);
+                }
+                var lists=new List<System.Collections.IList>();
+                foreach(Book book in books)
+                {
+                    var pages=AccessTools.Field(typeof(Book),"bookPages").GetValue(book) as System.Collections.IList;
+                    if(pages==null) return "Unsupported native book list; nothing changed.";
+                    lists.Add(pages);
+                }
+                var remove=AccessTools.Method(global.GetType(),"Remove");
+                foreach(object key in keys) remove.Invoke(global,new[] {key});
+                int removed=0;
+                foreach(var pages in lists)
+                    for(int i=pages.Count-1;i>=0;i--) if(ArmorPage(pages[i])) {pages.RemoveAt(i);removed++;}
+                Mod.Log.Warning("DEBUG armor recipe reset: "+keys.Count+" global unlocks, "+removed+" loaded book entries; reconnect clients.");
+                return "Removed "+keys.Count+" armor unlocks and "+removed+" entries from loaded closed books. Reconnect clients; save the world normally. Unloaded saved books and loose paper are not deleted.";
+            });
+        }
         [Command("recipes", "Spawn the 24 Leather/Metal/Wood recipe pages near a player: armor recipes <player>")]
         public static string Recipes(string player)
         {

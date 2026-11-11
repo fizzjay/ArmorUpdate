@@ -10,6 +10,68 @@ namespace ArmorRestoredQuest
 	// Token: 0x02000015 RID: 21
 	internal static class Wire
 	{
+        private static string BoundedText(string value,int limit)
+        {
+            value=value ?? "";
+            int length=Math.Min(value.Length,limit);
+            var result=new char[length];
+            for(int i=0;i<length;i++) result[i]=value[i]<128 ? value[i] : '?';
+            return new string(result);
+        }
+        private static bool incomingFull;
+        private static readonly Dictionary<int,int[]> completeRows=new Dictionary<int,int[]>();
+        private static uint incomingSnapshot;
+        private static int incomingCount;
+        private static float incomingAt;
+        private static readonly Dictionary<int,int[]> incomingRows=new Dictionary<int,int[]>();
+        private static readonly HashSet<int> incomingParts=new HashSet<int>();
+        internal static void ResetSnapshot()
+        {incomingSnapshot=0;incomingCount=0;incomingRows.Clear();incomingParts.Clear();incomingAt=0f;completeRows.Clear();}
+        private static void ReadSnapshot(Stream stream)
+        {
+            uint id=0,total=0,chunk=0,count=0;
+            stream.SerializeBits(ref id,32);stream.SerializeBits(ref total,32);
+            stream.SerializeBits(ref chunk,32);stream.SerializeBits(ref count,32);
+            uint mode=0;stream.SerializeBits(ref mode,8);
+            if(mode>1) throw new InvalidOperationException("Invalid armor snapshot mode");
+            if(count>1024 || total!=Math.Max(1,(int)count*2) || chunk>=total)
+                throw new InvalidOperationException("Invalid armor snapshot header");
+            float now=UnityEngine.Time.unscaledTime;
+            if(incomingCount!=0 && id!=incomingSnapshot && unchecked((int)(id-incomingSnapshot))<=0) return;
+            if(incomingCount==0 || id!=incomingSnapshot || now-incomingAt>10f)
+            {
+                incomingSnapshot=id;incomingCount=(int)total;incomingAt=now;incomingFull=mode==1;
+                incomingRows.Clear();incomingParts.Clear();
+            }
+            if(incomingCount!=(int)total || incomingFull!=(mode==1)) throw new InvalidOperationException("Armor snapshot size changed");
+            if(incomingParts.Contains((int)chunk)) return;
+            if(count>0)
+            {
+                uint key=0;stream.SerializeBits(ref key,32);
+                int[] row;
+                if(!incomingRows.TryGetValue(unchecked((int)key),out row))
+                {row=new int[272];for(int i=0;i<8;i++) row[i]=-1;incomingRows[unchecked((int)key)]=row;}
+                int start=((int)chunk%2)*4;
+                for(int slot=start;slot<start+4;slot++)
+                {
+                    uint piece=0,material=0;stream.SerializeBits(ref piece,8);stream.SerializeBits(ref material,32);
+                    row[slot]=piece==0 || piece>Catalog.Count ? -1 : (int)piece-1;
+                    row[8+slot]=unchecked((int)material);
+                    uint mask=0;stream.SerializeBits(ref mask,32);
+                    for(int group=0;group<32;group++)
+                    {uint input=material;if((mask&(1U<<group))!=0) stream.SerializeBits(ref input,32);row[16+slot*32+group]=unchecked((int)input);}
+                }
+            }
+            incomingParts.Add((int)chunk);
+            if(incomingParts.Count==incomingCount)
+            {
+                if(incomingRows.Count!=(int)count) throw new InvalidOperationException("Incomplete armor snapshot rows");
+                if(incomingFull) completeRows.Clear();
+                foreach(var pair in incomingRows) completeRows[pair.Key]=pair.Value;
+                Draw.OnTable(new Dictionary<int,int[]>(completeRows));
+            }
+        }
+
 		// Token: 0x06000070 RID: 112 RVA: 0x00007974 File Offset: 0x00005B74
 		internal static void Prepare()
 		{
@@ -47,33 +109,7 @@ namespace ArmorRestoredQuest
 					s.SerializeInteger(ref wire);
 					Gate.Heard(c, version, wire);
 				}
-				else if (num2 == 13U && Gate.IsOpen)
-				{
-					int num3 = 0;
-					s.SerializeInteger(ref num3);
-					Dictionary<int, int[]> dictionary = new Dictionary<int, int[]>();
-					int num4 = 0;
-					while (num4 < num3 && num4 < 1024)
-					{
-						int key = 0;
-						s.SerializeInteger(ref key);
-						int[] array = new int[272];
-						for (int i = 0; i < 8; i++)
-						{
-							uint num5 = 0U;
-							s.SerializeBits(ref num5, 8);
-							array[i] = (int)((num5 == 0U || num5 > (uint)Catalog.Count) ? uint.MaxValue : (num5 - 1U));
-							uint material = 0U;
-							s.SerializeBits(ref material, 32);
-							array[8 + i] = unchecked((int)material);
-                            for(int group=0;group<32;group++)
-                            { uint input=0; s.SerializeBits(ref input,32); array[16+i*32+group]=unchecked((int)input); }
-						}
-						dictionary[key] = array;
-						num4++;
-					}
-					Draw.OnTable(dictionary);
-				}
+                else if(num2==14U && Gate.IsOpen) {ReadSnapshot(s);}
 				else if (num2 == 11U)
 				{
 					uint id = 0U;
@@ -116,13 +152,13 @@ namespace ArmorRestoredQuest
 			{
 				uint num = 5U;
 				s.SerializeBits(ref num, 8);
-				int num2 = 5;
+				int num2 = 6;
 				s.SerializeInteger(ref num2);
-				string version2 = version;
-				string refused2 = refused;
+				string version2 = BoundedText(version,32);
+				string refused2 = BoundedText(refused,160);
 				s.SerializeString(ref version2, (Stream.StringEncoding)1);
 				s.SerializeString(ref refused2, (Stream.StringEncoding)1);
-                string signature = ArmorCrafting.Signature;
+                string signature = BoundedText(ArmorCrafting.Signature,256);
                 s.SerializeString(ref signature, (Stream.StringEncoding)1);
 			});
 		}
@@ -206,7 +242,7 @@ namespace ArmorRestoredQuest
 		internal const int Type = 137;
 
 		// Token: 0x04000093 RID: 147
-		internal const int Number = 5;
+		internal const int Number = 6;
 
 		// Token: 0x04000094 RID: 148
 		private const uint Equip = 2U;
@@ -221,7 +257,7 @@ namespace ArmorRestoredQuest
 		private const uint Hello = 5U;
 
 		// Token: 0x04000098 RID: 152
-		private const uint Table = 13U;
+		private const uint Table = 14U;
 
 		// Token: 0x04000099 RID: 153
 		private const uint Took = 11U;

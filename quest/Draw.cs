@@ -55,8 +55,38 @@ namespace ArmorRestoredQuest
 		}
 
 		// Token: 0x06000013 RID: 19 RVA: 0x00002508 File Offset: 0x00000708
+        // Do not build hundreds of renderers while the local avatar is arriving.
+        // Native registration and the join handshake remain mandatory and immediate.
+        private static readonly List<Player> cachedPlayers=new List<Player>();
+        private static float nextPlayerScan;
+        private static IntPtr loadingRig;
+        private static float visualReadyAt, nextReadyProbe;
+        private static bool visualsReady, waitingLogged;
+        internal static bool VisualsReady()
+        {
+            if(!Gate.IsOpen || !Registry.Done) return false;
+            if(Time.unscaledTime<nextReadyProbe) return visualsReady;
+            nextReadyProbe=Time.unscaledTime+.5f;
+            var controller=PlayerController.Current;
+            var player=controller==null ? null : controller.NetworkPlayer;
+            var character=CharacterOf(player);
+            var rig=character==null ? null : RigOf(character);
+            if(character==null || !character.gameObject.activeInHierarchy || rig==null || !rig.gameObject.activeInHierarchy)
+            {loadingRig=IntPtr.Zero;visualsReady=false;visualReadyAt=0f;return false;}
+            if(loadingRig!=rig.Pointer)
+            {
+                loadingRig=rig.Pointer;visualsReady=false;visualReadyAt=Time.unscaledTime+10f;
+                if(!waitingLogged) {waitingLogged=true;Mod.Log.Msg("Quest armor visuals: local avatar found; waiting 10 seconds before worn rendering.");}
+            }
+            if(!visualsReady && Time.unscaledTime>=visualReadyAt)
+            {visualsReady=true;Mod.Log.Msg("Quest armor visuals: avatar settling delay complete; staged worn rendering enabled.");}
+            return visualsReady;
+        }
+
 		internal static void Clear()
 		{
+            cachedPlayers.Clear();nextPlayerScan=0f;
+            loadingRig=IntPtr.Zero;visualReadyAt=nextReadyProbe=0f;visualsReady=waitingLogged=false;
 			foreach (Dressed dressed in Draw.Bodies.Values)
 			{
                 dressed.Coverage.Clear();
@@ -80,6 +110,7 @@ namespace ArmorRestoredQuest
 			{
 				return;
 			}
+            if(!VisualsReady()) return;
             WornMaterials.Tick();
 			float unscaledTime = Time.unscaledTime;
 			if (Settings.Debug && unscaledTime >= Draw._nextCensus)
@@ -98,6 +129,7 @@ namespace ArmorRestoredQuest
 		// Token: 0x06000015 RID: 21 RVA: 0x00002600 File Offset: 0x00000800
 		private static void Dress()
 		{
+            int buildsRemaining=1; // Shared across players/dummies for this frame.
 			List<IntPtr> list = new List<IntPtr>();
 			foreach (KeyValuePair<IntPtr, Dressed> keyValuePair in Draw.Bodies)
 			{
@@ -108,7 +140,8 @@ namespace ArmorRestoredQuest
 			}
 			foreach (IntPtr key in list)
 			{
-				Draw.Bodies[key].Coverage.Clear();
+                var expired=Draw.Bodies[key];expired.Coverage.Clear();
+                for(int slot=0;slot<8;slot++) Draw.Remove(expired,slot);
                 Draw.Bodies.Remove(key);
 			}
 			if (Draw.Local != null && Draw.Local.Root == null)
@@ -118,9 +151,16 @@ namespace ArmorRestoredQuest
 			PlayerController playerController = PlayerController.Current;
 			Player player = (playerController == null) ? null : playerController.NetworkPlayer;
 			IntPtr intPtr = (player == null) ? IntPtr.Zero : player.Pointer;
-			foreach (Object @object in Object.FindObjectsOfType(Il2CppType.Of<Player>()))
-			{
-				Player player2 = (@object == null) ? null : @object.TryCast<Player>();
+            var observerCharacter=CharacterOf(player);
+            Vector3 observerPosition=observerCharacter==null ? Vector3.zero : observerCharacter.transform.position;
+            if(Time.unscaledTime>=nextPlayerScan)
+            {
+                nextPlayerScan=Time.unscaledTime+1f;cachedPlayers.Clear();
+                foreach(Object value in Object.FindObjectsOfType(Il2CppType.Of<Player>()))
+                {var candidate=value==null ? null : value.TryCast<Player>();if(candidate!=null) cachedPlayers.Add(candidate);}
+            }
+            foreach(Player player2 in cachedPlayers)
+            {
                 PlayerCharacter character = Draw.CharacterOf(player2);
 				if (!(player2 == null) && player2.UserInfo != null && character != null)
 				{
@@ -175,11 +215,34 @@ namespace ArmorRestoredQuest
 							Draw.Wire(dressed);
 							Draw.Bodies[transform2.Pointer] = dressed;
 						}
+                        // Interactions target the native dummy even when its
+                        // renderer has no Baked-parent skeleton. Rendering readiness
+                        // must not suppress Hands' equip/remove context.
 						bool flag = player2.Pointer == intPtr;
 						if (flag)
 						{
 							Draw.Local = dressed;
 						}
+                        // A newly opened equipment preview can exist before its
+                        // skeleton. Native dummies may use their own validated joints.
+                        if(dressed.BakedBindings==0 && !dressed.DummySkeletonReady)
+                        {
+                            if(Time.unscaledTime>=dressed.NextBindingRetry)
+                            {dressed.NextBindingRetry=Time.unscaledTime+1f;Draw.Wire(dressed);}
+                            if(dressed.BakedBindings==0 && !dressed.DummySkeletonReady) continue;
+                        }
+                        bool visible=true;
+                        if(!flag && !dressed.Dummy && observerCharacter!=null)
+                        {
+                            float distance=(dressed.Root.position-observerPosition).sqrMagnitude;
+                            visible=distance<(dressed.DistanceVisible ? 35f*35f : 30f*30f);
+                        }
+                        if(visible!=dressed.DistanceVisible)
+                        {
+                            dressed.DistanceVisible=visible;
+                            foreach(var slotRenderers in dressed.Renderers) if(slotRenderers!=null)
+                                foreach(var renderer in slotRenderers) if(renderer!=null) renderer.enabled=visible;
+                        }
 						bool flag2 = false;
 						for (int j = 0; j < 8; j++)
 						{
@@ -192,6 +255,9 @@ namespace ArmorRestoredQuest
 							uint material = array.Length >= 16 ? unchecked((uint)array[8 + j]) : 0U;
 							if (dressed.Shown[j] != num || dressed.ShownMaterials[j] != material || dressed.ShownPalettes[j] != WornIngredientGroups.Key(array,j) || (num >= 0 && !Draw.HolderLive(dressed, j)))
 							{
+                                if(num>=0 && !visible) continue;
+                                if(num>=0 && buildsRemaining==0) {Draw._dirty=true;continue;}
+                                if(num>=0) buildsRemaining--;
 								Draw.Remove(dressed, j);
 								dressed.Shown[j] = -1;
 								if (num >= 0)
@@ -204,7 +270,7 @@ namespace ArmorRestoredQuest
 								flag2 = true;
 							}
 						}
-                        dressed.Coverage.Update(dressed.Root, dressed.Shown);
+                        if(visible) dressed.Coverage.Update(dressed.Root, dressed.Shown);
 						if (flag2)
 						{
 							Draw.Cost(dressed, flag);
@@ -296,7 +362,7 @@ namespace ArmorRestoredQuest
 		{
 			Crumb.First("wire bones");
 			d.Bones = new Dictionary<string, Transform>();
-			d.Layer = -1;
+            d.Layer = d.Dummy ? d.Rig.gameObject.layer : -1;
 			foreach (Component component in d.Rig.GetComponentsInChildren(Il2CppType.Of<Transform>(), true))
 			{
 				Transform transform = (component == null) ? null : component.TryCast<Transform>();
@@ -324,7 +390,18 @@ namespace ArmorRestoredQuest
                     bound++;
                 }
             }
-            Mod.Log.Msg("armor rig on " + d.Name + ": " + bound + " bone bindings from baked avatar renderers");
+            d.BakedBindings=bound;
+            // EquipmentMode.Resolve supplied the native room's owned dummy root.
+            // Unlike live avatars, its skeleton need not have a Baked renderer.
+            d.DummySkeletonReady=d.Dummy && d.Rig!=null && d.Rig.gameObject.activeInHierarchy;
+            if(d.DummySkeletonReady) foreach(string anchor in Catalog.Anchors)
+            {
+                Transform joint=Draw.Bone(d,anchor);
+                if(joint==null || !joint.IsChildOf(d.Rig) || !joint.gameObject.activeInHierarchy)
+                {d.DummySkeletonReady=false;break;}
+            }
+
+            if(bound>0) Mod.Log.Msg("armor rig on " + d.Name + ": " + bound + " bone bindings from baked avatar renderers");
 			foreach (Component component2 in d.Root.GetComponentsInChildren(Il2CppType.Of<SkinnedMeshRenderer>(), true))
 			{
 				if (!(component2 == null) && !(component2.transform.parent == null) && !(component2.transform.parent.name != "Baked"))
@@ -391,6 +468,15 @@ namespace ArmorRestoredQuest
 		}
 
 		// Token: 0x0600001C RID: 28 RVA: 0x00002D28 File Offset: 0x00000F28
+        private static void ConfigureRenderer(Renderer renderer)
+        {
+            renderer.shadowCastingMode=UnityEngine.Rendering.ShadowCastingMode.Off;
+            renderer.receiveShadows=false;
+            renderer.lightProbeUsage=UnityEngine.Rendering.LightProbeUsage.Off;
+            renderer.reflectionProbeUsage=UnityEngine.Rendering.ReflectionProbeUsage.Off;
+            renderer.motionVectorGenerationMode=MotionVectorGenerationMode.ForceNoMotion;
+        }
+
 		private static void Build(Dressed d, int s, int piece, bool isLocal, uint material, int[] palette, int slot)
 		{
 			DateTime utcNow = DateTime.UtcNow;
@@ -409,6 +495,15 @@ namespace ArmorRestoredQuest
 			list.Add(gameObject);
 			foreach (PartDef partDef in Pack.Pieces[piece].Worn)
 			{
+                // Missing dummy bones must not fall back onto a different rig
+                // or collapse skin weights onto a null/root placeholder.
+                if(d.Dummy && partDef.Skinned)
+                {
+                    bool complete=Draw.Bone(d,partDef.Root)!=null && partDef.Bones!=null;
+                    if(complete) foreach(string name in partDef.Bones)
+                        if(Draw.Bone(d,name)==null) {complete=false;break;}
+                    if(!complete) {num3++;continue;}
+                }
 				Mesh sharedMesh = Pack.MeshOf(partDef.Mesh);
 				Material[] sectionMaterials;
                 sharedMesh=ArmorCrafting.SplitWorn(sharedMesh,Pack.Meshes[partDef.Mesh].Name,piece,material,
@@ -429,7 +524,8 @@ namespace ArmorRestoredQuest
 					Crumb.First("rigid part");
 					gameObject2.AddComponent(Il2CppType.Of<MeshFilter>()).TryCast<MeshFilter>().sharedMesh = sharedMesh;
 					MeshRenderer meshRenderer = gameObject2.AddComponent(Il2CppType.Of<MeshRenderer>()).TryCast<MeshRenderer>();
-					meshRenderer.sharedMaterials = new Il2CppReferenceArray<Material>(sectionMaterials);
+                    meshRenderer.sharedMaterials = new Il2CppReferenceArray<Material>(sectionMaterials);
+                    ConfigureRenderer(meshRenderer);
 					list.Add(gameObject2);
 					list2.Add(meshRenderer);
 					num++;
@@ -456,7 +552,11 @@ namespace ArmorRestoredQuest
 					skinnedMeshRenderer.rootBone = transform2;
 					skinnedMeshRenderer.sharedMesh = sharedMesh;
 					skinnedMeshRenderer.sharedMaterials = new Il2CppReferenceArray<Material>(sectionMaterials);
-					skinnedMeshRenderer.updateWhenOffscreen = true;
+                    // Generous avatar-local bounds avoid clipping animated armor
+                    // while allowing Unity to stop skinning outside the camera.
+                    skinnedMeshRenderer.localBounds=new Bounds(Vector3.zero,Vector3.one*4f);
+                    skinnedMeshRenderer.updateWhenOffscreen = false;
+                    ConfigureRenderer(skinnedMeshRenderer);
 					list2.Add(skinnedMeshRenderer);
 					list3.Add(skinnedMeshRenderer);
 					num2++;

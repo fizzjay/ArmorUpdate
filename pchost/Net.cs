@@ -11,6 +11,68 @@ namespace ArmorRestored
 	// Token: 0x0200000F RID: 15
 	internal static class Net
 	{
+        private static string BoundedText(string value,int limit)
+        {
+            value=value ?? "";
+            int length=Math.Min(value.Length,limit);
+            var result=new char[length];
+            for(int i=0;i<length;i++) result[i]=value[i]<128 ? value[i] : '?';
+            return new string(result);
+        }
+        private static bool incomingFull;
+        private static readonly Dictionary<int,int[]> completeRows=new Dictionary<int,int[]>();
+        private static uint incomingSnapshot;
+        private static int incomingCount;
+        private static float incomingAt;
+        private static readonly Dictionary<int,int[]> incomingRows=new Dictionary<int,int[]>();
+        private static readonly HashSet<int> incomingParts=new HashSet<int>();
+        internal static void ResetSnapshot()
+        {incomingSnapshot=0;incomingCount=0;incomingRows.Clear();incomingParts.Clear();incomingAt=0f;completeRows.Clear();}
+        private static void ReadSnapshot(Stream stream)
+        {
+            uint id=0,total=0,chunk=0,count=0;
+            stream.SerializeBits(ref id,32);stream.SerializeBits(ref total,32);
+            stream.SerializeBits(ref chunk,32);stream.SerializeBits(ref count,32);
+            uint mode=0;stream.SerializeBits(ref mode,8);
+            if(mode>1) throw new InvalidOperationException("Invalid armor snapshot mode");
+            if(count>1024 || total!=Math.Max(1,(int)count*2) || chunk>=total)
+                throw new InvalidOperationException("Invalid armor snapshot header");
+            float now=UnityEngine.Time.unscaledTime;
+            if(incomingCount!=0 && id!=incomingSnapshot && unchecked((int)(id-incomingSnapshot))<=0) return;
+            if(incomingCount==0 || id!=incomingSnapshot || now-incomingAt>10f)
+            {
+                incomingSnapshot=id;incomingCount=(int)total;incomingAt=now;incomingFull=mode==1;
+                incomingRows.Clear();incomingParts.Clear();
+            }
+            if(incomingCount!=(int)total || incomingFull!=(mode==1)) throw new InvalidOperationException("Armor snapshot size changed");
+            if(incomingParts.Contains((int)chunk)) return;
+            if(count>0)
+            {
+                uint key=0;stream.SerializeBits(ref key,32);
+                int[] row;
+                if(!incomingRows.TryGetValue(unchecked((int)key),out row))
+                {row=new int[272];for(int i=0;i<8;i++) row[i]=-1;incomingRows[unchecked((int)key)]=row;}
+                int start=((int)chunk%2)*4;
+                for(int slot=start;slot<start+4;slot++)
+                {
+                    uint piece=0,material=0;stream.SerializeBits(ref piece,8);stream.SerializeBits(ref material,32);
+                    row[slot]=piece==0 || piece>Catalog.Count ? -1 : (int)piece-1;
+                    row[8+slot]=unchecked((int)material);
+                    uint mask=0;stream.SerializeBits(ref mask,32);
+                    for(int group=0;group<32;group++)
+                    {uint input=material;if((mask&(1U<<group))!=0) stream.SerializeBits(ref input,32);row[16+slot*32+group]=unchecked((int)input);}
+                }
+            }
+            incomingParts.Add((int)chunk);
+            if(incomingParts.Count==incomingCount)
+            {
+                if(incomingRows.Count!=(int)count) throw new InvalidOperationException("Incomplete armor snapshot rows");
+                if(incomingFull) completeRows.Clear();
+                foreach(var pair in incomingRows) completeRows[pair.Key]=pair.Value;
+                ClientArmor.OnTable(new Dictionary<int,int[]>(completeRows));
+            }
+        }
+
 		// Token: 0x06000057 RID: 87 RVA: 0x0000618D File Offset: 0x0000438D
 		internal static void SendHere(Connection c)
 		{
@@ -20,7 +82,7 @@ namespace ArmorRestored
 				s.SerializeByte(ref b);
 				string text = "0.5.0";
 				s.SerializeString(ref text, (Stream.StringEncoding)1);
-				int num = 5;
+				int num = 6;
 				s.SerializeInteger(ref num);
 			});
 		}
@@ -32,13 +94,13 @@ namespace ArmorRestored
 			{
 				byte b = 5;
 				s.SerializeByte(ref b);
-				int num = 5;
+				int num = 6;
 				s.SerializeInteger(ref num);
 				string text = "0.5.0";
-				string text2 = Prefabs.RefusedLine();
+				string text2 = BoundedText(Prefabs.RefusedLine(),160);
 				s.SerializeString(ref text, (Stream.StringEncoding)1);
 				s.SerializeString(ref text2, (Stream.StringEncoding)1);
-                string signature = ArmorCrafting.Signature;
+                string signature = BoundedText(ArmorCrafting.Signature,256);
                 s.SerializeString(ref signature, (Stream.StringEncoding)1);
 			});
 		}
@@ -152,37 +214,82 @@ namespace ArmorRestored
 		}
 
 		// Token: 0x0600005D RID: 93 RVA: 0x0000657C File Offset: 0x0000477C
-		internal static void SendTable(Player to, List<KeyValuePair<int, int[]>> rows)
-		{
-			if (to == null || to.ConnectionToRemotePlayer == null)
-			{
-				return;
-			}
-			to.ConnectionToRemotePlayer.Send(null, Net.Message, delegate(Connection conn, Stream s)
-			{
-				byte b = 13;
-				s.SerializeByte(ref b);
-				int count = rows.Count;
-				s.SerializeInteger(ref count);
-				foreach (KeyValuePair<int, int[]> keyValuePair in rows)
-				{
-					int key = keyValuePair.Key;
-					s.SerializeInteger(ref key);
-					for (int i = 0; i < 8; i++)
-					{
-						byte b2 = (byte)(keyValuePair.Value[i] + 1);
-						s.SerializeByte(ref b2);
-						uint material = unchecked((uint)keyValuePair.Value[8 + i]);
-						s.SerializeBits(ref material, 32);
-                        for(int group=0;group<32;group++)
-                        {
-                            uint input=unchecked((uint)keyValuePair.Value[16+i*32+group]);
-                            s.SerializeBits(ref input,32);
-                        }
-					}
-				}
-			});
-		}
+        private sealed class RecipientState
+        {
+            internal Connection Connection;
+            internal Dictionary<int,int[]> Rows=new Dictionary<int,int[]>();
+            internal float FullAt;
+        }
+        private static readonly Dictionary<int,RecipientState> recipients=new Dictionary<int,RecipientState>();
+        internal static bool NeedsTable(Player player)
+        {
+            if(player==null || player.PlayerCharacter==null || player.ConnectionToRemotePlayer==null) return false;
+            var connection=player.ConnectionToRemotePlayer;RecipientState state;
+            return !recipients.TryGetValue(connection.Identifier,out state) || !object.ReferenceEquals(state.Connection,connection) || UnityEngine.Time.unscaledTime>=state.FullAt;
+        }
+        internal static void PruneTables(List<Player> players)
+        {
+            var live=new HashSet<int>();
+            foreach(var player in players) if(player.ConnectionToRemotePlayer!=null) live.Add(player.ConnectionToRemotePlayer.Identifier);
+            foreach(var key in new List<int>(recipients.Keys)) if(!live.Contains(key)) recipients.Remove(key);
+        }
+        private static bool EqualRow(int[] left,int[] right)
+        {if(left==null || right==null || left.Length!=right.Length) return false;for(int i=0;i<left.Length;i++) if(left[i]!=right[i]) return false;return true;}
+        private static uint nextSnapshot;
+        internal static void SendTable(Player to,List<KeyValuePair<int,int[]>> rows)
+        {
+            if(to==null || to.PlayerCharacter==null || to.ConnectionToRemotePlayer==null) return;
+            if(rows.Count>1024) throw new ArgumentException("Too many armor rows");
+            var connection=to.ConnectionToRemotePlayer;RecipientState state;
+            bool fresh=!recipients.TryGetValue(connection.Identifier,out state) || !object.ReferenceEquals(state.Connection,connection);
+            if(fresh) {state=new RecipientState {Connection=connection};recipients[connection.Identifier]=state;}
+            bool full=fresh || UnityEngine.Time.unscaledTime>=state.FullAt;
+            if(!full)
+            {
+                var currentIds=new HashSet<int>();foreach(var row in rows) currentIds.Add(row.Key);
+                foreach(var previous in state.Rows.Keys) if(!currentIds.Contains(previous)) {full=true;break;}
+            }
+            var selected=new List<KeyValuePair<int,int[]>>();
+            foreach(var row in rows)
+            {
+                int[] previous;
+                if(full || !state.Rows.TryGetValue(row.Key,out previous) || !EqualRow(previous,row.Value)) selected.Add(row);
+            }
+            if(!full && selected.Count==0) return;
+            var current=new Dictionary<int,int[]>();
+            foreach(var row in rows) current[row.Key]=(int[])row.Value.Clone();
+            bool sent=true;
+            uint snapshot=++nextSnapshot;
+            int chunks=Math.Max(1,selected.Count*2);
+            for(int part=0;part<chunks;part++)
+            {
+                int index=part;
+                // Sparse palettes: 58 bytes for four uniform slots; at most
+                // 570 bytes when all 128 material overrides differ.
+                sent=connection.Send(null,Net.Message,delegate(Connection conn,Stream stream)
+                {
+                    byte kind=14;stream.SerializeByte(ref kind);
+                    uint id=snapshot,total=(uint)chunks,chunk=(uint)index,count=(uint)selected.Count;
+                    stream.SerializeBits(ref id,32);stream.SerializeBits(ref total,32);
+                    stream.SerializeBits(ref chunk,32);stream.SerializeBits(ref count,32);
+                    uint mode=full ? 1U : 0U;stream.SerializeBits(ref mode,8);
+                    if(selected.Count==0) return;
+                    var row=selected[index/2];uint key=unchecked((uint)row.Key);stream.SerializeBits(ref key,32);
+                    for(int slot=(index%2)*4;slot<(index%2)*4+4;slot++)
+                    {
+                        uint piece=(uint)(row.Value[slot]+1);stream.SerializeBits(ref piece,8);
+                        uint material=unchecked((uint)row.Value[8+slot]);stream.SerializeBits(ref material,32);
+                        uint mask=0;
+                        for(int group=0;group<32;group++) if(unchecked((uint)row.Value[16+slot*32+group])!=material) mask|=1U<<group;
+                        stream.SerializeBits(ref mask,32);
+                        for(int group=0;group<32;group++) if((mask&(1U<<group))!=0)
+                        {uint input=unchecked((uint)row.Value[16+slot*32+group]);stream.SerializeBits(ref input,32);}
+                    }
+                }) && sent;
+            }
+            if(sent) {state.Rows=current;if(full) state.FullAt=UnityEngine.Time.unscaledTime+30f;}
+            else {state.Rows.Clear();state.FullAt=0f;}
+        }
 
 		// Token: 0x0600005E RID: 94 RVA: 0x0000660C File Offset: 0x0000480C
 		internal static void SendTook(Player to, uint entity, int hand)
@@ -213,7 +320,7 @@ namespace ArmorRestored
 			{
 				byte b = 12;
 				s.SerializeByte(ref b);
-				string text2 = text;
+				string text2 = BoundedText(text,160);
 				s.SerializeString(ref text2, (Stream.StringEncoding)1);
 			});
 		}
@@ -236,34 +343,7 @@ namespace ArmorRestored
 			{
 				return;
 			}
-			if (b == 13)
-			{
-				int num = 0;
-				s.SerializeInteger(ref num);
-				Dictionary<int, int[]> dictionary = new Dictionary<int, int[]>();
-				int num2 = 0;
-				while (num2 < num && num2 < 1024)
-				{
-					int key = 0;
-					s.SerializeInteger(ref key);
-					int[] array = new int[272];
-					for (int i = 0; i < 8; i++)
-					{
-						byte b2 = 0;
-						s.SerializeByte(ref b2);
-						array[i] = ((b2 == 0 || (int)b2 > Catalog.Count) ? -1 : ((int)(b2 - 1)));
-						uint material = 0U;
-						s.SerializeBits(ref material, 32);
-						array[8 + i] = unchecked((int)material);
-                            for(int group=0;group<32;group++)
-                            { uint input=0; s.SerializeBits(ref input,32); array[16+i*32+group]=unchecked((int)input); }
-					}
-					dictionary[key] = array;
-					num2++;
-				}
-				ClientArmor.OnTable(dictionary);
-				return;
-			}
+            if(b==14) {ReadSnapshot(s);return;}
 			if (b == 11)
 			{
 				uint id = 0U;
@@ -342,11 +422,11 @@ namespace ArmorRestored
 				{
 					problem = "This server needs the ArmorRestored mod 0.5.0. Install it, then join again.";
 				}
-				else if (hello.Wire < 5)
+				else if (hello.Wire < 6)
 				{
 					problem = "Your ArmorRestored " + hello.Version + " is too old for this server's 0.5.0. Update it, then join again.";
 				}
-				else if (hello.Wire > 5)
+				else if (hello.Wire > 6)
 				{
 					problem = "Your ArmorRestored " + hello.Version + " is newer than this server's 0.5.0. The server needs an update first.";
 				}
@@ -410,7 +490,7 @@ namespace ArmorRestored
 							bool flag3 = false;
 							bool flag4 = false;
 							int num = 0;
-							string text = Net.Ascii(problem);
+							string text = BoundedText(Net.Ascii(problem),160);
 							s.SerializeBool(ref flag3);
 							s.SerializeBool(ref flag4);
 							s.SerializeInteger(ref num);
@@ -463,7 +543,7 @@ namespace ArmorRestored
 		internal const byte Hello = 5;
 
 		// Token: 0x04000051 RID: 81
-		internal const byte Table = 13;
+		internal const byte Table = 14;
 
 		// Token: 0x04000052 RID: 82
 		internal const byte Took = 11;
@@ -475,7 +555,7 @@ namespace ArmorRestored
 		internal const byte Here = 20;
 
 		// Token: 0x04000055 RID: 85
-		internal const int Wire = 5;
+		internal const int Wire = 6;
 
 		// Token: 0x04000056 RID: 86
 		private const int AnswerWait = 5000;

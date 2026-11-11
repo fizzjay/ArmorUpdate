@@ -24,7 +24,7 @@ namespace ArmorRestored
 		// Token: 0x06000010 RID: 16 RVA: 0x0000283C File Offset: 0x00000A3C
 		internal static int Number(int piece)
 		{
-			return 52830 + piece + (piece >= 24 ? 1 : 0);
+			return piece == 45 ? 62076 : 52830 + piece + (piece >= 24 ? 1 : 0);
 		}
 
 		// Token: 0x06000011 RID: 17 RVA: 0x00002845 File Offset: 0x00000A45
@@ -36,6 +36,8 @@ namespace ArmorRestored
 		// Token: 0x06000012 RID: 18 RVA: 0x0000284C File Offset: 0x00000A4C
 		internal static int PieceOf(uint number)
 		{
+			if (number == 62076U) return 45;
+            if (number == 52876U) return -1; // Native Garlic Full Burnt, never armor.
 			int num = (int)(number - 52830U - (number > 52854U ? 1U : 0U));
 			if (number == 52854U || num < 0 || num >= Catalog.Count)
 			{
@@ -226,7 +228,7 @@ namespace ArmorRestored
 			{
 				Id = "leather",
 				Title = "Leather",
-				LootRarity = "3. Rare",
+				LootRarity = "2. Uncommon",
 				Pierce = 0.7f,
 				Slash = 0.7f,
 				Blunt = 0.85f,
@@ -255,7 +257,7 @@ namespace ArmorRestored
 				Caustic = 0.1f,
 				Conductivity = 0.8f
 			},
-            new ArmorSet { Id="hebios", Title="Hebios", LootRarity="4. Epic", Pierce=.5f, Slash=.4f, Blunt=.9f, Caustic=.6f, Explosive=.4f, Conductivity=1.2f },
+            new ArmorSet { Id="hebios", Title="Hebios", LootRarity="5. Legendary", Pierce=.5f, Slash=.4f, Blunt=.9f, Caustic=.6f, Explosive=.4f, Conductivity=1.2f },
             new ArmorSet { Id="wood", Title="Wood", LootRarity=null, Pierce=.8f, Slash=.7f, Blunt=.85f, Conductivity=.2f },
             new ArmorSet { Id="mushroom", Title="Mushroom", LootRarity="3. Rare", Pierce=.85f, Slash=.75f, Blunt=.85f, Conductivity=.2f }
 		};

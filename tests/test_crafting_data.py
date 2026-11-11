@@ -137,7 +137,7 @@ class WyrmKillLootContract(unittest.TestCase):
         self.assertIn('method.Name == "Killed"', source)
         self.assertIn('ParameterType.Name == "HealthObject"', source)
         self.assertIn('random.Next(8)', source)
-        self.assertIn('random.Next(20)', source)
+        self.assertIn('random.Next(40)', source)
         self.assertIn('if (!(bool)alive.GetValue(__instance, null)) return;', source)
         self.assertIn('if ((bool)alive.GetValue(__instance, null)) return;', source)
         self.assertIn('victim.Chunk', source)

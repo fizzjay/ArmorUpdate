@@ -10,6 +10,7 @@ namespace ArmorRestored
 		// Token: 0x06000044 RID: 68 RVA: 0x00005370 File Offset: 0x00003570
 		internal static void Listen(Connection connection)
 		{
+            Net.ResetSnapshot();
 			if (Gate.IsOpen)
 			{
 				Gate.Close("a new server connection");
@@ -38,7 +39,7 @@ namespace ArmorRestored
 				return;
 			}
 			Gate.ServerVersion = (version ?? "");
-			if (wire != 5)
+			if (wire != 6)
 			{
 				Mod.Log.Warning("this server runs ArmorRestored " + Gate.ServerVersion + ", which does not play with 0.5.0; the server decides and armor stays off.");
 				Net.SendHello(connection);
@@ -80,6 +81,7 @@ namespace ArmorRestored
 		// Token: 0x06000048 RID: 72 RVA: 0x0000552C File Offset: 0x0000372C
 		internal static void Close(string why)
 		{
+            Net.ResetSnapshot();
 			bool isOpen = Gate.IsOpen;
 			Gate.IsOpen = false;
 			Gate._loading = false;

@@ -42,7 +42,7 @@ namespace ArmorRestored
                 prefix: new HarmonyMethod(typeof(WyrmArmorLoot), "BeforeDeath"),
                 postfix: new HarmonyMethod(typeof(WyrmArmorLoot), "AfterDeath"));
             installed = true;
-            Mod.Log.Msg("Wyrm armor: kill-only drops installed (5% per Wyrm kill, one of eight slots); wyrm_loot controls drops.");
+            Mod.Log.Msg("Wyrm armor: kill-only drops installed (2.5% per Wyrm kill, one of eight slots); wyrm_loot controls drops.");
         }
         private static bool Supported(uint hash)
         {
@@ -73,7 +73,7 @@ namespace ArmorRestored
                 if ((bool)alive.GetValue(__instance, null)) return;
                 NetworkEntity victim = __state.Entity;
                 if (victim == null || victim.IsBeingDestroyed || victim.Chunk == null) return;
-                if (random.Next(20) != 0) return;
+                if (random.Next(40) != 0) return;
                 int piece = Catalog.Piece(2, random.Next(8));
                 var prefab = Prefabs.ByPiece[piece];
                 if (prefab == null) return;

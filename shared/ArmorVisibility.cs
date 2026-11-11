@@ -17,6 +17,7 @@ namespace ArmorRestored
     // Client-local display preferences. Never change equipment or the wire table.
     internal static class ArmorVisibility
     {
+        private static readonly bool BubblesEnabled = false; // Release stabilization: no eye UI or stale hidden slots.
         private static bool loaded;
         private static int hidden;
         private static GameObject holder;
@@ -104,6 +105,7 @@ namespace ArmorRestored
 
         internal static bool Hidden(int slot)
         {
+            if (!BubblesEnabled) return false;
             Load();
             return slot >= 0 && slot < 8 && (hidden & (1 << slot)) != 0;
         }
@@ -158,6 +160,7 @@ namespace ArmorRestored
         // Return true while a free hand is at a button, reserving its grip from removal.
         internal static bool Hand(int hand, Vector3 position, bool down, bool free)
         {
+            if (!BubblesEnabled) return false;
             bool edge = down && !pressed[hand];
             pressed[hand] = down;
             if (holder == null || !free) return false;
@@ -180,6 +183,7 @@ namespace ArmorRestored
 
         internal static void Show(Transform rig, Func<int, Vector3> anchor)
         {
+            if (!BubblesEnabled) { ClearButtons(); return; }
             if (rig == null || !rig.gameObject.activeInHierarchy) { ClearButtons(); return; }
             if (!EquipmentMode.Same(target, rig)) ClearButtons();
             // VR cameras are not guaranteed to carry Unity's MainCamera tag.

@@ -51,9 +51,13 @@ namespace ArmorRestored
             {
                 if (!Pack.Loaded || staging == null || staging.activeInHierarchy || pieces.Length != Catalog.Count || items.Length != Catalog.Count)
                     throw new InvalidOperationException("Stand requires inactive staging and all registered armor templates");
-                for (int i = 0; i < Catalog.Count; i++)
-                    if (pieces[i] == null || items[i] == null)
-                        throw new InvalidOperationException("Stand requires armor template " + i);
+                for (int slot = 0; slot < 8; slot++)
+                {
+                    bool available = false;
+                    for (int i = slot; i < Catalog.Count; i += 8)
+                        if (pieces[i] != null && items[i] != null) available = true;
+                    if (!available) throw new InvalidOperationException("Stand has no registered armor for slot " + slot);
+                }
                 if (FindPrefab() != null || ItemNumberOccupied())
                     throw new InvalidOperationException("Stand number 52854 is already occupied");
                 int ground = LayerMask.NameToLayer("Ground");
@@ -132,10 +136,13 @@ namespace ArmorRestored
         {
             // Use the same trigger/snap geometry on PC and Quest, derived from the
             // existing pickup colliders, not renderer.bounds (empty on a server).
-            Bounds bounds = PickupBounds(pieces[slot]);
-            for (int style = 1; style < Catalog.Count / 8; style++) bounds.Encapsulate(PickupBounds(pieces[style * 8 + slot]));
+            int first = slot;
+            while (first < pieces.Length && (pieces[first] == null || items[first] == null)) first += 8;
+            Bounds bounds = PickupBounds(pieces[first]);
+            for (int i = first + 8; i < pieces.Length; i += 8)
+                if (pieces[i] != null && items[i] != null) bounds.Encapsulate(PickupBounds(pieces[i]));
             int layer = -1;
-            foreach (Collider collider in Colliders(pieces[slot].gameObject))
+            foreach (Collider collider in Colliders(pieces[first].gameObject))
                 if (collider != null && !collider.isTrigger) { layer = collider.gameObject.layer; break; }
             if (layer < 0) throw new InvalidOperationException("Missing pickup collision layer for " + Slots[slot]);
             GameObject frame = Child(root.transform, Slots[slot], Mounts[slot] - bounds.center, layer);
@@ -148,7 +155,8 @@ namespace ArmorRestored
             Set(config, "allowPhysicalJoints", false);
             Set(config, "hoverOn", AnimationCurve.Linear(0f, 1f, 0.1f, 1f));
             Set(config, "hoverOff", AnimationCurve.Linear(0f, 1f, 0.1f, 1f));
-            for (int style = 0; style < Catalog.Count / 8; style++) config.IncludedItems.Add(items[style * 8 + slot]);
+            for (int i = slot; i < items.Length; i += 8)
+                if (pieces[i] != null && items[i] != null) config.IncludedItems.Add(items[i]);
             BoxCollider range = Add<BoxCollider>(frame);
             bounds.Expand(0.08f);
             range.center = bounds.center;

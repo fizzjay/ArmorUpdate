@@ -27,6 +27,8 @@ namespace ArmorRestoredQuest
 
         internal static Material Apply(int piece, uint hash, Material original, string meshName = null)
         {
+            if (piece / 8 == 0) return ApplyLeather(hash, original, meshName);
+            if (piece / 8 == 4) return ApplyWood(hash, original);
             if (piece / 8 != 1 && piece / 8 != 3 || hash == 0U || original == null) return original;
             // The flexible glove backing is fabric, not a metal plate. Keep its
             // original neutral atlas appearance even when the plates are colored.
@@ -66,7 +68,7 @@ namespace ArmorRestoredQuest
             if(hash==0U || original==null) return original;
             // Authored moss-hide and rope bindings are not wood surfaces.
             string name=original.name.ToLowerInvariant();
-            if(!name.Contains("gotera_oak_bark") && !name.Contains("heartwood") &&
+            if((original.mainTexture==null || original.mainTexture.name!="gotera_oak_LOD0_d") && !name.Contains("gotera_oak_bark") && !name.Contains("heartwood") &&
                !name.Contains("bark_edges") && !name.Contains("bark_ridges") && !name.Contains("cut_grain")) return original;
             Dictionary<int,WoodVariant> variants;
             if(!Woods.TryGetValue(hash,out variants)) {variants=new Dictionary<int,WoodVariant>();Woods.Add(hash,variants);}
@@ -152,12 +154,14 @@ namespace ArmorRestoredQuest
                     if(entry.Material.HasProperty("_Color")) entry.Material.SetColor("_Color",middle);
                     entry.Ready=true;return;
                 }
-                temporary=RenderTexture.GetTemporary(source.width,source.height,0,RenderTextureFormat.ARGB32,RenderTextureReadWrite.Linear);
+                int width=source.width,height=source.height;
+                while(width>512 || height>512) {width=Math.Max(1,width/2);height=Math.Max(1,height/2);}
+                temporary=RenderTexture.GetTemporary(width,height,0,RenderTextureFormat.ARGB32,RenderTextureReadWrite.Linear);
                 Graphics.Blit(source,temporary); RenderTexture.active=temporary;
-                texture=new Texture2D(source.width,source.height,TextureFormat.RGBA32,true,true);
+                texture=new Texture2D(width,height,TextureFormat.RGBA32,true,true);
                 texture.name="ArmorRestored leather tones "+source.name+" "+hash;
                 texture.filterMode=source.filterMode;texture.wrapMode=source.wrapMode;texture.anisoLevel=source.anisoLevel;
-                texture.ReadPixels(new Rect(0,0,source.width,source.height),0,0);texture.Apply(false,false);
+                texture.ReadPixels(new Rect(0,0,width,height),0,0);texture.Apply(false,false);
                 var pixels=texture.GetPixels();var histogram=new int[256];
                 for(int i=0;i<pixels.Length;i++) histogram[Mathf.Clamp(Mathf.RoundToInt(Luminance(pixels[i])*255f),0,255)]++;
                 int median=0,total=histogram[0]; while(median<255 && total<pixels.Length/2) total+=histogram[++median];
@@ -197,8 +201,10 @@ namespace ArmorRestoredQuest
             }
         }
 
+        private static readonly HashSet<int> Painted = new HashSet<int>();
         private static void Paint(Material material, Color tint)
         {
+            if(material==null || !Painted.Add(material.GetInstanceID())) return;
             Color authored;
             if(AuthoredColors.TryGetValue(material.GetInstanceID(),out authored)) tint*=authored;
             tint.a = 1f;
@@ -333,6 +339,7 @@ namespace ArmorRestoredQuest
 
         internal static void Clear()
         {
+            ArmorStats.ClearPickupSurfaces();
             foreach (Dictionary<int, Material> variants in Tinted.Values)
                 foreach (Material material in variants.Values)
                     if (material != null) UnityEngine.Object.Destroy(material);
@@ -345,7 +352,7 @@ namespace ArmorRestoredQuest
                 if(variant.Material!=null) UnityEngine.Object.Destroy(variant.Material);
             Woods.Clear();
             Leathers.Clear();
-            AuthoredColors.Clear();
+            AuthoredColors.Clear();Painted.Clear();
             Tinted.Clear();
             Colors.Clear();
             RawColors.Clear();

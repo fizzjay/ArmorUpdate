@@ -183,7 +183,7 @@ namespace ArmorRestored
 		}
 
 		// Token: 0x06000009 RID: 9 RVA: 0x000024C0 File Offset: 0x000006C0
-		internal static void Apply(Wiring w, int[] worn, uint[] materials = null)
+		internal static void Apply(Wiring w, int[] worn, uint[] materials = null, float[] conditions = null)
 		{
 			if (w == null || w.Zones[0] == null)
 			{
@@ -204,7 +204,7 @@ namespace ArmorRestored
             for (int i = 0; i < 7; i++)
             {
                 uint material = materials == null ? 0U : materials[slots[i]];
-                ArmorDefinition armorDefinition = (array[i] >= 0) ? Catalog.MaterialDefinition(array[i], material) : null;
+                ArmorDefinition armorDefinition = (array[i] >= 0 && (conditions == null || conditions[slots[i]] > 0f)) ? Catalog.MaterialDefinition(array[i], material) : null;
 				if (!object.ReferenceEquals(w.Zones[i].Equipment, armorDefinition))
 				{
 					w.Zones[i].Equipment = armorDefinition;

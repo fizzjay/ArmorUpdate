@@ -326,7 +326,8 @@ namespace ArmorRestored
 					pickup.Item = item3;
 				}
 			}
-			ArmorMaterials.Configure(piece, gameObject);
+			ArmorStats.ConfigureDurability(piece, gameObject);
+            ArmorMaterials.Configure(piece, gameObject);
             ArmorCraftingServer.AddRecord(gameObject);
 			addToMap.Invoke(null, new object[]
 			{

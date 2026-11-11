@@ -19,6 +19,10 @@ namespace ArmorRestoredQuest
 		// Token: 0x04000011 RID: 17
 		public Transform Rig;
         public bool Dummy;
+        public int BakedBindings;
+        public bool DummySkeletonReady;
+        public float NextBindingRetry;
+        public bool DistanceVisible=true;
 
 		// Token: 0x04000012 RID: 18
 		public Dictionary<string, Transform> Bones;
