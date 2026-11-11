@@ -310,6 +310,7 @@ namespace ArmorRestored
             foreach(var renderer in new List<Renderer>(pickupSurfaces.Keys)) if(renderer==null) pickupSurfaces.Remove(renderer);
 #if ARMOR_QUEST
             if (!Gate.IsOpen || !Registry.Done) return;
+            nextTick = Time.unscaledTime + 2f; // Quest discovery is expensive in populated scenes.
             var values = UnityEngine.Object.FindObjectsOfType(Il2CppType.Of<Pickup>());
 #else
             if (!Prefabs.Done || (!Mod.IsServer && !Gate.IsOpen)) return;

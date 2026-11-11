@@ -154,12 +154,14 @@ namespace ArmorRestoredQuest
                     if(entry.Material.HasProperty("_Color")) entry.Material.SetColor("_Color",middle);
                     entry.Ready=true;return;
                 }
-                temporary=RenderTexture.GetTemporary(source.width,source.height,0,RenderTextureFormat.ARGB32,RenderTextureReadWrite.Linear);
+                int width=source.width,height=source.height;
+                while(width>512 || height>512) {width=Math.Max(1,width/2);height=Math.Max(1,height/2);}
+                temporary=RenderTexture.GetTemporary(width,height,0,RenderTextureFormat.ARGB32,RenderTextureReadWrite.Linear);
                 Graphics.Blit(source,temporary); RenderTexture.active=temporary;
-                texture=new Texture2D(source.width,source.height,TextureFormat.RGBA32,true,true);
+                texture=new Texture2D(width,height,TextureFormat.RGBA32,true,true);
                 texture.name="ArmorRestored leather tones "+source.name+" "+hash;
                 texture.filterMode=source.filterMode;texture.wrapMode=source.wrapMode;texture.anisoLevel=source.anisoLevel;
-                texture.ReadPixels(new Rect(0,0,source.width,source.height),0,0);texture.Apply(false,false);
+                texture.ReadPixels(new Rect(0,0,width,height),0,0);texture.Apply(false,false);
                 var pixels=texture.GetPixels();var histogram=new int[256];
                 for(int i=0;i<pixels.Length;i++) histogram[Mathf.Clamp(Mathf.RoundToInt(Luminance(pixels[i])*255f),0,255)]++;
                 int median=0,total=histogram[0]; while(median<255 && total<pixels.Length/2) total+=histogram[++median];

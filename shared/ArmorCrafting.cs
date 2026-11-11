@@ -574,6 +574,9 @@ namespace ArmorRestored
         private static readonly Dictionary<string,float> diagnosticTimes = new Dictionary<string,float>();
         internal static void CraftLog(string key,string message,float interval=3f)
         {
+#if ARMOR_QUEST
+            if(!Settings.Debug && (key.StartsWith("worn-") || key.StartsWith("nail-"))) return;
+#endif
             float now=Time.realtimeSinceStartup, previous;
             if (diagnosticTimes.TryGetValue(key,out previous) && now-previous<interval) return;
             if (diagnosticTimes.Count>=256) diagnosticTimes.Clear();

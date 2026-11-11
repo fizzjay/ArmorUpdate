@@ -573,3 +573,18 @@ if construction fails. This is a torso fallback, not a guarantee that every
 hat, sleeve, skirt or third-party cosmetic fits every armor piece. Test chest
 clipping, garment changes, remove/re-equip, dummy views, remote players and
 save/rejoin on both platforms. No in-game validation or C# build is claimed.
+
+### Quest join-load mitigation
+
+Quest now caps decoded armor maps and leather tint readbacks at 512 pixels on
+both axes, budgets worn builds to one slot per frame across players/dummies,
+and scans scene pickups every two seconds instead of twice per second. Empty
+slots still remove immediately. Crafting registration is not skipped. Fabric
+fallback waits eight seconds after finding a new customization manager and
+installs its packing hook only when an eligible input exists. Detailed worn-map
+and nail diagnostics require debug mode; lifecycle/errors remain logged.
+
+These reduce texture memory/readback and avatar build spikes; they do not prove
+that a reported native headset crash is fixed. Registration is still synchronous
+and renderer counts are unchanged. The provided managed log contained no fatal
+stack or OOM report; Android logcat/tombstone is needed to identify that cause.

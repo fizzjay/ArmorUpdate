@@ -17,6 +17,7 @@ namespace ArmorRestoredQuest
         private readonly Dictionary<CustomizationSlotEntry, Dictionary<ICustomizationHandler, TwoColors>> owned =
             new Dictionary<CustomizationSlotEntry, Dictionary<ICustomizationHandler, TwoColors>>();
         private bool warned;
+        private float nextCoverage, fabricWarmupUntil;
         private string lastDiagnostic;
         private const BindingFlags Members = BindingFlags.Instance | BindingFlags.Public | BindingFlags.NonPublic | BindingFlags.DeclaredOnly;
 
@@ -27,7 +28,7 @@ namespace ArmorRestoredQuest
                 PlayerCharacterCustomizationManager next = root == null ? null : ManagerOf(root);
                 if ((manager == null) != (next == null) ||
                     (manager != null && next != null && manager.Pointer != next.Pointer))
-                { Clear(); manager = next; }
+                { Clear(); manager = next; fabricWarmupUntil=Time.unscaledTime+8f; }
                 if (manager == null)
                 {
                     if (!warned && Array.Exists(shown, piece => piece >= 0))
@@ -37,6 +38,8 @@ namespace ArmorRestoredQuest
                     }
                     return;
                 }
+                if(Time.unscaledTime<nextCoverage) return;
+                nextCoverage=Time.unscaledTime+.5f;
                 uint mask = 0U;
                 for (int i = 0; i < 8 && i < shown.Length; i++)
                     if (shown[i] >= 0) mask |= 1U << i;
@@ -340,6 +343,7 @@ namespace ArmorRestoredQuest
             manager = null;
             warned = false;
             lastDiagnostic = null;
+            nextCoverage=0f;
         }
         // Fabric fallback owns pack-local cloned assets only. Saved parts and their LODs are never edited.
         private sealed class FabricBinding { internal CosmeticPacker.Input Input; internal ICustomizationHandler Handler; }
@@ -382,8 +386,7 @@ namespace ArmorRestoredQuest
         }
         private void UpdateFabric(HashSet<CustomizationSlotEntry> current,List<ICustomizationHandler> handlers,uint mask)
         {
-            InstallFabric();
-            if(!fabricInstalled) return;
+            if(Time.unscaledTime<fabricWarmupUntil && fabricOwned.Count==0) return;
             var next=new Dictionary<long,FabricBinding>();
             foreach(var entry in current)
                 if(FabricEligible(entry,mask)) foreach(var handler in handlers)
@@ -391,6 +394,8 @@ namespace ArmorRestoredQuest
                     var input=Input(entry,handler);
                     if(input!=null && input.Arguments!=null && !input.Arguments.IsImpeded) next[FabricKey(input)]=new FabricBinding {Input=input,Handler=handler};
                 }
+            if(next.Count==0 && fabricOwned.Count==0) return;
+            InstallFabric();if(!fabricInstalled) return;
             var repack=new HashSet<ICustomizationHandler>();
             lock(fabricGate)
             {

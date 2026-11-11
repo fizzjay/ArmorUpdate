@@ -150,6 +150,19 @@ namespace ArmorRestoredQuest
 		}
 
 		// Token: 0x06000025 RID: 37 RVA: 0x0000366C File Offset: 0x0000186C
+        internal static byte[] HalfRgba(byte[] source,int width,int height)
+        {
+            if(width<1 || height<1 || source==null || source.Length<checked(width*height*4)) throw new ArgumentException("Invalid RGBA image");
+            int w=Math.Max(1,width/2),h=Math.Max(1,height/2);var result=new byte[checked(w*h*4)];
+            for(int y=0;y<h;y++) for(int x=0;x<w;x++) for(int c=0;c<4;c++)
+            {
+                int x0=Math.Min(width-1,x*2),x1=Math.Min(width-1,x*2+1);
+                int y0=Math.Min(height-1,y*2),y1=Math.Min(height-1,y*2+1);
+                result[(y*w+x)*4+c]=(byte)((source[(y0*width+x0)*4+c]+source[(y0*width+x1)*4+c]+source[(y1*width+x0)*4+c]+source[(y1*width+x1)*4+c]+2)/4);
+            }
+            return result;
+        }
+
 		internal static byte[] MipChain(byte[] top, int w, int h)
 		{
 			int num = 0;

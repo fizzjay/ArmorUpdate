@@ -470,7 +470,10 @@ namespace ArmorRestoredQuest
 				return null;
 			}
 			Stopwatch stopwatch = Stopwatch.StartNew();
-			int num = (texDef.W >= 1024 && texDef.Mips > 1) ? 1 : 0;
+			int num = 0;
+            int mipWidth=texDef.W,mipHeight=texDef.H;
+            while(texDef.Format!=4 && num+1<texDef.Mips && (mipWidth>512 || mipHeight>512))
+            {num++;mipWidth=Math.Max(1,mipWidth/2);mipHeight=Math.Max(1,mipHeight/2);}
 			int num2 = 0;
 			int num3 = texDef.W;
 			int num4 = texDef.H;
@@ -485,7 +488,12 @@ namespace ArmorRestoredQuest
 			{
 				Dxt.NormalFromAG(array);
 			}
-			byte[] array2 = Dxt.MipChain(array, num3, num4);
+			while(num3>512 || num4>512)
+            {
+                array=Dxt.HalfRgba(array,num3,num4);
+                num3=Math.Max(1,num3/2);num4=Math.Max(1,num4/2);
+            }
+            byte[] array2 = Dxt.MipChain(array, num3, num4);
 			Crumb.First("new Texture2D");
 			Texture2D texture2D = new Texture2D(num3, num4, TextureFormat.RGBA32, true, kind != 0);
 			texture2D.name = "ArmorRestored " + texDef.Name;

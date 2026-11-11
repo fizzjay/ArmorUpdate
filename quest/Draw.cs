@@ -98,6 +98,7 @@ namespace ArmorRestoredQuest
 		// Token: 0x06000015 RID: 21 RVA: 0x00002600 File Offset: 0x00000800
 		private static void Dress()
 		{
+            int buildsRemaining=1; // Shared across players/dummies for this frame.
 			List<IntPtr> list = new List<IntPtr>();
 			foreach (KeyValuePair<IntPtr, Dressed> keyValuePair in Draw.Bodies)
 			{
@@ -192,6 +193,8 @@ namespace ArmorRestoredQuest
 							uint material = array.Length >= 16 ? unchecked((uint)array[8 + j]) : 0U;
 							if (dressed.Shown[j] != num || dressed.ShownMaterials[j] != material || dressed.ShownPalettes[j] != WornIngredientGroups.Key(array,j) || (num >= 0 && !Draw.HolderLive(dressed, j)))
 							{
+                                if(num>=0 && buildsRemaining==0) {Draw._dirty=true;continue;}
+                                if(num>=0) buildsRemaining--;
 								Draw.Remove(dressed, j);
 								dressed.Shown[j] = -1;
 								if (num >= 0)

@@ -29,6 +29,14 @@ class MaterialContract(unittest.TestCase):
         quest = source('quest/WornMaterials.cs')
         quest = quest.replace('using Il2Cpp;\nusing Il2CppAlta;', 'using Alta;')
         quest = quest.replace('namespace ArmorRestoredQuest', 'namespace ArmorRestored')
+        # Only the Quest readback dimensions differ; preserve shared tint math.
+        cap = 'int width=source.width,height=source.height;\n                while(width>512 || height>512) {width=Math.Max(1,width/2);height=Math.Max(1,height/2); }'
+        cap = cap.replace('; }', ';}')
+        self.assertIn(cap, quest)
+        quest = quest.replace(cap+'\n                ', '')
+        quest = quest.replace('GetTemporary(width,height,', 'GetTemporary(source.width,source.height,')
+        quest = quest.replace('new Texture2D(width,height,TextureFormat.RGBA32,true,true)', 'new Texture2D(source.width,source.height,TextureFormat.RGBA32,true,true)')
+        quest = quest.replace('new Rect(0,0,width,height)', 'new Rect(0,0,source.width,source.height)')
         self.assertEqual(pc, quest)
         self.assertIn('piece / 8 != 1', pc)  # Do not recolor leather or wyrm.
         self.assertIn('UnityEngine.Object.Destroy(material)', pc)
