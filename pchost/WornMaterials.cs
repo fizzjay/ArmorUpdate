@@ -198,8 +198,10 @@ namespace ArmorRestored
             }
         }
 
+        private static readonly HashSet<int> Painted = new HashSet<int>();
         private static void Paint(Material material, Color tint)
         {
+            if(material==null || !Painted.Add(material.GetInstanceID())) return;
             Color authored;
             if(AuthoredColors.TryGetValue(material.GetInstanceID(),out authored)) tint*=authored;
             tint.a = 1f;
@@ -347,7 +349,7 @@ namespace ArmorRestored
                 if(variant.Material!=null) UnityEngine.Object.Destroy(variant.Material);
             Woods.Clear();
             Leathers.Clear();
-            AuthoredColors.Clear();
+            AuthoredColors.Clear();Painted.Clear();
             Tinted.Clear();
             Colors.Clear();
             RawColors.Clear();

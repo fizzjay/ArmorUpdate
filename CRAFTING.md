@@ -605,3 +605,20 @@ bindings now wait and retry once per second instead of building against fallback
 joints. These guards require headset validation. If the process still exits,
 capture Android logcat (including crash/system buffers) to distinguish a native
 fault from Android low-memory termination; the managed log alone cannot do so.
+
+### Reduced armor loot frequency
+
+Global chest pools keep all eight slots and the existing rarity tiers, but repeat
+only pre-existing non-armor entry tickets. With equal entry-ticket selection this
+targets at least 2x rarer Leather/Metal/Mushroom and 4x rarer Hebios selections
+within their respective pools. It is not a fixed per-chest guarantee: native
+category/dock filtering, prosperity, and multiple chest rolls affect final rates.
+The original pool is retained so re-registering does not compound dilution. No
+vanilla rarity asset/category weights are edited. Pools without ordinary entries
+log a warning rather than deleting loot. Wyrm remains kill-only, now 2.5% per kill
+(previously 5%). Wood remains crafting-only. Existing generated chest contents
+and saved armor are not removed; test newly generated/refilled loot after restart.
+
+Resolved worn-material tints are now written once per cached material instead of
+reapplying shader colors every second on both PC and Quest. Cache cleanup resets
+the write markers. Quest's fabric safety hold and avatar settling guards remain.

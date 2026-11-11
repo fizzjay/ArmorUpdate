@@ -85,6 +85,27 @@ namespace ArmorRestored
 								}
 							}
 						}
+                        // Keep every armor slot, but give existing non-armor entries
+                        // more tickets instead of changing the rarity tiers globally.
+                        // Snapshot once so repeated registration cannot compound it.
+                        LootTable.Entry[] baseline;
+                        if(!originalPools.TryGetValue(rarityList,out baseline))
+                        {baseline=(rarityList.Entries ?? new LootTable.Entry[0]);originalPools[rarityList]=baseline;}
+                        var ordinary=new List<LootTable.Entry>();
+                        foreach(var candidate in baseline)
+                            if(candidate!=null && candidate.Item!=null && !Prefabs.IsArmor(candidate.Item.Hash)) ordinary.Add(candidate);
+                        if(ordinary.Count>0)
+                        {
+                            int armorCount=0;
+                            foreach(var candidate in list3) if(candidate!=null && candidate.Item!=null && Prefabs.IsArmor(candidate.Item.Hash)) armorCount++;
+                            // (N+A)/(factor*N+A) <= 1/reduction for equal entry tickets.
+                            int reduction=Catalog.Sets[j].Id=="hebios" ? 4 : 2;
+                            int factor=reduction+(int)Math.Ceiling((double)((reduction-1)*armorCount)/ordinary.Count);
+                            list3.RemoveAll(candidate=>candidate!=null && candidate.Item!=null && !Prefabs.IsArmor(candidate.Item.Hash));
+                            for(int ticket=0;ticket<factor;ticket++) list3.AddRange(ordinary);
+                            list2.Add(Catalog.Sets[j].Title+" chest dilution: vanilla tickets x"+factor+", target armor /"+reduction);
+                        }
+                        else Mod.Log.Warning("loot: no ordinary entries to dilute "+Catalog.Sets[j].Title+"; armor rate unchanged");
 						field.SetValue(rarityList, list3.ToArray());
 						list2.Add(string.Concat(new object[]
 						{
@@ -192,6 +213,7 @@ namespace ArmorRestored
 		private const BindingFlags Inst = BindingFlags.Instance | BindingFlags.Public | BindingFlags.NonPublic;
 
 		// Token: 0x04000043 RID: 67
+        private static readonly Dictionary<LootTable.RarityList,LootTable.Entry[]> originalPools = new Dictionary<LootTable.RarityList,LootTable.Entry[]>();
 		internal static string Report = "not added";
 	}
 }
