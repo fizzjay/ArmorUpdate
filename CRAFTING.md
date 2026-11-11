@@ -667,3 +667,12 @@ crowds still retain the authored renderer counts; mesh consolidation/true LODs
 remain future work, not a completed or measured FPS improvement. Cosmetic manager
 lookup is throttled before hierarchy traversal. Existing fabric safety hold and
 avatar settling/binding guards remain enabled.
+
+Quest equipment regression correction: publish the resolved local interaction
+rig before checking baked-renderer readiness. The native equipment dummy may
+have no renderer directly beneath a transform named `Baked`; withholding
+`Draw.Local` in that case prevented Hands from tracking releases or submitting
+equip/remove requests. Rendering still waits for baked bindings, but interaction
+uses the native dummy's joint map. The native room/ownership and no-direct-self-
+equip checks are unchanged. Preview armor may remain absent when baked bindings
+are unavailable; verify actual equip/remove behavior on headset.

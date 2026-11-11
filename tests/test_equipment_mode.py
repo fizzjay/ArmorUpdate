@@ -79,3 +79,15 @@ class EquipmentModeContracts(unittest.TestCase):
         self.assertIn('Net.SendUnequip(slot, i)', pc)
         self.assertNotIn('Time.unscaledTime - Hands.PendingAt', quest)
         self.assertNotIn('Time.unscaledTime - ClientArmor.PendingAt', pc)
+
+    def test_quest_interaction_target_is_set_before_render_readiness_guard(self):
+        code = source('quest/Draw.cs')
+        start = code.index('if (dressed == null)', code.index('Transform transform2 = character.transform;'))
+        end = code.index('bool visible=true;', start)
+        block = code[start:end]
+        self.assertLess(block.index('Draw.Local = dressed;'), block.index('if(dressed.BakedBindings==0)'))
+        self.assertIn('if(dressed.BakedBindings==0) continue;', block)
+        # Hands still refuses direct self-equipping and validates native room ownership.
+        hands = source('quest/Hands.cs')
+        self.assertIn('!modeDummy || !dressed.Dummy', hands)
+        self.assertIn('!EquipmentMode.Same(modeRig, dressed.Rig)', hands)

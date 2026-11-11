@@ -215,6 +215,14 @@ namespace ArmorRestoredQuest
 							Draw.Wire(dressed);
 							Draw.Bodies[transform2.Pointer] = dressed;
 						}
+                        // Interactions target the native dummy even when its
+                        // renderer has no Baked-parent skeleton. Rendering readiness
+                        // must not suppress Hands' equip/remove context.
+						bool flag = player2.Pointer == intPtr;
+						if (flag)
+						{
+							Draw.Local = dressed;
+						}
                         // A newly opened equipment preview can exist before its
                         // baked skeleton. Never skin armor against placeholder joints.
                         if(dressed.BakedBindings==0)
@@ -223,11 +231,6 @@ namespace ArmorRestoredQuest
                             {dressed.NextBindingRetry=Time.unscaledTime+1f;Draw.Wire(dressed);}
                             if(dressed.BakedBindings==0) continue;
                         }
-						bool flag = player2.Pointer == intPtr;
-						if (flag)
-						{
-							Draw.Local = dressed;
-						}
                         bool visible=true;
                         if(!flag && !dressed.Dummy && observerCharacter!=null)
                         {
