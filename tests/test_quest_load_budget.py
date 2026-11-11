@@ -22,3 +22,11 @@ class QuestLoadBudget(unittest.TestCase):
         self.assertLess(text.index('if(next.Count==0 && fabricOwned.Count==0) return;'),text.index('InstallFabric();'))
     def test_quest_discovery_interval(self):
         self.assertIn('nextTick = Time.unscaledTime + 2f;',source('shared/ArmorStats.cs'))
+    def test_visuals_wait_for_local_avatar_and_settling_delay(self):
+        text=source('quest/Draw.cs')
+        self.assertIn('visualReadyAt=Time.unscaledTime+10f;',text)
+        self.assertIn('!character.gameObject.activeInHierarchy',text)
+        self.assertIn('loadingRig!=rig.Pointer',text)
+        self.assertLess(text.index('if(!VisualsReady()) return;'),text.index('WornMaterials.Tick();'))
+        self.assertIn('visualsReady=waitingLogged=false;',text)
+        self.assertIn('!Draw.VisualsReady()',source('shared/ArmorStats.cs'))

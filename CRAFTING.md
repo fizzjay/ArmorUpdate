@@ -588,3 +588,11 @@ These reduce texture memory/readback and avatar build spikes; they do not prove
 that a reported native headset crash is fixed. Registration is still synchronous
 and renderer counts are unchanged. The provided managed log contained no fatal
 stack or OOM report; Android logcat/tombstone is needed to identify that cause.
+
+Quest worn rendering and armor pickup-stat discovery now also wait for an active
+local character/rig, followed by a ten-second settling window. The window resets
+if that rig disappears or changes, and on disconnect. This is an avatar-readiness
+heuristic, not proof that the loading screen has gone away. No armor renderers or
+worn tint ticks are created by Draw during that window. Native prefab/recipe
+registration still runs before join approval; postponing it until after admission
+would break the existing handshake and risk unresolved network prefabs.

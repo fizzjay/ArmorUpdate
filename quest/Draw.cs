@@ -55,8 +55,35 @@ namespace ArmorRestoredQuest
 		}
 
 		// Token: 0x06000013 RID: 19 RVA: 0x00002508 File Offset: 0x00000708
+        // Do not build hundreds of renderers while the local avatar is arriving.
+        // Native registration and the join handshake remain mandatory and immediate.
+        private static IntPtr loadingRig;
+        private static float visualReadyAt, nextReadyProbe;
+        private static bool visualsReady, waitingLogged;
+        internal static bool VisualsReady()
+        {
+            if(!Gate.IsOpen || !Registry.Done) return false;
+            if(Time.unscaledTime<nextReadyProbe) return visualsReady;
+            nextReadyProbe=Time.unscaledTime+.5f;
+            var controller=PlayerController.Current;
+            var player=controller==null ? null : controller.NetworkPlayer;
+            var character=CharacterOf(player);
+            var rig=character==null ? null : RigOf(character);
+            if(character==null || !character.gameObject.activeInHierarchy || rig==null || !rig.gameObject.activeInHierarchy)
+            {loadingRig=IntPtr.Zero;visualsReady=false;visualReadyAt=0f;return false;}
+            if(loadingRig!=rig.Pointer)
+            {
+                loadingRig=rig.Pointer;visualsReady=false;visualReadyAt=Time.unscaledTime+10f;
+                if(!waitingLogged) {waitingLogged=true;Mod.Log.Msg("Quest armor visuals: local avatar found; waiting 10 seconds before worn rendering.");}
+            }
+            if(!visualsReady && Time.unscaledTime>=visualReadyAt)
+            {visualsReady=true;Mod.Log.Msg("Quest armor visuals: avatar settling delay complete; staged worn rendering enabled.");}
+            return visualsReady;
+        }
+
 		internal static void Clear()
 		{
+            loadingRig=IntPtr.Zero;visualReadyAt=nextReadyProbe=0f;visualsReady=waitingLogged=false;
 			foreach (Dressed dressed in Draw.Bodies.Values)
 			{
                 dressed.Coverage.Clear();
@@ -80,6 +107,7 @@ namespace ArmorRestoredQuest
 			{
 				return;
 			}
+            if(!VisualsReady()) return;
             WornMaterials.Tick();
 			float unscaledTime = Time.unscaledTime;
 			if (Settings.Debug && unscaledTime >= Draw._nextCensus)

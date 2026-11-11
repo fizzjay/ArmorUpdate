@@ -309,7 +309,7 @@ namespace ArmorRestored
             nextTick = Time.unscaledTime + .5f;
             foreach(var renderer in new List<Renderer>(pickupSurfaces.Keys)) if(renderer==null) pickupSurfaces.Remove(renderer);
 #if ARMOR_QUEST
-            if (!Gate.IsOpen || !Registry.Done) return;
+            if (!Gate.IsOpen || !Registry.Done || !Draw.VisualsReady()) return;
             nextTick = Time.unscaledTime + 2f; // Quest discovery is expensive in populated scenes.
             var values = UnityEngine.Object.FindObjectsOfType(Il2CppType.Of<Pickup>());
 #else
