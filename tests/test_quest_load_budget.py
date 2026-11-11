@@ -38,5 +38,5 @@ class QuestLoadBudget(unittest.TestCase):
     def test_unbaked_preview_cannot_build_armor(self):
         text=source('quest/Draw.cs')
         self.assertIn('d.BakedBindings=bound;',text)
-        self.assertIn('if(dressed.BakedBindings==0) continue;',text)
+        self.assertIn('if(dressed.BakedBindings==0 && !dressed.DummySkeletonReady) continue;',text)
         self.assertIn('dressed.NextBindingRetry=Time.unscaledTime+1f;',text)

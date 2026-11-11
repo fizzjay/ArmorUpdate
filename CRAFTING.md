@@ -676,3 +676,12 @@ equip/remove requests. Rendering still waits for baked bindings, but interaction
 uses the native dummy's joint map. The native room/ownership and no-direct-self-
 equip checks are unchanged. Preview armor may remain absent when baked bindings
 are unavailable; verify actual equip/remove behavior on headset.
+
+Quest dummy preview follow-up: native equipment dummies may render armor using
+their own active joint hierarchy without a `Baked`-parent renderer. All catalog
+anchors must resolve to active descendants of the native dummy root; live avatars
+still require baked bindings. Dummy skinned parts with missing required bones are
+skipped rather than collapsed onto a placeholder root. The dummy root's layer is
+used when no baked renderer supplies one. Interaction publication stays ahead of
+render readiness, and the existing one-slot build budget and safety hold remain.
+Headset validation is required for visibility, pose, and equipment transitions.

@@ -224,12 +224,12 @@ namespace ArmorRestoredQuest
 							Draw.Local = dressed;
 						}
                         // A newly opened equipment preview can exist before its
-                        // baked skeleton. Never skin armor against placeholder joints.
-                        if(dressed.BakedBindings==0)
+                        // skeleton. Native dummies may use their own validated joints.
+                        if(dressed.BakedBindings==0 && !dressed.DummySkeletonReady)
                         {
                             if(Time.unscaledTime>=dressed.NextBindingRetry)
                             {dressed.NextBindingRetry=Time.unscaledTime+1f;Draw.Wire(dressed);}
-                            if(dressed.BakedBindings==0) continue;
+                            if(dressed.BakedBindings==0 && !dressed.DummySkeletonReady) continue;
                         }
                         bool visible=true;
                         if(!flag && !dressed.Dummy && observerCharacter!=null)
@@ -362,7 +362,7 @@ namespace ArmorRestoredQuest
 		{
 			Crumb.First("wire bones");
 			d.Bones = new Dictionary<string, Transform>();
-			d.Layer = -1;
+            d.Layer = d.Dummy ? d.Rig.gameObject.layer : -1;
 			foreach (Component component in d.Rig.GetComponentsInChildren(Il2CppType.Of<Transform>(), true))
 			{
 				Transform transform = (component == null) ? null : component.TryCast<Transform>();
@@ -391,6 +391,16 @@ namespace ArmorRestoredQuest
                 }
             }
             d.BakedBindings=bound;
+            // EquipmentMode.Resolve supplied the native room's owned dummy root.
+            // Unlike live avatars, its skeleton need not have a Baked renderer.
+            d.DummySkeletonReady=d.Dummy && d.Rig!=null && d.Rig.gameObject.activeInHierarchy;
+            if(d.DummySkeletonReady) foreach(string anchor in Catalog.Anchors)
+            {
+                Transform joint=Draw.Bone(d,anchor);
+                if(joint==null || !joint.IsChildOf(d.Rig) || !joint.gameObject.activeInHierarchy)
+                {d.DummySkeletonReady=false;break;}
+            }
+
             if(bound>0) Mod.Log.Msg("armor rig on " + d.Name + ": " + bound + " bone bindings from baked avatar renderers");
 			foreach (Component component2 in d.Root.GetComponentsInChildren(Il2CppType.Of<SkinnedMeshRenderer>(), true))
 			{
@@ -485,6 +495,15 @@ namespace ArmorRestoredQuest
 			list.Add(gameObject);
 			foreach (PartDef partDef in Pack.Pieces[piece].Worn)
 			{
+                // Missing dummy bones must not fall back onto a different rig
+                // or collapse skin weights onto a null/root placeholder.
+                if(d.Dummy && partDef.Skinned)
+                {
+                    bool complete=Draw.Bone(d,partDef.Root)!=null && partDef.Bones!=null;
+                    if(complete) foreach(string name in partDef.Bones)
+                        if(Draw.Bone(d,name)==null) {complete=false;break;}
+                    if(!complete) {num3++;continue;}
+                }
 				Mesh sharedMesh = Pack.MeshOf(partDef.Mesh);
 				Material[] sectionMaterials;
                 sharedMesh=ArmorCrafting.SplitWorn(sharedMesh,Pack.Meshes[partDef.Mesh].Name,piece,material,

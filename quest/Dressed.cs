@@ -20,6 +20,7 @@ namespace ArmorRestoredQuest
 		public Transform Rig;
         public bool Dummy;
         public int BakedBindings;
+        public bool DummySkeletonReady;
         public float NextBindingRetry;
         public bool DistanceVisible=true;
 

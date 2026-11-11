@@ -85,9 +85,19 @@ class EquipmentModeContracts(unittest.TestCase):
         start = code.index('if (dressed == null)', code.index('Transform transform2 = character.transform;'))
         end = code.index('bool visible=true;', start)
         block = code[start:end]
-        self.assertLess(block.index('Draw.Local = dressed;'), block.index('if(dressed.BakedBindings==0)'))
-        self.assertIn('if(dressed.BakedBindings==0) continue;', block)
+        self.assertLess(block.index('Draw.Local = dressed;'), block.index('if(dressed.BakedBindings==0 && !dressed.DummySkeletonReady)'))
+        self.assertIn('if(dressed.BakedBindings==0 && !dressed.DummySkeletonReady) continue;', block)
         # Hands still refuses direct self-equipping and validates native room ownership.
         hands = source('quest/Hands.cs')
         self.assertIn('!modeDummy || !dressed.Dummy', hands)
         self.assertIn('!EquipmentMode.Same(modeRig, dressed.Rig)', hands)
+
+    def test_dummy_preview_accepts_only_owned_active_joint_hierarchy(self):
+        code = source('quest/Draw.cs')
+        self.assertIn('d.DummySkeletonReady=d.Dummy && d.Rig!=null && d.Rig.gameObject.activeInHierarchy;', code)
+        self.assertIn('foreach(string anchor in Catalog.Anchors)', code)
+        self.assertIn('!joint.IsChildOf(d.Rig)', code)
+        self.assertIn('!joint.gameObject.activeInHierarchy', code)
+        self.assertIn('d.Layer = d.Dummy ? d.Rig.gameObject.layer : -1;', code)
+        self.assertIn('if(d.Dummy && partDef.Skinned)', code)
+        self.assertIn('if(!complete) {num3++;continue;}', code)
