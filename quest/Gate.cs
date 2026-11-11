@@ -25,6 +25,7 @@ namespace ArmorRestoredQuest
 		// Token: 0x06000027 RID: 39 RVA: 0x00003800 File Offset: 0x00001A00
 		internal static void Listen(Connection c)
 		{
+            Wire.ResetSnapshot();
 			if (Gate.IsOpen)
 			{
 				Gate.Close("a new server connection");
@@ -91,7 +92,7 @@ namespace ArmorRestoredQuest
 			{
 				return;
 			}
-			if (Gate._heardWire != 5)
+			if (Gate._heardWire != 6)
 			{
 				Mod.Log.Warning("this server runs ArmorRestored " + Gate._heard + ", which does not play with 0.5.0; the server decides and armor stays off.");
 				Crumb.At("gate stays shut, server " + Gate._heard + " wire " + Gate._heardWire.ToString());
@@ -136,6 +137,7 @@ namespace ArmorRestoredQuest
 		// Token: 0x0600002D RID: 45 RVA: 0x00003AC0 File Offset: 0x00001CC0
 		internal static void Close(string why)
 		{
+            Wire.ResetSnapshot();
 			bool isOpen = Gate.IsOpen;
 			Gate.IsOpen = false;
 			Gate._loading = false;

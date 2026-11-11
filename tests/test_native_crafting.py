@@ -116,12 +116,12 @@ class NativeIntegrationContracts(unittest.TestCase):
 
     def test_matching_wire_and_data_are_required(self):
         pc=source('pchost/Net.cs');quest=source('quest/Wire.cs')
-        self.assertIn('int num = 5;',pc)
-        self.assertIn('int num2 = 5;',quest)
+        self.assertIn('int num = 6;',pc)
+        self.assertIn('int num2 = 6;',quest)
         self.assertIn('hello.Signature != ArmorCrafting.Signature',pc)
         self.assertIn('if (wire >= 4)',pc)
-        self.assertIn('string signature = ArmorCrafting.Signature;',pc)
-        self.assertIn('string signature = ArmorCrafting.Signature;',quest)
+        self.assertIn('string signature = BoundedText(ArmorCrafting.Signature,256);',pc)
+        self.assertIn('string signature = BoundedText(ArmorCrafting.Signature,256);',quest)
         self.assertIn('Settings.Join != "refuse") || ArmorCrafting.Ready',pc)
 
     def test_supplied_api_audit_is_passing_and_matches_archives(self):

@@ -49,10 +49,10 @@ class WornSectionsTests(unittest.TestCase):
             code=source(file)
             self.assertIn('new int[272]',code)
             self.assertIn('group<32',code)
-            self.assertIn('s.SerializeBits(ref input,32)',code)
+            self.assertIn('stream.SerializeBits(ref input,32)',code)
         self.assertIn('origin.MaterialAt(group)',source('pchost/ServerArmor.cs'))
-        self.assertIn('hello.Wire < 5',source('pchost/Net.cs'))
-        self.assertIn('hello.Wire > 5',source('pchost/Net.cs'))
+        self.assertIn('hello.Wire < 6',source('pchost/Net.cs'))
+        self.assertIn('hello.Wire > 6',source('pchost/Net.cs'))
 
     def test_palette_only_changes_redraw_and_original_geometry_is_cloned(self):
         for file in ('quest/Draw.cs','pchost/ClientArmor.cs'):

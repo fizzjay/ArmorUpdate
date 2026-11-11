@@ -189,10 +189,10 @@ class ArmorStandContracts(unittest.TestCase):
         self.assertIn('field.GetValue(entity)', code)
 
     def test_new_prefab_requires_updated_clients(self):
-        self.assertIn('hello.Wire < 5', source('pchost/Net.cs'))
-        self.assertIn('hello.Wire > 5', source('pchost/Net.cs'))
-        self.assertIn('wire != 5', source('pchost/Gate.cs'))
-        self.assertIn('_heardWire != 5', source('quest/Gate.cs'))
+        self.assertIn('hello.Wire < 6', source('pchost/Net.cs'))
+        self.assertIn('hello.Wire > 6', source('pchost/Net.cs'))
+        self.assertIn('wire != 6', source('pchost/Gate.cs'))
+        self.assertIn('_heardWire != 6', source('quest/Gate.cs'))
         for platform in ('pchost', 'quest'):
             self.assertIn('"0.5.0"', source(platform + '/Mod.cs'))
 

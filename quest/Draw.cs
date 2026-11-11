@@ -57,6 +57,8 @@ namespace ArmorRestoredQuest
 		// Token: 0x06000013 RID: 19 RVA: 0x00002508 File Offset: 0x00000708
         // Do not build hundreds of renderers while the local avatar is arriving.
         // Native registration and the join handshake remain mandatory and immediate.
+        private static readonly List<Player> cachedPlayers=new List<Player>();
+        private static float nextPlayerScan;
         private static IntPtr loadingRig;
         private static float visualReadyAt, nextReadyProbe;
         private static bool visualsReady, waitingLogged;
@@ -83,6 +85,7 @@ namespace ArmorRestoredQuest
 
 		internal static void Clear()
 		{
+            cachedPlayers.Clear();nextPlayerScan=0f;
             loadingRig=IntPtr.Zero;visualReadyAt=nextReadyProbe=0f;visualsReady=waitingLogged=false;
 			foreach (Dressed dressed in Draw.Bodies.Values)
 			{
@@ -137,7 +140,8 @@ namespace ArmorRestoredQuest
 			}
 			foreach (IntPtr key in list)
 			{
-				Draw.Bodies[key].Coverage.Clear();
+                var expired=Draw.Bodies[key];expired.Coverage.Clear();
+                for(int slot=0;slot<8;slot++) Draw.Remove(expired,slot);
                 Draw.Bodies.Remove(key);
 			}
 			if (Draw.Local != null && Draw.Local.Root == null)
@@ -147,9 +151,16 @@ namespace ArmorRestoredQuest
 			PlayerController playerController = PlayerController.Current;
 			Player player = (playerController == null) ? null : playerController.NetworkPlayer;
 			IntPtr intPtr = (player == null) ? IntPtr.Zero : player.Pointer;
-			foreach (Object @object in Object.FindObjectsOfType(Il2CppType.Of<Player>()))
-			{
-				Player player2 = (@object == null) ? null : @object.TryCast<Player>();
+            var observerCharacter=CharacterOf(player);
+            Vector3 observerPosition=observerCharacter==null ? Vector3.zero : observerCharacter.transform.position;
+            if(Time.unscaledTime>=nextPlayerScan)
+            {
+                nextPlayerScan=Time.unscaledTime+1f;cachedPlayers.Clear();
+                foreach(Object value in Object.FindObjectsOfType(Il2CppType.Of<Player>()))
+                {var candidate=value==null ? null : value.TryCast<Player>();if(candidate!=null) cachedPlayers.Add(candidate);}
+            }
+            foreach(Player player2 in cachedPlayers)
+            {
                 PlayerCharacter character = Draw.CharacterOf(player2);
 				if (!(player2 == null) && player2.UserInfo != null && character != null)
 				{
@@ -217,6 +228,18 @@ namespace ArmorRestoredQuest
 						{
 							Draw.Local = dressed;
 						}
+                        bool visible=true;
+                        if(!flag && !dressed.Dummy && observerCharacter!=null)
+                        {
+                            float distance=(dressed.Root.position-observerPosition).sqrMagnitude;
+                            visible=distance<(dressed.DistanceVisible ? 35f*35f : 30f*30f);
+                        }
+                        if(visible!=dressed.DistanceVisible)
+                        {
+                            dressed.DistanceVisible=visible;
+                            foreach(var slotRenderers in dressed.Renderers) if(slotRenderers!=null)
+                                foreach(var renderer in slotRenderers) if(renderer!=null) renderer.enabled=visible;
+                        }
 						bool flag2 = false;
 						for (int j = 0; j < 8; j++)
 						{
@@ -229,6 +252,7 @@ namespace ArmorRestoredQuest
 							uint material = array.Length >= 16 ? unchecked((uint)array[8 + j]) : 0U;
 							if (dressed.Shown[j] != num || dressed.ShownMaterials[j] != material || dressed.ShownPalettes[j] != WornIngredientGroups.Key(array,j) || (num >= 0 && !Draw.HolderLive(dressed, j)))
 							{
+                                if(num>=0 && !visible) continue;
                                 if(num>=0 && buildsRemaining==0) {Draw._dirty=true;continue;}
                                 if(num>=0) buildsRemaining--;
 								Draw.Remove(dressed, j);
@@ -243,7 +267,7 @@ namespace ArmorRestoredQuest
 								flag2 = true;
 							}
 						}
-                        dressed.Coverage.Update(dressed.Root, dressed.Shown);
+                        if(visible) dressed.Coverage.Update(dressed.Root, dressed.Shown);
 						if (flag2)
 						{
 							Draw.Cost(dressed, flag);
@@ -431,6 +455,15 @@ namespace ArmorRestoredQuest
 		}
 
 		// Token: 0x0600001C RID: 28 RVA: 0x00002D28 File Offset: 0x00000F28
+        private static void ConfigureRenderer(Renderer renderer)
+        {
+            renderer.shadowCastingMode=UnityEngine.Rendering.ShadowCastingMode.Off;
+            renderer.receiveShadows=false;
+            renderer.lightProbeUsage=UnityEngine.Rendering.LightProbeUsage.Off;
+            renderer.reflectionProbeUsage=UnityEngine.Rendering.ReflectionProbeUsage.Off;
+            renderer.motionVectorGenerationMode=MotionVectorGenerationMode.ForceNoMotion;
+        }
+
 		private static void Build(Dressed d, int s, int piece, bool isLocal, uint material, int[] palette, int slot)
 		{
 			DateTime utcNow = DateTime.UtcNow;
@@ -469,7 +502,8 @@ namespace ArmorRestoredQuest
 					Crumb.First("rigid part");
 					gameObject2.AddComponent(Il2CppType.Of<MeshFilter>()).TryCast<MeshFilter>().sharedMesh = sharedMesh;
 					MeshRenderer meshRenderer = gameObject2.AddComponent(Il2CppType.Of<MeshRenderer>()).TryCast<MeshRenderer>();
-					meshRenderer.sharedMaterials = new Il2CppReferenceArray<Material>(sectionMaterials);
+                    meshRenderer.sharedMaterials = new Il2CppReferenceArray<Material>(sectionMaterials);
+                    ConfigureRenderer(meshRenderer);
 					list.Add(gameObject2);
 					list2.Add(meshRenderer);
 					num++;
@@ -496,7 +530,11 @@ namespace ArmorRestoredQuest
 					skinnedMeshRenderer.rootBone = transform2;
 					skinnedMeshRenderer.sharedMesh = sharedMesh;
 					skinnedMeshRenderer.sharedMaterials = new Il2CppReferenceArray<Material>(sectionMaterials);
-					skinnedMeshRenderer.updateWhenOffscreen = true;
+                    // Generous avatar-local bounds avoid clipping animated armor
+                    // while allowing Unity to stop skinning outside the camera.
+                    skinnedMeshRenderer.localBounds=new Bounds(Vector3.zero,Vector3.one*4f);
+                    skinnedMeshRenderer.updateWhenOffscreen = false;
+                    ConfigureRenderer(skinnedMeshRenderer);
 					list2.Add(skinnedMeshRenderer);
 					list3.Add(skinnedMeshRenderer);
 					num2++;

@@ -23,6 +23,8 @@ namespace ArmorRestoredQuest
 
         internal void Update(Transform root, int[] shown)
         {
+            if(Time.unscaledTime<nextCoverage) return;
+            nextCoverage=Time.unscaledTime+.5f;
             try
             {
                 PlayerCharacterCustomizationManager next = root == null ? null : ManagerOf(root);
@@ -38,8 +40,6 @@ namespace ArmorRestoredQuest
                     }
                     return;
                 }
-                if(Time.unscaledTime<nextCoverage) return;
-                nextCoverage=Time.unscaledTime+.5f;
                 uint mask = 0U;
                 for (int i = 0; i < 8 && i < shown.Length; i++)
                     if (shown[i] >= 0) mask |= 1U << i;

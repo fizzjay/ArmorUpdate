@@ -622,3 +622,48 @@ and saved armor are not removed; test newly generated/refilled loot after restar
 Resolved worn-material tints are now written once per cached material instead of
 reapplying shader colors every second on both PC and Quest. Cache cleanup resets
 the write markers. Quest's fabric safety hold and avatar settling guards remain.
+
+### Network message budget (wire 6)
+
+Worn snapshots no longer send all players in one message. Message kind 14 sends
+four slots per chunk (initial fixed-layout implementation: 553 bytes including its mod header),
+leaving headroom under the reported 1,100-byte transport limit. Mixed-material
+palettes retain all 32 full-width inputs per slot. Receivers assemble a bounded
+snapshot before replacing the visible table; duplicates and older snapshots are
+ignored, partial state expires on subsequent traffic after ten seconds, and
+connection changes reset assembly. Empty tables have an explicit chunk. Hello
+and diagnostic text are ASCII/length bounded. Server, PC client, and Quest client
+must all update to wire 6 together; wire 5 is no longer accepted. Native transport
+framing/serialization and multiplayer delivery still require runtime validation.
+
+### Incremental sync and Quest crowd performance
+
+Wire 6 now includes a full/delta mode byte and sparse material palettes (update all
+server/PC/Quest builds together). Each connection receives an initial full table;
+subsequent dirty broadcasts compare full player rows against that recipient's last
+accepted send and transmit only changed/new players. A full refresh occurs every
+30 seconds per recipient, and removals force a full table so departed players are
+pruned. Unchanged dirty broadcasts send nothing. A failed Send invalidates that
+recipient's baseline for retry. Disconnected recipients are pruned at broadcast.
+A successful Send is not an application-level acknowledgement: missing/overlapping
+snapshots can leave state stale until the periodic full refresh. Initial/full
+snapshots are chunked but not yet paced across server frames.
+
+Four-slot messages now use a 32-bit override mask per slot: uniform palettes need
+58 bytes including mod headers; the all-overrides worst case is 570 bytes. Values
+remain full-width and all 32 material inputs round-trip. Native framing overhead
+and multiplayer packet delivery require runtime verification.
+
+Quest now caches player discovery for one second rather than scanning the scene
+on every staged build frame. Remote armor becomes invisible past 35 m and returns
+inside 30 m (hysteresis); new distant armor builds are deferred. Local/dummy armor
+is exempt. Existing distant visuals are retained rather than repeatedly rebuilt,
+so this reduces rendering/skinning work, not their resident asset memory. This
+is a visual optimization only: server protection and stats are unchanged. Worn
+renderers no longer cast/receive shadows or use light/reflection probes or motion
+vectors. Offscreen skinning is disabled with conservative four-metre local bounds;
+test animation, camera-edge visibility, and equipment previews on headset. Close
+crowds still retain the authored renderer counts; mesh consolidation/true LODs
+remain future work, not a completed or measured FPS improvement. Cosmetic manager
+lookup is throttled before hierarchy traversal. Existing fabric safety hold and
+avatar settling/binding guards remain enabled.

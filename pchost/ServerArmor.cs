@@ -189,6 +189,7 @@ namespace ArmorRestored
 					list.Add(keyValuePair.Key);
 				}
 			}
+            if(list.Count>0) ServerArmor._dirty=true;
 			foreach (int key in list)
 			{
 				ServerArmor.Wired.Remove(key);
@@ -222,7 +223,10 @@ namespace ArmorRestored
 					}
 				}
 			}
-			if (ServerArmor._dirty)
+            bool needsSync=false;
+            foreach(IPlayer entry in Player.AllPlayers)
+            {var target=entry as Player;if(Net.NeedsTable(target)) {needsSync=true;break;}}
+            if (ServerArmor._dirty || needsSync)
 			{
 				ServerArmor._dirty = false;
 				ServerArmor.Broadcast();
@@ -302,6 +306,7 @@ namespace ArmorRestored
 					list.Add(new KeyValuePair<int, int[]>(player2.UserInfo.Identifier, row));
 				}
 			}
+            Net.PruneTables(list2);
 			foreach (Player to in list2)
 			{
 				Net.SendTable(to, list);

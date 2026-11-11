@@ -21,6 +21,7 @@ namespace ArmorRestoredQuest
         public bool Dummy;
         public int BakedBindings;
         public float NextBindingRetry;
+        public bool DistanceVisible=true;
 
 		// Token: 0x04000012 RID: 18
 		public Dictionary<string, Transform> Bones;
